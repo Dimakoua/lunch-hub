@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { MapPin, List, Shuffle, RotateCcw, Settings } from 'lucide-react';
 import { SearchBar } from './components/SearchBar';
 import { RestaurantCard } from './components/RestaurantCard';
@@ -88,6 +89,10 @@ function App() {
     if (!location) {
       return (
         <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-emerald-50">
+          <Helmet>
+            <title>Lunch Hub - Discover Restaurants Near You</title>
+            <meta name="description" content="Discover amazing restaurants near you. Search by location or let us find your next favorite meal!" />
+          </Helmet>
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0 bg-repeat bg-center" style={{
@@ -162,6 +167,10 @@ function App() {
 
     return (
       <div className="min-h-screen bg-gray-50">
+        <Helmet>
+          <title>Lunch Hub - Discover Restaurants Near You</title>
+          <meta name="description" content="Discover amazing restaurants near you. Search by location or let us find your next favorite meal!" />
+        </Helmet>
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 py-4">
