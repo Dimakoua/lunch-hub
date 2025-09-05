@@ -102,7 +102,11 @@ function App() {
                   <MapPin className="w-12 h-12 text-white" />
                 </div>
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent mb-4">
+              <h1 
+                className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent mb-4"
+                onClick={() => window.location.href = "/"}
+                style={{ cursor: 'pointer' }}
+              >
                 Lunch Hub
               </h1>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -166,7 +170,11 @@ function App() {
                 <div className="bg-gradient-to-r from-blue-600 to-emerald-600 rounded-xl p-2">
                   <MapPin className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
+                <h1 
+                  className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent"
+                  onClick={() => window.location.href = "/"}
+                  style={{ cursor: 'pointer' }}
+                >
                   Lunch Hub
                 </h1>
               </div>
