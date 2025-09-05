@@ -19,6 +19,28 @@ export const geocodeAddress = async (address: string) => {
   }
 };
 
+export const searchLocationSuggestions = async (query: string) => {
+  if (query.length < 3) return [];
+  
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`
+    );
+    const data = await response.json();
+    
+    return data.map((item: any) => ({
+      display_name: item.display_name,
+      lat: parseFloat(item.lat),
+      lon: parseFloat(item.lon),
+      type: item.type,
+      importance: item.importance
+    }));
+  } catch (error) {
+    console.error('Autocomplete error:', error);
+    return [];
+  }
+};
+
 export const getCurrentLocation = (): Promise<{ lat: number; lon: number }> => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
