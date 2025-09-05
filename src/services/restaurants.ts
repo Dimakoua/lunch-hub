@@ -19,7 +19,7 @@ export const fetchRestaurants = async (
         relation["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court)$"]
           (${lat - radiusDegrees},${lon - radiusDegrees},${lat + radiusDegrees},${lon + radiusDegrees});
       );
-      out center meta;
+      out center meta 50;
     `;
 
     const response = await fetch('https://overpass-api.de/api/interpreter', {
@@ -53,8 +53,7 @@ export const fetchRestaurants = async (
           amenity: element.tags.amenity,
         };
       })
-      .filter(Boolean)
-      .slice(0, 50); // Limit to 50 results
+      .filter(Boolean);
 
     return restaurants;
   } catch (error) {
