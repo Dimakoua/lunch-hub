@@ -49,8 +49,8 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
 
   if (restaurants.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-xl">
-        <p className="text-gray-500 text-center">
+      <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-dark-card rounded-xl">
+        <p className="text-gray-500 dark:text-dark-text-secondary text-center">
           No restaurants found. Search for a location first!
         </p>
       </div>
@@ -69,7 +69,7 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
         {/* Wheel */}
         <div 
           ref={wheelRef}
-          className="relative w-80 h-80 rounded-full border-4 border-gray-300 shadow-lg"
+          className="relative w-80 h-80 rounded-full border-4 border-gray-300 dark:border-dark-border shadow-lg"
           style={{
             transform: `rotate(${rotation}deg)`,
             transition: isSpinning ? 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none'
@@ -131,16 +131,16 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
 
         {/* Pointer */}
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
-          <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-red-500"></div>
+          <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-red-500 dark:border-b-dark-primary"></div>
         </div>
 
         {/* Center button */}
         <button
           onClick={handleSpin}
           disabled={isSpinning}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white border-4 border-gray-300 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 flex items-center justify-center"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white dark:bg-dark-card border-4 border-gray-300 dark:border-dark-border rounded-full shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 flex items-center justify-center"
         >
-          <Play className={`w-6 h-6 text-blue-600 ${isSpinning ? 'animate-pulse' : ''}`} />
+          <Play className={`w-6 h-6 text-blue-600 dark:text-dark-primary ${isSpinning ? 'animate-pulse' : ''}`} />
         </button>
       </div>
 
@@ -149,7 +149,7 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
         <button
           onClick={handleSpin}
           disabled={isSpinning}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
         >
           <Play className="w-4 h-4" />
           {isSpinning ? 'Spinning...' : 'Spin the Wheel!'}
@@ -158,7 +158,7 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
         <button
           onClick={reset}
           disabled={isSpinning}
-          className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+          className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:disabled:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
         >
           <RotateCcw className="w-4 h-4" />
           Reset
@@ -167,7 +167,7 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
 
       {/* Selected restaurant */}
       {selectedRestaurant && (
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-xl shadow-lg max-w-md text-center animate-bounce">
+        <div className="bg-gradient-to-r from-green-500 to-emerald-600 dark:from-dark-primary dark:to-orange-500 text-white p-6 rounded-xl shadow-lg max-w-md text-center animate-bounce">
           <h3 className="text-xl font-bold mb-2">🎉 Winner!</h3>
           <p className="text-lg font-medium">{selectedRestaurant.name}</p>
           {selectedRestaurant.cuisine && (

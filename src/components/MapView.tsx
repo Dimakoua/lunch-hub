@@ -134,15 +134,15 @@ export const MapView: React.FC<MapViewProps> = ({
           </Tooltip>
           <Popup className="custom-popup">
             <div className="p-2 min-w-[200px]">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">
+              <h3 className="font-bold text-lg text-gray-900 dark:text-dark-text mb-2">
                 {restaurant.name}
               </h3>
               {restaurant.cuisine && (
-                <span className="inline-block text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mb-2">
+                <span className="inline-block text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-400 px-2 py-1 rounded-full mb-2">
                   {restaurant.cuisine}
                 </span>
               )}
-              <p className="text-sm text-gray-600 mb-2">{restaurant.address}</p>
+              <p className="text-sm text-gray-600 dark:text-dark-text-secondary mb-2">{restaurant.address}</p>
               {restaurant.phone && (
                 <p className="text-sm">
                   <strong>Phone:</strong> {restaurant.phone}
@@ -154,19 +154,19 @@ export const MapView: React.FC<MapViewProps> = ({
                     href={restaurant.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline dark:text-dark-primary"
                   >
                     Visit Website
                   </a>
                 </p>
               )}
-              <div className="mt-2 pt-2 border-t">
+              <div className="mt-2 pt-2 border-t dark:border-dark-border">
                 <p className="text-sm mt-1">
                   <a 
                     href={`https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lon}&travelmode=walking`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline dark:text-dark-primary"
                   >
                     Open in Google Maps
                   </a>
@@ -176,7 +176,7 @@ export const MapView: React.FC<MapViewProps> = ({
                     href={`http://maps.apple.com/?daddr=${restaurant.lat},${restaurant.lon}&dirflg=w`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline dark:text-dark-primary"
                   >
                     Open in Apple Maps
                   </a>

@@ -115,8 +115,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <div className="w-full max-w-2xl mx-auto relative">
       <form onSubmit={handleSubmit} className="relative">
-        <div className="flex items-center bg-white rounded-full shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-          <Search className="w-5 h-5 text-gray-400 ml-4" />
+        <div className="flex items-center bg-white dark:bg-dark-card rounded-full shadow-lg border border-gray-200 dark:border-dark-border hover:shadow-xl transition-shadow duration-300">
+          <Search className="w-5 h-5 text-gray-400 dark:text-dark-text-secondary ml-4" />
           <input
             ref={inputRef}
             type="text"
@@ -126,7 +126,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
             placeholder="Enter address or postal code..."
-            className="flex-1 px-4 py-4 text-lg border-none outline-none rounded-full"
+            className="flex-1 px-4 py-4 text-lg border-none outline-none rounded-full bg-transparent dark:text-dark-text"
             disabled={loading}
             autoComplete="off"
           />
@@ -134,19 +134,19 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             type="button"
             onClick={onCurrentLocation}
             disabled={loading}
-            className="p-3 mx-1 rounded-full hover:bg-gray-100 transition-colors duration-200 group"
+            className="p-3 mx-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group"
             title="Use current location"
           >
             {loading ? (
-              <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+              <Loader2 className="w-5 h-5 text-blue-600 dark:text-dark-primary animate-spin" />
             ) : (
-              <MapPin className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" />
+              <MapPin className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary group-hover:text-blue-600 dark:group-hover:text-dark-primary transition-colors duration-200" />
             )}
           </button>
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white px-6 py-3 rounded-full mr-1 transition-all duration-200 font-medium"
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full mr-1 transition-all duration-200 font-medium"
           >
             Search
           </button>
@@ -157,29 +157,29 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       {showSuggestions && (
         <div 
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 max-h-80 overflow-y-auto z-50"
+          className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-200 dark:border-dark-border max-h-80 overflow-y-auto z-50"
         >
           {isLoadingSuggestions ? (
             <div className="p-4 text-center">
-              <Loader2 className="w-5 h-5 animate-spin text-blue-600 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">Searching locations...</p>
+              <Loader2 className="w-5 h-5 animate-spin text-blue-600 dark:text-dark-primary mx-auto mb-2" />
+              <p className="text-sm text-gray-500 dark:text-dark-text-secondary">Searching locations...</p>
             </div>
           ) : suggestions.length > 0 ? (
             suggestions.map((suggestion, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestionSelect(suggestion)}
-                className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0 ${
-                  index === selectedIndex ? 'bg-blue-50 border-blue-200' : ''
+                className={`w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 border-b border-gray-100 dark:border-dark-border last:border-b-0 ${
+                  index === selectedIndex ? 'bg-blue-50 dark:bg-gray-700 border-blue-200 dark:border-dark-primary' : ''
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                  <MapPin className="w-4 h-4 text-gray-400 dark:text-dark-text-secondary mt-1 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-gray-900 dark:text-dark-text truncate">
                       {suggestion.display_name.split(',')[0]}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-gray-500 dark:text-dark-text-secondary truncate">
                       {suggestion.display_name}
                     </p>
                   </div>
@@ -187,7 +187,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               </button>
             ))
           ) : query.length >= 3 ? (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-gray-500 dark:text-dark-text-secondary">
               <p className="text-sm">No locations found</p>
             </div>
           ) : null}
