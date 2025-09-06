@@ -8,6 +8,7 @@ import { SpinWheel } from '../components/SpinWheel';
 import { RandomPicker } from '../components/RandomPicker';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { Restaurant, Location } from '../types/restaurant';
+import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../services/analytics';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random';
 type Theme = 'light' | 'dark';
@@ -47,6 +48,28 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   onViewOnMap,
   onRestaurantSelected
 }) => {
+  const handleViewOnMap = (restaurant: Restaurant) => {
+    setSelectedRestaurant(restaurant);
+    setViewMode('map');
+    trackRestaurantView(restaurant.name, 'map');
+  };
+
+  const handleRestaurantSelected = (restaurant: Restaurant) => {
+    setSelectedRestaurant(restaurant);
+    setViewMode('map');
+    trackRestaurantView(restaurant.name, viewMode);
+  };
+
+  const handleSpinWheelResult = (restaurant: Restaurant) => {
+    trackSpinWheel(restaurant.name);
+    onRestaurantSelected(restaurant);
+  };
+
+  const handleRandomPickResult = (restaurant: Restaurant) => {
+    trackRandomPick(restaurant.name);
+    onRestaurantSelected(restaurant);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-background">
       <Helmet>
@@ -206,7 +229,7 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <div className="flex justify-center">
                 <RandomPicker 
                   restaurants={restaurants}
-                  onRestaurantSelected={onRestaurantSelected}
+                  onRestaurantSelected={handleRandomPickResult}
                 />
               </div>
             )}
@@ -215,7 +238,7 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <div className="flex justify-center">
                 <SpinWheel 
                   restaurants={restaurants}
-                  onRestaurantSelected={onRestaurantSelected}
+                  onRestaurantSelected={handleSpinWheelResult}
                 />
               </div>
             )}
