@@ -234,6 +234,7 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   routeGeometry={routeGeometry}
                   routeDistance={routeDistance}
                   routeDuration={routeDuration}
+                  radius={radius}
                 />
               </div>
             )}
@@ -244,7 +245,10 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   <RestaurantCard
                     key={restaurant.id}
                     restaurant={restaurant}
-                    onViewOnMap={onViewOnMap}
+                    onViewOnMap={(restaurantToView) => {
+                      trackRestaurantView(restaurantToView.name, 'map');
+                      onViewOnMap(restaurantToView);
+                    }}
                   />
                 ))}
               </div>

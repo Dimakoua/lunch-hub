@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, Polyline, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import { Restaurant } from '../types/restaurant';
 import 'leaflet/dist/leaflet.css';
@@ -20,6 +20,7 @@ interface MapViewProps {
   routeGeometry?: [number, number][] | null;
   routeDistance: number | null;
   routeDuration: number | null;
+  radius?: number;
 }
 
 const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: Restaurant | null }> = ({ 
@@ -44,6 +45,7 @@ export const MapView: React.FC<MapViewProps> = ({
   restaurants, 
   selectedRestaurant,
   zoom = 13,
+  radius,
   routeGeometry,
   routeDistance,
   routeDuration
@@ -125,6 +127,16 @@ export const MapView: React.FC<MapViewProps> = ({
           </div>
         </Popup>
       </Marker>
+
+      {/* Restaurant markers */}
+      {/* Radius Circle */}
+      {radius && (
+        <Circle 
+          center={center} 
+          radius={radius} 
+          pathOptions={{ color: '#2563EB', fillColor: '#2563EB', fillOpacity: 0.1, weight: 2 }}
+        />
+      )}
 
       {/* Restaurant markers */}
       {restaurants.map((restaurant) => (
