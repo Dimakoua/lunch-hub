@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
+import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon } from 'lucide-react';
 import { SearchBar } from './components/SearchBar';
 import { RestaurantCard } from './components/RestaurantCard';
