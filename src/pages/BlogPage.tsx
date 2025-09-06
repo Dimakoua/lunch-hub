@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
@@ -9,49 +9,50 @@ interface BlogPostMeta {
   excerpt: string;
 }
 
+/**
+ * Utility function to parse metadata from Markdown content.
+ * Assumes format:
+ * # Title
+ * **Date:** YYYY-MM-DD
+ * Excerpt line
+ */
+function parseMarkdownMeta(slug: string, content: string): BlogPostMeta {
+  const lines = content.split('\n');
+  const title = lines[0]?.replace(/^#\s*/, '') || 'Untitled';
+  const dateMatch = lines[2]?.match(/\*\*Date:\*\*\s*(.*)/);
+  const date = dateMatch ? dateMatch[1] : 'Unknown Date';
+  const excerpt = lines[4] || '';
+
+  return { slug, title, date, excerpt };
+}
+
 const BlogPage: React.FC = () => {
   const [posts, setPosts] = useState<BlogPostMeta[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchBlogPosts = async () => {
-      try {
-        // In a real application, you might fetch this from an API or a generated index
-        // For now, we'll simulate fetching a list of posts
-        const fetchedPosts: BlogPostMeta[] = [
-          {
-            slug: 'my-first-blog-post',
-            title: 'My First Blog Post',
-            date: '2025-09-06',
-            excerpt: 'This is the excerpt for my very first blog post. It introduces the topic and gives a brief overview.'
-          },
-          {
-            slug: 'delicious-lunch-spots',
-            title: 'Discovering Delicious Lunch Spots',
-            date: '2025-09-01',
-            excerpt: 'A guide to finding the best lunch spots in your city using Lunch Hub.'
-          }
-        ];
-        setPosts(fetchedPosts);
-      } catch (err) {
-        setError('Failed to load blog posts.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    const loadPosts = async () => {
+      // Vite automatically imports all files in the folder
+      const files = import.meta.glob('/public/blog-posts/*.md', { as: 'raw' });
+
+      const postPromises = Object.entries(files).map(async ([path, loader]) => {
+        const slug = path.split('/').pop()?.replace('.md', '') || '';
+        const content = await (loader as () => Promise<string>)();
+        return parseMarkdownMeta(slug, content);
+      });
+
+      let postsData = await Promise.all(postPromises);
+      // ✅ Sort posts from newest to oldest
+      postsData = postsData.sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return dateB - dateA; // descending
+      });
+
+      setPosts(postsData);
     };
 
-    fetchBlogPosts();
+    loadPosts();
   }, []);
-
-  if (loading) {
-    return <div className="container mx-auto p-4">Loading blog posts...</div>;
-  }
-
-  if (error) {
-    return <div className="container mx-auto p-4 text-red-500">Error: {error}</div>;
-  }
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">

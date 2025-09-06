@@ -53,6 +53,19 @@ const BlogPostPage: React.FC = () => {
         <meta name="description" content={postContent ? postContent.split('\n')[2] : 'Read our latest blog post.'} />
       </Helmet>
       <div className="relative z-10 container mx-auto px-4 py-8 pt-16 prose dark:prose-invert max-w-3xl lg:max-w-4xl">
+        <nav className="text-sm" aria-label="breadcrumb">
+          <ol className="inline-flex items-center space-x-2 not-prose text-gray-500 dark:text-gray-400 list-none mb-6">
+            <li className="inline-flex items-center">
+              <Link to="/blog" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium">Blog</Link>
+            </li>
+            <li>
+              <span className="mx-2 text-gray-400 dark:text-gray-600">/</span>
+            </li>
+            <li className="inline-flex items-center text-gray-800 dark:text-gray-100 font-semibold" aria-current="page">
+              {postContent ? postContent.split('\n')[0].replace(/^#\s*/, '') : 'Blog Post'}
+            </li>
+          </ol>
+        </nav>
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {postContent}
         </ReactMarkdown>
