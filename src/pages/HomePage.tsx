@@ -23,7 +23,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   toggleTheme
 }) => {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Helmet>
         <title>Lunch Hub - Discover Restaurants Near You</title>
         <meta name="description" content="Discover amazing restaurants near you. Search by location or let us find your next favorite meal!" />
@@ -85,13 +85,13 @@ export const HomePage: React.FC<HomePageProps> = ({
         )}
 
         <div className="mt-8 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl">
-          <div className="text-center p-6">
+          <section className="text-center p-6">
             <div className="w-16 h-16 bg-blue-100 dark:bg-dark-card rounded-full flex items-center justify-center mx-auto mb-4">
               <MapPin className="w-8 h-8 text-blue-600 dark:text-dark-primary" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text mb-2">Find Nearby</h3>
             <p className="text-gray-600 dark:text-dark-text-secondary">Discover restaurants within your chosen radius</p>
-          </div>
+          </section>
           <div className="text-center p-6">
             <div className="w-16 h-16 bg-purple-100 dark:bg-dark-card rounded-full flex items-center justify-center mx-auto mb-4">
               <Shuffle className="w-8 h-8 text-purple-600 dark:text-dark-primary" />
@@ -108,6 +108,6 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
