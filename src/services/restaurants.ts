@@ -12,14 +12,14 @@ export const fetchRestaurants = async (
     const overpassQuery = `
       [out:json][timeout:25];
       (
-        node["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court)$"]
+        node["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court|canteen)$"]
           (${lat - radiusDegrees},${lon - radiusDegrees},${lat + radiusDegrees},${lon + radiusDegrees});
         way["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court)$"]
           (${lat - radiusDegrees},${lon - radiusDegrees},${lat + radiusDegrees},${lon + radiusDegrees});
         relation["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court)$"]
           (${lat - radiusDegrees},${lon - radiusDegrees},${lat + radiusDegrees},${lon + radiusDegrees});
       );
-      out center meta 50;
+      out center meta 100;
     `;
 
     const response = await fetch('https://overpass-api.de/api/interpreter', {
