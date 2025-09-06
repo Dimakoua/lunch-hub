@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
+import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
 import { RestaurantsPage } from './pages/RestaurantsPage';
 import BlogPage from './pages/BlogPage';
@@ -21,6 +22,7 @@ type Theme = 'light' | 'dark';
 
 function App() {
   const navigate = useNavigate();
+  const pageLocation = useLocation();
   const [location, setLocation] = useState<Location | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(false);
@@ -145,6 +147,9 @@ function App() {
     }
   }, [radius]);
 
+  // Determine if header should be shown
+  const showHeader = pageLocation.pathname.startsWith('/blog');
+
   return (
     <>
       {showCookieConsent && (
@@ -153,6 +158,7 @@ function App() {
           onDecline={handleCookieDecline}
         />
       )}
+      {showHeader && <Header theme={theme} toggleTheme={toggleTheme} />}
       <Routes>
         <Route 
           path="/" 
