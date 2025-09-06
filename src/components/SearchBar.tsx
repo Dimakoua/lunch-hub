@@ -148,7 +148,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             type="button"
             onClick={onCurrentLocation}
             disabled={loading}
-            className="p-3 mx-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group"
+            className="p-2 sm:p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group"
             title="Use current location"
           >
             {loading ? (
@@ -160,12 +160,21 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full mr-1 transition-all duration-200 font-medium"
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full mr-1 transition-all duration-200 font-medium hidden md:block"
           >
             Search
           </button>
         </div>
       </form>
+
+      {/* New location for the search button */}
+      <button
+        type="submit"
+        disabled={loading || !query.trim()}
+        className="mt-4 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full transition-all duration-200 font-medium md:hidden"
+      >
+        Search
+      </button>
 
       {/* Suggestions dropdown */}
       {showSuggestions && (
@@ -201,8 +210,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               </button>
             ))
           ) : query.length >= 3 ? (
-            <div className="p-4 text-center text-gray-500 dark:text-dark-text-secondary">
-              <p className="text-sm">No locations found</p>
+            <div className="p-4 text-center">
+              <Loader2 className="w-5 h-5 animate-spin text-blue-600 dark:text-dark-primary mx-auto mb-2" />
+              <p className="text-sm text-gray-500 dark:text-dark-text-secondary">Searching locations...</p>
             </div>
           ) : null}
         </div>
