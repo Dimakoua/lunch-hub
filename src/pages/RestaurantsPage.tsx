@@ -29,7 +29,7 @@ interface RestaurantsPageProps {
   theme: Theme;
   toggleTheme: () => void;
   onViewOnMap: (restaurant: Restaurant) => void;
-  onRestaurantSelected: (restaurant: Restaurant) => void;
+  onRestaurantSelected: (restaurant: Restaurant | null) => void;
 }
 
 export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
@@ -150,7 +150,10 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 </label>
                 <select
                   value={radius}
-                  onChange={(e) => setRadius(Number(e.target.value))}
+                  onChange={(e) => {
+                    setRadius(Number(e.target.value));
+                    onRestaurantSelected(null);
+                  }}
                   className="px-3 py-1 border border-gray-300 dark:border-dark-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary focus:border-transparent bg-white dark:bg-dark-card dark:text-dark-text"
                 >
                   <option value={500}>500m</option>
