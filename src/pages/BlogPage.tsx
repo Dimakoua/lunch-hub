@@ -28,6 +28,8 @@ function parseMarkdownMeta(slug: string, content: string): BlogPostMeta {
 
 const BlogPage: React.FC = () => {
   const [posts, setPosts] = useState<BlogPostMeta[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10; // Display 10 blogs per page
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -54,6 +56,32 @@ const BlogPage: React.FC = () => {
     loadPosts();
   }, []);
 
+  // Get current posts
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+
+  const renderPaginationButtons = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`mx-1 px-3 py-1 rounded ${ currentPage === i ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pageNumbers;
+  };
+
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Helmet>
@@ -63,7 +91,7 @@ const BlogPage: React.FC = () => {
       <div className="relative z-10 container mx-auto px-4 py-8 pt-16">
         <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Our Blog</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post) => (
+          {currentPosts.map((post) => (
             <div key={post.slug} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold mb-2">
                 <Link to={`/blog/${post.slug}`} className="text-blue-600 hover:underline dark:text-blue-400">
@@ -78,6 +106,11 @@ const BlogPage: React.FC = () => {
             </div>
           ))}
         </div>
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
+            {renderPaginationButtons()}
+          </div>
+        )}
       </div>
     </main>
   );
