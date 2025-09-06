@@ -130,7 +130,8 @@ function App() {
     setViewMode('map');
   };
 
-  const handleRestaurantSelected = (restaurant: Restaurant) => {
+  const handleRestaurantSelected = (restaurant: Restaurant | null): void => {
+    if(!restaurant) return;
     setSelectedRestaurant(restaurant);
     setViewMode('map');
   };

@@ -79,12 +79,12 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     getRoute();
   }, [selectedRestaurant, location]);
 
-  const handleSpinWheelResult = (restaurant: Restaurant) => {
+  const handleSpinWheelResult = (restaurant: Restaurant): void => {
     trackSpinWheel(restaurant.name);
     onRestaurantSelected(restaurant);
   };
 
-  const handleRandomPickResult = (restaurant: Restaurant) => {
+  const handleRandomPickResult = (restaurant: Restaurant): void => {
     trackRandomPick(restaurant.name);
     onRestaurantSelected(restaurant);
   };
@@ -111,8 +111,8 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               </Link>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="text-right">
+            <div className="flex flex-col items-end md:flex-row md:items-center gap-2 md:gap-4">
+              <div className="text-right md:text-left">
                 <p className="text-sm text-gray-600 dark:text-dark-text-secondary">
                   Found {restaurants.length} restaurants
                 </p>
@@ -154,7 +154,7 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     setRadius(Number(e.target.value));
                     onRestaurantSelected(null);
                   }}
-                  className="px-3 py-1 border border-gray-300 dark:border-dark-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary focus:border-transparent bg-white dark:bg-dark-card dark:text-dark-text"
+                  className="px-4 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary focus:border-transparent bg-white dark:bg-dark-card dark:text-dark-text"
                 >
                   <option value={500}>500m</option>
                   <option value={1000}>1km</option>
@@ -166,7 +166,7 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
           )}
 
           {/* View Mode Tabs */}
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <button
               onClick={() => setViewMode('map')}
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
@@ -226,7 +226,7 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         ) : (
           <>
             {viewMode === 'map' && (
-              <div className="h-[600px] bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden">
+              <div className="h-[calc(100vh-180px)] min-h-[400px] bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden">
                 <MapView 
                   center={[location.lat, location.lon]}
                   restaurants={restaurants}

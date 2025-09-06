@@ -49,7 +49,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         }} />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 sm:p-6 md:p-8">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
             <div className="bg-gradient-to-r from-blue-600 to-emerald-600 dark:from-dark-primary dark:to-orange-500 rounded-2xl p-4 shadow-lg">
@@ -57,11 +57,11 @@ export const HomePage: React.FC<HomePageProps> = ({
             </div>
           </div>
           <Link to="/">
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 dark:from-dark-primary dark:via-orange-500 dark:to-yellow-500 bg-clip-text text-transparent mb-4 cursor-pointer">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 dark:from-dark-primary dark:via-orange-500 dark:to-yellow-500 bg-clip-text text-transparent mb-4 cursor-pointer">
               Lunch Hub
             </h1>
           </Link>
-          <p className="text-xl text-gray-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
             Discover amazing restaurants near you. Search by location or let us find your next favorite meal!
           </p>
         </div>
@@ -84,7 +84,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
         )}
 
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl">
+        <div className="mt-8 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl">
           <div className="text-center p-6">
             <div className="w-16 h-16 bg-blue-100 dark:bg-dark-card rounded-full flex items-center justify-center mx-auto mb-4">
               <MapPin className="w-8 h-8 text-blue-600 dark:text-dark-primary" />

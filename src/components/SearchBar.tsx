@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, Loader2 } from 'lucide-react';
+import { Search, MapPin, Loader2, X } from 'lucide-react';
 import { searchLocationSuggestions } from '../services/geocoding';
 
 interface SearchBarProps {
@@ -16,10 +16,10 @@ interface LocationSuggestion {
   importance: number;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ 
-  onSearch, 
-  onCurrentLocation, 
-  loading 
+export const SearchBar: React.FC<SearchBarProps> = ({
+  onSearch,
+  onCurrentLocation,
+  loading
 }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
@@ -54,7 +54,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex(prev => 
+        setSelectedIndex(prev =>
           prev < suggestions.length - 1 ? prev + 1 : prev
         );
         break;
@@ -130,6 +130,20 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             disabled={loading}
             autoComplete="off"
           />
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                setSuggestions([]);
+                setShowSuggestions(false);
+              }}
+              className="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+              title="Clear search"
+            >
+              <X className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary" />
+            </button>
+          )}
           <button
             type="button"
             onClick={onCurrentLocation}
@@ -155,7 +169,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Suggestions dropdown */}
       {showSuggestions && (
-        <div 
+        <div
           ref={suggestionsRef}
           className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-200 dark:border-dark-border max-h-80 overflow-y-auto z-50"
         >

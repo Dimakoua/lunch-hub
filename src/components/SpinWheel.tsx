@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Play, RotateCcw } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { Restaurant } from '../types/restaurant';
 
 interface SpinWheelProps {
@@ -39,12 +39,6 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
       setSelectedRestaurant(selected);
       onRestaurantSelected(selected);
     }, 3000);
-  };
-
-  const reset = () => {
-    if (isSpinning) return;
-    setRotation(0);
-    setSelectedRestaurant(null);
   };
 
   if (restaurants.length === 0) {
@@ -153,15 +147,6 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
         >
           <Play className="w-4 h-4" />
           {isSpinning ? 'Spinning...' : 'Spin the Wheel!'}
-        </button>
-        
-        <button
-          onClick={reset}
-          disabled={isSpinning}
-          className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:disabled:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
-        >
-          <RotateCcw className="w-4 h-4" />
-          Reset
         </button>
       </div>
 
