@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import { Restaurant } from '../types/restaurant';
 import 'leaflet/dist/leaflet.css';
@@ -17,6 +17,9 @@ interface MapViewProps {
   restaurants: Restaurant[];
   selectedRestaurant?: Restaurant | null;
   zoom?: number;
+  routeGeometry?: [number, number][] | null;
+  routeDistance: number | null;
+  routeDuration: number | null;
 }
 
 const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: Restaurant | null }> = ({ 
@@ -40,7 +43,10 @@ export const MapView: React.FC<MapViewProps> = ({
   center, 
   restaurants, 
   selectedRestaurant,
-  zoom = 13 
+  zoom = 13,
+  routeGeometry,
+  routeDistance,
+  routeDuration
 }) => {
   const userIcon = L.divIcon({
     html: `<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#2563EB"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
@@ -66,6 +72,18 @@ export const MapView: React.FC<MapViewProps> = ({
     popupAnchor: [0, -40],
   });
 
+  const formatDuration = (seconds: number | null | undefined) => {
+    if (seconds === null || seconds === undefined) return 'N/A';
+    const minutes = Math.round(seconds / 60);
+    return `${minutes} min`;
+  };
+
+  const formatDistance = (meters: number | null | undefined) => {
+    if (meters === null || meters === undefined) return 'N/A';
+    if (meters < 1000) return `${Math.round(meters)} m`;
+    return `${(meters / 1000).toFixed(1)} km`;
+  };
+
   return (
     <MapContainer 
       center={center} 
@@ -79,6 +97,22 @@ export const MapView: React.FC<MapViewProps> = ({
       />
       
       <MapController center={center} selectedRestaurant={selectedRestaurant} />
+
+      {routeGeometry && (
+        <Polyline positions={routeGeometry} color="#2563EB" weight={5} opacity={0.7} />
+      )}
+
+      {/* Route Info Overlay */}
+      {routeDistance !== null && routeDuration !== null && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white dark:bg-dark-card p-3 rounded-lg shadow-md text-sm font-medium text-gray-800 dark:text-dark-text flex items-center space-x-4">
+          <p>
+            <strong className="text-blue-600 dark:text-dark-primary">Distance:</strong> {formatDistance(routeDistance)}
+          </p>
+          <p>
+            <strong className="text-blue-600 dark:text-dark-primary">Est. Walk Time:</strong> {formatDuration(routeDuration)}
+          </p>
+        </div>
+      )}
 
       {/* User location marker */}
       <Marker position={center} icon={userIcon}>

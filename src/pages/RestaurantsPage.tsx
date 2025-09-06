@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon } from 'lucide-react';
@@ -9,6 +9,7 @@ import { RandomPicker } from '../components/RandomPicker';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { Restaurant, Location } from '../types/restaurant';
 import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../services/analytics';
+import { fetchRoute } from '../services/routing'; // Import fetchRoute
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random';
 type Theme = 'light' | 'dark';
@@ -48,6 +49,36 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   onViewOnMap,
   onRestaurantSelected
 }) => {
+  const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
+  const [routeDistance, setRouteDistance] = useState<number | null>(null);
+  const [routeDuration, setRouteDuration] = useState<number | null>(null);
+
+  useEffect(() => {
+    const getRoute = async () => {
+      if (selectedRestaurant && location.lat && location.lon) {
+        const route = await fetchRoute(
+          [location.lat, location.lon],
+          [selectedRestaurant.lat, selectedRestaurant.lon]
+        );
+        if (route) {
+          setRouteGeometry(route.geometry);
+          setRouteDistance(route.distance);
+          setRouteDuration(route.duration);
+        } else {
+          setRouteGeometry(null);
+          setRouteDistance(null);
+          setRouteDuration(null);
+        }
+      } else {
+        setRouteGeometry(null);
+        setRouteDistance(null);
+        setRouteDuration(null);
+      }
+    };
+
+    getRoute();
+  }, [selectedRestaurant, location]);
+
   const handleSpinWheelResult = (restaurant: Restaurant) => {
     trackSpinWheel(restaurant.name);
     onRestaurantSelected(restaurant);
@@ -197,6 +228,9 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   center={[location.lat, location.lon]}
                   restaurants={restaurants}
                   selectedRestaurant={selectedRestaurant}
+                  routeGeometry={routeGeometry}
+                  routeDistance={routeDistance}
+                  routeDuration={routeDuration}
                 />
               </div>
             )}
