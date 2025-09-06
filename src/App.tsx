@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { CookieConsent } from './components/CookieConsent';
 import { HomePage } from './pages/HomePage';
 import { RestaurantsPage } from './pages/RestaurantsPage';
 import { geocodeAddress, getCurrentLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
+import { 
+  initializeGoogleAnalytics, 
+  disableGoogleAnalytics, 
+  trackPageView,
+  trackRestaurantSearch,
+  trackLocationPermission 
+} from './services/analytics';
 import { Restaurant, Location } from './types/restaurant';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random';
@@ -23,6 +31,7 @@ function AppContent() {
     const savedTheme = localStorage.getItem('theme') as Theme;
     return savedTheme || 'light';
   });
+  const [showCookieConsent, setShowCookieConsent] = useState(false);
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -38,6 +47,33 @@ function AppContent() {
     }
   }, [theme]);
 
+  // Check cookie consent on app load
+  useEffect(() => {
+    const consent = localStorage.getItem('cookie-consent');
+    if (!consent) {
+      setShowCookieConsent(true);
+    } else if (consent === 'accepted') {
+      initializeGoogleAnalytics();
+    }
+  }, []);
+
+  // Track page views
+  useEffect(() => {
+    const path = window.location.pathname;
+    const title = document.title;
+    trackPageView(path, title);
+  }, [location]);
+
+  const handleCookieAccept = () => {
+    setShowCookieConsent(false);
+    initializeGoogleAnalytics();
+  };
+
+  const handleCookieDecline = () => {
+    setShowCookieConsent(false);
+    disableGoogleAnalytics();
+  };
+
   const handleSearch = async (query: string) => {
     setLoading(true);
     setError(null);
@@ -46,6 +82,7 @@ function AppContent() {
       if (result) {
         setLocation(result);
         await searchRestaurants(result.lat, result.lon);
+        trackRestaurantSearch(query, restaurants.length);
         navigate('/restaurants');
       } else {
         setError('Location not found. Please try a different address.');
@@ -65,8 +102,11 @@ function AppContent() {
       const newLocation = { lat: position.lat, lon: position.lon };
       setLocation(newLocation);
       await searchRestaurants(position.lat, position.lon);
+      trackLocationPermission(true);
+      trackRestaurantSearch('current_location', restaurants.length);
       navigate('/restaurants');
     } catch (err) {
+      trackLocationPermission(false);
       setError('Unable to get your location. Please enter an address manually.');
     } finally {
       setLoading(false);
@@ -157,6 +197,12 @@ function AppContent() {
 function App() {
   return (
     <Router>
+      {showCookieConsent && (
+        <CookieConsent
+          onAccept={handleCookieAccept}
+          onDecline={handleCookieDecline}
+        />
+      )}
       <AppContent />
     </Router>
   );
