@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import { Restaurant } from '../types/restaurant';
-import { fetchRoute } from '../services/routing';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers
@@ -43,25 +42,6 @@ export const MapView: React.FC<MapViewProps> = ({
   selectedRestaurant,
   zoom = 13 
 }) => {
-  const [route, setRoute] = useState<any>(null);
-  const [routeDuration, setRouteDuration] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (selectedRestaurant) {
-      fetchRoute(center, [selectedRestaurant.lat, selectedRestaurant.lon]).then(
-        (routeInfo) => {
-          if (routeInfo) {
-            setRoute(routeInfo.geometry);
-            setRouteDuration(routeInfo.duration);
-          }
-        }
-      );
-    } else {
-      setRoute(null);
-      setRouteDuration(null);
-    }
-  }, [selectedRestaurant, center]);
-
   const userIcon = L.divIcon({
     html: `<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#2563EB"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
     className: '',
@@ -100,16 +80,6 @@ export const MapView: React.FC<MapViewProps> = ({
       
       <MapController center={center} selectedRestaurant={selectedRestaurant} />
 
-      {route && (
-        <Polyline positions={route.coordinates.map((c: any) => [c[1], c[0]])} color="blue">
-          {routeDuration && (
-            <Tooltip permanent>
-              {`~ ${Math.round(routeDuration / 60)} min walk`}
-            </Tooltip>
-          )}
-        </Polyline>
-      )}
-      
       {/* User location marker */}
       <Marker position={center} icon={userIcon}>
         <Tooltip permanent>
