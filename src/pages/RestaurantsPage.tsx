@@ -48,18 +48,6 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   onViewOnMap,
   onRestaurantSelected
 }) => {
-  const handleViewOnMap = (restaurant: Restaurant) => {
-    setSelectedRestaurant(restaurant);
-    setViewMode('map');
-    trackRestaurantView(restaurant.name, 'map');
-  };
-
-  const handleRestaurantSelected = (restaurant: Restaurant) => {
-    setSelectedRestaurant(restaurant);
-    setViewMode('map');
-    trackRestaurantView(restaurant.name, viewMode);
-  };
-
   const handleSpinWheelResult = (restaurant: Restaurant) => {
     trackSpinWheel(restaurant.name);
     onRestaurantSelected(restaurant);

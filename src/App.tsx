@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
 import { HomePage } from './pages/HomePage';
 import { RestaurantsPage } from './pages/RestaurantsPage';
@@ -17,7 +17,7 @@ import { Restaurant, Location } from './types/restaurant';
 type ViewMode = 'map' | 'list' | 'wheel' | 'random';
 type Theme = 'light' | 'dark';
 
-function AppContent() {
+function App() {
   const navigate = useNavigate();
   const [location, setLocation] = useState<Location | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -143,42 +143,17 @@ function AppContent() {
   }, [radius]);
 
   return (
-    <Routes>
-      <Route 
-        path="/" 
-        element={
-          <HomePage
-            onSearch={handleSearch}
-            onCurrentLocation={handleCurrentLocation}
-            loading={loading}
-            error={error}
-            theme={theme}
-            toggleTheme={toggleTheme}
-          />
-        } 
-      />
-      <Route 
-        path="/restaurants" 
-        element={
-          location ? (
-            <RestaurantsPage
-              location={location}
-              restaurants={restaurants}
-              loading={loading}
-              error={error}
-              viewMode={viewMode}
-              setViewMode={setViewMode}
-              selectedRestaurant={selectedRestaurant}
-              radius={radius}
-              setRadius={setRadius}
-              showSettings={showSettings}
-              setShowSettings={setShowSettings}
-              theme={theme}
-              toggleTheme={toggleTheme}
-              onViewOnMap={handleViewOnMap}
-              onRestaurantSelected={handleRestaurantSelected}
-            />
-          ) : (
+    <>
+      {showCookieConsent && (
+        <CookieConsent
+          onAccept={handleCookieAccept}
+          onDecline={handleCookieDecline}
+        />
+      )}
+      <Routes>
+        <Route 
+          path="/" 
+          element={
             <HomePage
               onSearch={handleSearch}
               onCurrentLocation={handleCurrentLocation}
@@ -187,24 +162,43 @@ function AppContent() {
               theme={theme}
               toggleTheme={toggleTheme}
             />
-          )
-        } 
-      />
-    </Routes>
-  );
-}
-
-function App() {
-  return (
-    <Router>
-      {showCookieConsent && (
-        <CookieConsent
-          onAccept={handleCookieAccept}
-          onDecline={handleCookieDecline}
+          } 
         />
-      )}
-      <AppContent />
-    </Router>
+        <Route 
+          path="/restaurants" 
+          element={
+            location ? (
+              <RestaurantsPage
+                location={location}
+                restaurants={restaurants}
+                loading={loading}
+                error={error}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                selectedRestaurant={selectedRestaurant}
+                radius={radius}
+                setRadius={setRadius}
+                showSettings={showSettings}
+                setShowSettings={setShowSettings}
+                theme={theme}
+                toggleTheme={toggleTheme}
+                onViewOnMap={handleViewOnMap}
+                onRestaurantSelected={handleRestaurantSelected}
+              />
+            ) : (
+              <HomePage
+                onSearch={handleSearch}
+                onCurrentLocation={handleCurrentLocation}
+                loading={loading}
+                error={error}
+                theme={theme}
+                toggleTheme={toggleTheme}
+              />
+            )
+          } 
+        />
+      </Routes>
+    </>
   );
 }
 
