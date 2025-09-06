@@ -3,6 +3,8 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
 import { HomePage } from './pages/HomePage';
 import { RestaurantsPage } from './pages/RestaurantsPage';
+import BlogPage from './pages/BlogPage';
+import BlogPostPage from './pages/BlogPostPage';
 import { geocodeAddress, getCurrentLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
 import { 
@@ -198,6 +200,8 @@ function App() {
             )
           } 
         />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
       </Routes>
     </>
   );

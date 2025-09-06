@@ -61,6 +61,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               Lunch Hub
             </h1>
           </Link>
+          <Link to="/blog" className="text-blue-600 hover:underline dark:text-blue-400 text-lg mt-2 block">Our Blog</Link>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
             Discover amazing restaurants near you. Search by location or let us find your next favorite meal!
           </p>
