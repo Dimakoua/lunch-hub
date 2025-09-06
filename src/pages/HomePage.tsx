@@ -14,7 +14,7 @@ interface HomePageProps {
   toggleTheme: () => void;
 }
 
-export const HomePage: React.FC<HomePageProps> = ({
+const HomePage: React.FC<HomePageProps> = ({
   onSearch,
   onCurrentLocation,
   loading,
@@ -111,3 +111,4 @@ export const HomePage: React.FC<HomePageProps> = ({
     </main>
   );
 };
+export default HomePage;

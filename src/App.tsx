@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
 import { Header } from './components/Header';
-import { HomePage } from './pages/HomePage';
-import { RestaurantsPage } from './pages/RestaurantsPage';
-import BlogPage from './pages/BlogPage';
-import BlogPostPage from './pages/BlogPostPage';
+
+const HomePage = lazy(() => import('./pages/HomePage'));
+const RestaurantsPage = lazy(() => import('./pages/RestaurantsPage'));
+const BlogPage = lazy(() => import('./pages/BlogPage'));
+const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
 import { geocodeAddress, getCurrentLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
 import { 
@@ -159,42 +160,11 @@ function App() {
         />
       )}
       {showHeader && <Header theme={theme} toggleTheme={toggleTheme} />}
-      <Routes>
-        <Route 
-          path="/" 
-          element={
-            <HomePage
-              onSearch={handleSearch}
-              onCurrentLocation={handleCurrentLocation}
-              loading={loading}
-              error={error}
-              theme={theme}
-              toggleTheme={toggleTheme}
-            />
-          } 
-        />
-        <Route 
-          path="/restaurants" 
-          element={
-            location ? (
-              <RestaurantsPage
-                location={location}
-                restaurants={restaurants}
-                loading={loading}
-                error={error}
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                selectedRestaurant={selectedRestaurant}
-                radius={radius}
-                setRadius={setRadius}
-                showSettings={showSettings}
-                setShowSettings={setShowSettings}
-                theme={theme}
-                toggleTheme={toggleTheme}
-                onViewOnMap={handleViewOnMap}
-                onRestaurantSelected={handleRestaurantSelected}
-              />
-            ) : (
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route 
+            path="/" 
+            element={
               <HomePage
                 onSearch={handleSearch}
                 onCurrentLocation={handleCurrentLocation}
@@ -203,12 +173,45 @@ function App() {
                 theme={theme}
                 toggleTheme={toggleTheme}
               />
-            )
-          } 
-        />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/blog/:slug" element={<BlogPostPage />} />
-      </Routes>
+            } 
+          />
+          <Route 
+            path="/restaurants" 
+            element={
+              location ? (
+                <RestaurantsPage
+                  location={location}
+                  restaurants={restaurants}
+                  loading={loading}
+                  error={error}
+                  viewMode={viewMode}
+                  setViewMode={setViewMode}
+                  selectedRestaurant={selectedRestaurant}
+                  radius={radius}
+                  setRadius={setRadius}
+                  showSettings={showSettings}
+                  setShowSettings={setShowSettings}
+                  theme={theme}
+                  toggleTheme={toggleTheme}
+                  onViewOnMap={handleViewOnMap}
+                  onRestaurantSelected={handleRestaurantSelected}
+                />
+              ) : (
+                <HomePage
+                  onSearch={handleSearch}
+                  onCurrentLocation={handleCurrentLocation}
+                  loading={loading}
+                  error={error}
+                  theme={theme}
+                  toggleTheme={toggleTheme}
+                />
+              )
+            }
+          />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }

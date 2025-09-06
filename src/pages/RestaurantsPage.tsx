@@ -32,7 +32,7 @@ interface RestaurantsPageProps {
   onRestaurantSelected: (restaurant: Restaurant | null) => void;
 }
 
-export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
+const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   location,
   restaurants,
   loading,
@@ -277,3 +277,5 @@ export const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     </div>
   );
 };
+
+export default RestaurantsPage;

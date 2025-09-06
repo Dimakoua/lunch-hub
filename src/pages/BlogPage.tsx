@@ -34,7 +34,7 @@ const BlogPage: React.FC = () => {
   useEffect(() => {
     const loadPosts = async () => {
       // Vite automatically imports all files in the folder
-      const files = import.meta.glob('/public/blog-posts/*.md', { as: 'raw' });
+      const files = import.meta.glob('/public/blog-posts/*.md', { query: '?raw', import: 'default' });
 
       const postPromises = Object.entries(files).map(async ([path, loader]) => {
         const slug = path.split('/').pop()?.replace('.md', '') || '';
