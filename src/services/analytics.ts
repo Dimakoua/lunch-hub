@@ -8,7 +8,7 @@ declare global {
 }
 
 // Replace with your actual Google Analytics ID
-const GA_TRACKING_ID = 'G-XXXXXXX';
+const GA_TRACKING_ID = 'G-2L6GKWNYFZ';
 
 export const initializeGoogleAnalytics = () => {
   // Check if user has consented
