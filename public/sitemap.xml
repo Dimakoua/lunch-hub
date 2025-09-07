@@ -1,15 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://www.lunchhub.com/</loc>
-    <lastmod>2025-09-06</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://www.lunchhub.com/restaurants</loc>
-    <lastmod>2025-09-06</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Gemini -->
+
+<url>
+  <loc>https://thelunchub.com</loc>
+  <lastmod>2025-09-07</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://thelunchub.com/restaurants</loc>
+  <lastmod>2025-09-07</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://thelunchub.com/blog</loc>
+  <lastmod>2025-09-07</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://thelunchub.com/blog/delicious-lunch-spots</loc>
+  <lastmod>2025-09-07</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://thelunchub.com/blog/my-first-blog-post</loc>
+  <lastmod>2025-09-07</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://thelunchub.com/blog/benefits-of-good-lunch</loc>
+  <lastmod>2025-09-08</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://thelunchub.com/blog/exploring-different-cuisines</loc>
+  <lastmod>2025-09-09</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://thelunchub.com/blog/5-tips-for-a-healthier-lunch</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.64</priority>
+</url>
+
 </urlset>
