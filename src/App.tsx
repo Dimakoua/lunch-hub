@@ -10,8 +10,8 @@ const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
 import { geocodeAddress, getCurrentLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
 import { 
-  initializeGoogleAnalytics, 
-  disableGoogleAnalytics, 
+  grantConsent,
+  revokeConsent,
   trackPageView,
   trackRestaurantSearch,
   trackLocationPermission 
@@ -57,8 +57,6 @@ function App() {
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) {
       setShowCookieConsent(true);
-    } else if (consent === 'accepted') {
-      initializeGoogleAnalytics();
     }
   }, []);
 
@@ -71,12 +69,12 @@ function App() {
 
   const handleCookieAccept = () => {
     setShowCookieConsent(false);
-    initializeGoogleAnalytics();
+    grantConsent();
   };
 
   const handleCookieDecline = () => {
     setShowCookieConsent(false);
-    disableGoogleAnalytics();
+    revokeConsent();
   };
 
   const handleSearch = async (query: string) => {

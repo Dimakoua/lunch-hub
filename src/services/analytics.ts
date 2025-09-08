@@ -7,63 +7,37 @@ declare global {
   }
 }
 
-// Replace with your actual Google Analytics ID
 const GA_TRACKING_ID = 'G-2L6GKWNYFZ';
 
-export const initializeGoogleAnalytics = () => {
-  // Check if user has consented
-  const consent = localStorage.getItem('cookie-consent');
-  if (consent !== 'accepted') {
+export const grantConsent = () => {
+  if (!window.gtag) {
     return;
   }
-
-  // Check if already loaded
-  if (window.gtag) {
-    return;
-  }
-
-  // Initialize dataLayer
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag() {
-    window.dataLayer.push(arguments);
-  };
-
-  // Load Google Analytics script
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
-  document.head.appendChild(script);
-
-  // Configure Google Analytics
-  window.gtag('js', new Date());
-  window.gtag('config', GA_TRACKING_ID, {
-    anonymize_ip: true, // Anonymize IP addresses for GDPR compliance
-    allow_google_signals: false, // Disable Google Signals for privacy
-    allow_ad_personalization_signals: false, // Disable ad personalization
+  window.gtag('consent', 'update', {
+    'ad_user_data': 'granted',
+    'ad_personalization': 'granted',
+    'ad_storage': 'granted',
+    'analytics_storage': 'granted'
   });
-
-  console.log('Google Analytics initialized with GDPR compliance');
+  console.log('Google Analytics consent granted');
 };
 
-export const disableGoogleAnalytics = () => {
-  // Disable Google Analytics tracking
-  if (window.gtag) {
-    window.gtag('consent', 'update', {
-      analytics_storage: 'denied',
-      ad_storage: 'denied',
-    });
+export const revokeConsent = () => {
+  if (!window.gtag) {
+    return;
   }
-
-  // Set the disable flag
-  (window as any)[`ga-disable-${GA_TRACKING_ID}`] = true;
-
-  console.log('Google Analytics disabled due to user consent');
+  window.gtag('consent', 'update', {
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'ad_storage': 'denied',
+    'analytics_storage': 'denied'
+  });
+  console.log('Google Analytics consent revoked');
 };
 
 // Track page views (only if consent given)
 export const trackPageView = (path: string, title?: string) => {
-  const consent = localStorage.getItem('cookie-consent');
-  if (consent !== 'accepted' || !window.gtag) {
+  if (!window.gtag) {
     return;
   }
 
@@ -75,8 +49,7 @@ export const trackPageView = (path: string, title?: string) => {
 
 // Track custom events (only if consent given)
 export const trackEvent = (action: string, category: string, label?: string, value?: number) => {
-  const consent = localStorage.getItem('cookie-consent');
-  if (consent !== 'accepted' || !window.gtag) {
+  if (!window.gtag) {
     return;
   }
 
@@ -106,4 +79,12 @@ export const trackRandomPick = (restaurantName: string) => {
 
 export const trackLocationPermission = (granted: boolean) => {
   trackEvent('location_permission', 'user_interaction', granted ? 'granted' : 'denied');
+};
+
+export const trackLanguageChange = (language: string) => {
+  trackEvent('language_change', 'user_interaction', language);
+};
+
+export const trackThemeChange = (theme: string) => {
+  trackEvent('theme_change', 'user_interaction', theme);
 };
