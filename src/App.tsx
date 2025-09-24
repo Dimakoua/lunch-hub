@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
 import { Header } from './components/Header';
@@ -17,6 +17,7 @@ import {
   trackLocationPermission 
 } from './services/analytics';
 import { Restaurant, Location } from './types/restaurant';
+import { FilterRule, FilterField } from './types/filter';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
@@ -38,7 +39,9 @@ function App() {
   });
   const [showCookieConsent, setShowCookieConsent] = useState(false);
   const VISITED_STORAGE_KEY = 'lunch-hub-visited-restaurants';
+  const FILTER_STORAGE_KEY = 'lunch-hub-filter-rules';
   const HISTORY_EMPTY_MESSAGE = 'All nearby restaurants are already in your visited history. Remove saved places to see them again.';
+  const FILTER_EMPTY_MESSAGE = 'All nearby restaurants were filtered out by your preferences. Adjust filters to see more options.';
   const [visitedRestaurants, setVisitedRestaurants] = useState<Restaurant[]>(() => {
     if (typeof window === 'undefined') {
       return [];
@@ -52,6 +55,22 @@ function App() {
       return Array.isArray(parsed) ? parsed : [];
     } catch (err) {
       console.warn('Failed to parse visited restaurants from storage', err);
+      return [];
+    }
+  });
+  const [filterRules, setFilterRules] = useState<FilterRule[]>(() => {
+    if (typeof window === 'undefined') {
+      return [];
+    }
+    const stored = window.localStorage.getItem(FILTER_STORAGE_KEY);
+    if (!stored) {
+      return [];
+    }
+    try {
+      const parsed: FilterRule[] = JSON.parse(stored);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      console.warn('Failed to parse filters from storage', err);
       return [];
     }
   });
@@ -80,6 +99,17 @@ function App() {
       console.warn('Failed to persist visited restaurants to storage', err);
     }
   }, [visitedRestaurants]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      window.localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filterRules));
+    } catch (err) {
+      console.warn('Failed to persist filters to storage', err);
+    }
+  }, [filterRules]);
 
   // Check cookie consent on app load
   useEffect(() => {
@@ -145,6 +175,48 @@ function App() {
     }
   };
 
+  const shouldExcludeByFilter = useCallback((restaurantItem: Restaurant, rule: FilterRule) => {
+    const value = rule.value?.trim().toLowerCase();
+    if (!value) {
+      return false;
+    }
+
+    const matchers: Record<FilterField, string | undefined> = {
+      name: restaurantItem.name,
+      cuisine: restaurantItem.cuisine,
+      amenity: restaurantItem.amenity,
+      keyword: [
+        restaurantItem.name,
+        restaurantItem.cuisine,
+        restaurantItem.amenity,
+        restaurantItem.address,
+        restaurantItem.opening_hours,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    };
+
+    const source = matchers[rule.field];
+    if (!source) {
+      return false;
+    }
+    return source.toLowerCase().includes(value);
+  }, []);
+
+  const applyAvailabilityFilters = useCallback((restaurantList: Restaurant[]) => {
+    const withoutVisited = restaurantList.filter(
+      (restaurantItem) => !visitedRestaurants.some((visited) => visited.id === restaurantItem.id)
+    );
+
+    if (filterRules.length === 0) {
+      return withoutVisited;
+    }
+
+    return withoutVisited.filter(
+      (restaurantItem) => !filterRules.some((rule) => shouldExcludeByFilter(restaurantItem, rule))
+    );
+  }, [visitedRestaurants, filterRules, shouldExcludeByFilter]);
+
   const searchRestaurants = async (lat: number, lon: number) => {
     try {
       const foundRestaurants = await fetchRestaurants(lat, lon, radius);
@@ -153,15 +225,17 @@ function App() {
         setError('No restaurants found in this area. Try increasing the search radius.');
         return 0;
       }
-      const filteredCount = foundRestaurants.filter(
-        (restaurantItem) => !visitedRestaurants.some((visited) => visited.id === restaurantItem.id)
-      ).length;
-      if (filteredCount === 0) {
-        setError(HISTORY_EMPTY_MESSAGE);
+      const availableAfterFilters = applyAvailabilityFilters(foundRestaurants);
+      if (availableAfterFilters.length === 0) {
+        if (filterRules.length > 0) {
+          setError(FILTER_EMPTY_MESSAGE);
+        } else {
+          setError(HISTORY_EMPTY_MESSAGE);
+        }
       } else {
         setError(null);
       }
-      return filteredCount;
+      return availableAfterFilters.length;
     } catch (err) {
       setError('Error finding restaurants. Please try again.');
       return 0;
@@ -187,8 +261,28 @@ function App() {
   }, [radius]);
 
   const availableRestaurants = useMemo(
-    () => restaurants.filter((restaurantItem) => !visitedRestaurants.some((visited) => visited.id === restaurantItem.id)),
+    () => applyAvailabilityFilters(restaurants),
+    [restaurants, applyAvailabilityFilters]
+  );
+
+  const hiddenByHistoryCount = useMemo(
+    () => restaurants.filter((restaurantItem) => visitedRestaurants.some((visited) => visited.id === restaurantItem.id)).length,
     [restaurants, visitedRestaurants]
+  );
+
+  const hiddenByFiltersCount = useMemo(
+    () => {
+      if (filterRules.length === 0) {
+        return 0;
+      }
+      const withoutVisited = restaurants.filter(
+        (restaurantItem) => !visitedRestaurants.some((visited) => visited.id === restaurantItem.id)
+      );
+      return withoutVisited.filter((restaurantItem) =>
+        filterRules.some((rule) => shouldExcludeByFilter(restaurantItem, rule))
+      ).length;
+    },
+    [restaurants, visitedRestaurants, filterRules, shouldExcludeByFilter]
   );
 
   useEffect(() => {
@@ -196,11 +290,12 @@ function App() {
       return;
     }
     if (availableRestaurants.length === 0) {
-      setError((prev) => (prev === HISTORY_EMPTY_MESSAGE ? prev : HISTORY_EMPTY_MESSAGE));
-    } else if (error === HISTORY_EMPTY_MESSAGE) {
+      const message = filterRules.length > 0 ? FILTER_EMPTY_MESSAGE : HISTORY_EMPTY_MESSAGE;
+      setError((prev) => (prev === message ? prev : message));
+    } else if (error && (error === HISTORY_EMPTY_MESSAGE || error === FILTER_EMPTY_MESSAGE)) {
       setError(null);
     }
-  }, [availableRestaurants, restaurants.length, error]);
+  }, [availableRestaurants, restaurants.length, error, filterRules.length]);
 
   const markRestaurantVisited = (restaurant: Restaurant) => {
     setVisitedRestaurants((prev) => {
@@ -217,6 +312,33 @@ function App() {
 
   const clearVisitedRestaurants = () => {
     setVisitedRestaurants([]);
+  };
+
+  const addFilterRule = (field: FilterField, value: string) => {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) {
+      return;
+    }
+    setFilterRules((prev) => {
+      const exists = prev.some(
+        (rule) => rule.field === field && rule.value.toLowerCase() === trimmedValue.toLowerCase()
+      );
+      if (exists) {
+        return prev;
+      }
+      const id = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      return [...prev, { id, field, value: trimmedValue }];
+    });
+  };
+
+  const removeFilterRule = (ruleId: string) => {
+    setFilterRules((prev) => prev.filter((rule) => rule.id !== ruleId));
+  };
+
+  const clearFilterRules = () => {
+    setFilterRules([]);
   };
 
   // Determine if header should be shown
@@ -266,11 +388,16 @@ function App() {
                   onViewOnMap={handleViewOnMap}
                   onRestaurantSelected={handleRestaurantSelected}
                   restaurants={availableRestaurants}
-                  totalRestaurants={restaurants.length}
                   visitedRestaurants={visitedRestaurants}
+                  filterRules={filterRules}
+                  hiddenByHistoryCount={hiddenByHistoryCount}
+                  hiddenByFiltersCount={hiddenByFiltersCount}
                   onMarkRestaurantVisited={markRestaurantVisited}
                   onRemoveVisitedRestaurant={removeVisitedRestaurant}
                   onClearVisitedRestaurants={clearVisitedRestaurants}
+                  onAddFilterRule={addFilterRule}
+                  onRemoveFilterRule={removeFilterRule}
+                  onClearFilterRules={clearFilterRules}
                 />
               ) : (
                 <HomePage

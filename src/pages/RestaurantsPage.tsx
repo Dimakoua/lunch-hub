@@ -8,6 +8,7 @@ import { SpinWheel } from '../components/SpinWheel';
 import { RandomPicker } from '../components/RandomPicker';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { Restaurant, Location } from '../types/restaurant';
+import { FilterRule, FilterField } from '../types/filter';
 import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../services/analytics';
 import { fetchRoute } from '../services/routing'; // Import fetchRoute
 
@@ -30,11 +31,16 @@ interface RestaurantsPageProps {
   toggleTheme: () => void;
   onViewOnMap: (restaurant: Restaurant) => void;
   onRestaurantSelected: (restaurant: Restaurant | null) => void;
-  totalRestaurants: number;
+  filterRules: FilterRule[];
   visitedRestaurants: Restaurant[];
+  hiddenByHistoryCount: number;
+  hiddenByFiltersCount: number;
   onMarkRestaurantVisited: (restaurant: Restaurant) => void;
   onRemoveVisitedRestaurant: (restaurantId: string) => void;
   onClearVisitedRestaurants: () => void;
+  onAddFilterRule: (field: FilterField, value: string) => void;
+  onRemoveFilterRule: (ruleId: string) => void;
+  onClearFilterRules: () => void;
 }
 
 const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
@@ -53,15 +59,23 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   toggleTheme,
   onViewOnMap,
   onRestaurantSelected,
-  totalRestaurants,
+  filterRules,
   visitedRestaurants,
+  hiddenByHistoryCount,
+  hiddenByFiltersCount,
   onMarkRestaurantVisited,
   onRemoveVisitedRestaurant,
-  onClearVisitedRestaurants
+  onClearVisitedRestaurants,
+  onAddFilterRule,
+  onRemoveFilterRule,
+  onClearFilterRules
 }) => {
   const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
   const [routeDuration, setRouteDuration] = useState<number | null>(null);
+  const [newFilterField, setNewFilterField] = useState<FilterField>('name');
+  const [newFilterValue, setNewFilterValue] = useState('');
+  const canAddFilter = newFilterValue.trim().length > 0;
 
   useEffect(() => {
     const getRoute = async () => {
@@ -129,9 +143,14 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
                   within {radius}m radius
                 </p>
-                {totalRestaurants !== restaurants.length && (
+                {hiddenByHistoryCount > 0 && (
                   <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
-                    {totalRestaurants - restaurants.length} saved in history
+                    {hiddenByHistoryCount} hidden by history
+                  </p>
+                )}
+                {hiddenByFiltersCount > 0 && (
+                  <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
+                    {hiddenByFiltersCount} hidden by filters
                   </p>
                 )}
                 {visitedRestaurants.length > 0 && (
@@ -163,24 +182,114 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
           {/* Settings Panel */}
           {showSettings && (
-            <div className="mt-4 p-4 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700 dark:text-dark-text">
-                  Search Radius:
-                </label>
-                <select
-                  value={radius}
-                  onChange={(e) => {
-                    setRadius(Number(e.target.value));
-                    onRestaurantSelected(null);
-                  }}
-                  className="px-4 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary focus:border-transparent bg-white dark:bg-dark-card dark:text-dark-text"
-                >
-                  <option value={500}>500m</option>
-                  <option value={1000}>1km</option>
-                  <option value={2000}>2km</option>
-                  <option value={5000}>5km</option>
-                </select>
+            <div className="mt-4 space-y-4">
+              <div className="p-4 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
+                <div className="flex flex-col gap-3">
+                  <label className="text-sm font-medium text-gray-700 dark:text-dark-text">
+                    Search radius
+                  </label>
+                  <select
+                    value={radius}
+                    onChange={(event) => {
+                      setRadius(Number(event.target.value));
+                      onRestaurantSelected(null);
+                    }}
+                    className="px-4 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary focus:border-transparent bg-white dark:bg-dark-card dark:text-dark-text"
+                  >
+                    <option value={500}>500m</option>
+                    <option value={1000}>1km</option>
+                    <option value={2000}>2km</option>
+                    <option value={5000}>5km</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-dark-text">
+                      Filters
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
+                      Exclude restaurants by brand, cuisine, amenity, or keyword to tailor suggestions.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row gap-3">
+                    <select
+                      value={newFilterField}
+                      onChange={(event) => setNewFilterField(event.target.value as FilterField)}
+                      className="px-3 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary"
+                    >
+                      <option value="name">Name</option>
+                      <option value="cuisine">Cuisine</option>
+                      <option value="amenity">Amenity</option>
+                      <option value="keyword">Keyword</option>
+                    </select>
+
+                    <input
+                      value={newFilterValue}
+                      onChange={(event) => setNewFilterValue(event.target.value)}
+                      placeholder="e.g. Tim Hortons"
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary"
+                    />
+
+                    <button
+                      onClick={() => {
+                        if (!canAddFilter) {
+                          return;
+                        }
+                        onAddFilterRule(newFilterField, newFilterValue);
+                        setNewFilterValue('');
+                      }}
+                      disabled={!canAddFilter}
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
+                        canAddFilter
+                          ? 'bg-blue-600 hover:bg-blue-700 dark:bg-dark-primary dark:hover:bg-orange-600 text-white'
+                          : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      Add filter
+                    </button>
+                  </div>
+
+                  {filterRules.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {filterRules.map((rule) => (
+                        <span
+                          key={rule.id}
+                          className="inline-flex items-center gap-2 px-3 py-1 text-xs rounded-full bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-700 dark:text-dark-text"
+                        >
+                          <span className="font-medium capitalize">{rule.field}</span>
+                          <span className="text-gray-500 dark:text-dark-text-secondary">{rule.value}</span>
+                          <button
+                            onClick={() => onRemoveFilterRule(rule.id)}
+                            className="text-gray-400 hover:text-red-500"
+                            aria-label={`Remove filter ${rule.value}`}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
+                      No filters active.
+                    </p>
+                  )}
+
+                  {filterRules.length > 0 && (
+                    <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-dark-text-secondary">
+                      <span>{hiddenByFiltersCount} hidden by filters</span>
+                      <button
+                        onClick={onClearFilterRules}
+                        className="text-blue-600 dark:text-dark-primary hover:underline"
+                      >
+                        Clear all filters
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
