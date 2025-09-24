@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon } from 'lucide-react';
+import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2 } from 'lucide-react';
 import { RestaurantCard } from '../components/RestaurantCard';
 import { MapView } from '../components/MapView';
 import { SpinWheel } from '../components/SpinWheel';
@@ -11,7 +11,7 @@ import { Restaurant, Location } from '../types/restaurant';
 import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../services/analytics';
 import { fetchRoute } from '../services/routing'; // Import fetchRoute
 
-type ViewMode = 'map' | 'list' | 'wheel' | 'random';
+type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
 
 interface RestaurantsPageProps {
@@ -30,6 +30,11 @@ interface RestaurantsPageProps {
   toggleTheme: () => void;
   onViewOnMap: (restaurant: Restaurant) => void;
   onRestaurantSelected: (restaurant: Restaurant | null) => void;
+  totalRestaurants: number;
+  visitedRestaurants: Restaurant[];
+  onMarkRestaurantVisited: (restaurant: Restaurant) => void;
+  onRemoveVisitedRestaurant: (restaurantId: string) => void;
+  onClearVisitedRestaurants: () => void;
 }
 
 const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
@@ -47,7 +52,12 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   theme,
   toggleTheme,
   onViewOnMap,
-  onRestaurantSelected
+  onRestaurantSelected,
+  totalRestaurants,
+  visitedRestaurants,
+  onMarkRestaurantVisited,
+  onRemoveVisitedRestaurant,
+  onClearVisitedRestaurants
 }) => {
   const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
@@ -114,11 +124,21 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             <div className="flex flex-col items-end md:flex-row md:items-center gap-2 md:gap-4">
               <div className="text-right md:text-left">
                 <p className="text-sm text-gray-600 dark:text-dark-text-secondary">
-                  Found {restaurants.length} restaurants
+                  Showing {restaurants.length} restaurants
                 </p>
                 <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
                   within {radius}m radius
                 </p>
+                {totalRestaurants !== restaurants.length && (
+                  <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
+                    {totalRestaurants - restaurants.length} saved in history
+                  </p>
+                )}
+                {visitedRestaurants.length > 0 && (
+                  <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
+                    History size: {visitedRestaurants.length}
+                  </p>
+                )}
               </div>
               
               <button
@@ -211,6 +231,17 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <RotateCcw className="w-4 h-4" />
               Wheel
             </button>
+            <button
+              onClick={() => setViewMode('history')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                viewMode === 'history' 
+                  ? 'bg-amber-500 dark:bg-orange-500 text-white shadow-md' 
+                  : 'bg-white dark:bg-dark-card text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-dark-border'
+              }`}
+            >
+              <History className="w-4 h-4" />
+              History
+            </button>
           </div>
         </div>
       </header>
@@ -249,6 +280,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                       trackRestaurantView(restaurantToView.name, 'map');
                       onViewOnMap(restaurantToView);
                     }}
+                    onMarkVisited={onMarkRestaurantVisited}
                   />
                 ))}
               </div>
@@ -259,6 +291,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 <RandomPicker 
                   restaurants={restaurants}
                   onRestaurantSelected={handleRandomPickResult}
+                  onMarkVisited={onMarkRestaurantVisited}
                 />
               </div>
             )}
@@ -268,7 +301,61 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 <SpinWheel 
                   restaurants={restaurants}
                   onRestaurantSelected={handleSpinWheelResult}
+                  onMarkVisited={onMarkRestaurantVisited}
                 />
+              </div>
+            )}
+
+            {viewMode === 'history' && (
+              <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-6 border border-gray-100 dark:border-dark-border">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-dark-text">Visited restaurants</h2>
+                    <p className="text-sm text-gray-500 dark:text-dark-text-secondary">
+                      Manage your saved places or clear the list to rediscover them in search results.
+                    </p>
+                  </div>
+                  {visitedRestaurants.length > 0 && (
+                    <button
+                      onClick={onClearVisitedRestaurants}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 transition-colors duration-200"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Clear history
+                    </button>
+                  )}
+                </div>
+
+                {visitedRestaurants.length === 0 ? (
+                  <div className="text-center py-10 text-gray-500 dark:text-dark-text-secondary">
+                    You have not marked any restaurants as visited yet.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {visitedRestaurants.map((restaurant) => (
+                      <div
+                        key={restaurant.id}
+                        className="border border-gray-200 dark:border-dark-border rounded-xl p-4 bg-gray-50 dark:bg-dark-background"
+                      >
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-dark-text mb-1">
+                          {restaurant.name}
+                        </h3>
+                        {restaurant.cuisine && (
+                          <p className="text-xs text-emerald-600 dark:text-emerald-400 mb-1">{restaurant.cuisine}</p>
+                        )}
+                        {restaurant.address && (
+                          <p className="text-sm text-gray-600 dark:text-dark-text-secondary mb-2">{restaurant.address}</p>
+                        )}
+                        <button
+                          onClick={() => onRemoveVisitedRestaurant(restaurant.id)}
+                          className="mt-2 inline-flex items-center justify-center w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-dark-primary bg-white dark:bg-dark-card border border-blue-200 dark:border-dark-border rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                        >
+                          Return to results
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </>

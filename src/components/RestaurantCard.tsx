@@ -5,11 +5,13 @@ import { Restaurant } from '../types/restaurant';
 interface RestaurantCardProps {
   restaurant: Restaurant;
   onViewOnMap: (restaurant: Restaurant) => void;
+  onMarkVisited?: (restaurant: Restaurant) => void;
 }
 
 export const RestaurantCard: React.FC<RestaurantCardProps> = ({ 
   restaurant, 
-  onViewOnMap 
+  onViewOnMap,
+  onMarkVisited
 }) => {
   const getAmenityIcon = (amenity: string) => {
     switch (amenity) {
@@ -98,7 +100,15 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
           )}
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border">
+        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border space-y-2">
+          {onMarkVisited && (
+            <button
+              onClick={() => onMarkVisited(restaurant)}
+              className="w-full bg-white dark:bg-dark-card text-blue-600 dark:text-dark-primary border border-blue-100 dark:border-dark-border hover:bg-blue-50 dark:hover:bg-gray-700 py-2.5 px-4 rounded-lg font-medium transition-all duration-200"
+            >
+              Mark as visited
+            </button>
+          )}
           <button
             onClick={() => onViewOnMap(restaurant)}
             className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-dark-primary dark:to-orange-600 dark:hover:to-orange-500 text-white py-2.5 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02]"

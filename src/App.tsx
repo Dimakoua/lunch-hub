@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
 import { Header } from './components/Header';
@@ -18,7 +18,7 @@ import {
 } from './services/analytics';
 import { Restaurant, Location } from './types/restaurant';
 
-type ViewMode = 'map' | 'list' | 'wheel' | 'random';
+type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
 
 function App() {
@@ -37,6 +37,24 @@ function App() {
     return savedTheme || 'light';
   });
   const [showCookieConsent, setShowCookieConsent] = useState(false);
+  const VISITED_STORAGE_KEY = 'lunch-hub-visited-restaurants';
+  const HISTORY_EMPTY_MESSAGE = 'All nearby restaurants are already in your visited history. Remove saved places to see them again.';
+  const [visitedRestaurants, setVisitedRestaurants] = useState<Restaurant[]>(() => {
+    if (typeof window === 'undefined') {
+      return [];
+    }
+    const stored = window.localStorage.getItem(VISITED_STORAGE_KEY);
+    if (!stored) {
+      return [];
+    }
+    try {
+      const parsed: Restaurant[] = JSON.parse(stored);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      console.warn('Failed to parse visited restaurants from storage', err);
+      return [];
+    }
+  });
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -51,6 +69,17 @@ function App() {
       localStorage.setItem('theme', 'light');
     }
   }, [theme]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      window.localStorage.setItem(VISITED_STORAGE_KEY, JSON.stringify(visitedRestaurants));
+    } catch (err) {
+      console.warn('Failed to persist visited restaurants to storage', err);
+    }
+  }, [visitedRestaurants]);
 
   // Check cookie consent on app load
   useEffect(() => {
@@ -84,8 +113,8 @@ function App() {
       const result = await geocodeAddress(query);
       if (result) {
         setLocation(result);
-        await searchRestaurants(result.lat, result.lon);
-        trackRestaurantSearch(query, restaurants.length);
+        const availableCount = await searchRestaurants(result.lat, result.lon);
+        trackRestaurantSearch(query, availableCount);
         navigate('/restaurants');
       } else {
         setError('Location not found. Please try a different address.');
@@ -104,9 +133,9 @@ function App() {
       const position = await getCurrentLocation();
       const newLocation = { lat: position.lat, lon: position.lon };
       setLocation(newLocation);
-      await searchRestaurants(position.lat, position.lon);
+      const availableCount = await searchRestaurants(position.lat, position.lon);
       trackLocationPermission(true);
-      trackRestaurantSearch('current_location', restaurants.length);
+      trackRestaurantSearch('current_location', availableCount);
       navigate('/restaurants');
     } catch (err) {
       trackLocationPermission(false);
@@ -122,9 +151,20 @@ function App() {
       setRestaurants(foundRestaurants);
       if (foundRestaurants.length === 0) {
         setError('No restaurants found in this area. Try increasing the search radius.');
+        return 0;
       }
+      const filteredCount = foundRestaurants.filter(
+        (restaurantItem) => !visitedRestaurants.some((visited) => visited.id === restaurantItem.id)
+      ).length;
+      if (filteredCount === 0) {
+        setError(HISTORY_EMPTY_MESSAGE);
+      } else {
+        setError(null);
+      }
+      return filteredCount;
     } catch (err) {
       setError('Error finding restaurants. Please try again.');
+      return 0;
     }
   };
 
@@ -145,6 +185,39 @@ function App() {
       searchRestaurants(location.lat, location.lon);
     }
   }, [radius]);
+
+  const availableRestaurants = useMemo(
+    () => restaurants.filter((restaurantItem) => !visitedRestaurants.some((visited) => visited.id === restaurantItem.id)),
+    [restaurants, visitedRestaurants]
+  );
+
+  useEffect(() => {
+    if (restaurants.length === 0) {
+      return;
+    }
+    if (availableRestaurants.length === 0) {
+      setError((prev) => (prev === HISTORY_EMPTY_MESSAGE ? prev : HISTORY_EMPTY_MESSAGE));
+    } else if (error === HISTORY_EMPTY_MESSAGE) {
+      setError(null);
+    }
+  }, [availableRestaurants, restaurants.length, error]);
+
+  const markRestaurantVisited = (restaurant: Restaurant) => {
+    setVisitedRestaurants((prev) => {
+      if (prev.some((item) => item.id === restaurant.id)) {
+        return prev;
+      }
+      return [...prev, restaurant];
+    });
+  };
+
+  const removeVisitedRestaurant = (restaurantId: string) => {
+    setVisitedRestaurants((prev) => prev.filter((restaurantItem) => restaurantItem.id !== restaurantId));
+  };
+
+  const clearVisitedRestaurants = () => {
+    setVisitedRestaurants([]);
+  };
 
   // Determine if header should be shown
   const showHeader = pageLocation.pathname.startsWith('/blog');
@@ -179,7 +252,6 @@ function App() {
               location ? (
                 <RestaurantsPage
                   location={location}
-                  restaurants={restaurants}
                   loading={loading}
                   error={error}
                   viewMode={viewMode}
@@ -193,6 +265,12 @@ function App() {
                   toggleTheme={toggleTheme}
                   onViewOnMap={handleViewOnMap}
                   onRestaurantSelected={handleRestaurantSelected}
+                  restaurants={availableRestaurants}
+                  totalRestaurants={restaurants.length}
+                  visitedRestaurants={visitedRestaurants}
+                  onMarkRestaurantVisited={markRestaurantVisited}
+                  onRemoveVisitedRestaurant={removeVisitedRestaurant}
+                  onClearVisitedRestaurants={clearVisitedRestaurants}
                 />
               ) : (
                 <HomePage

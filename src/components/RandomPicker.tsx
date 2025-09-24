@@ -5,11 +5,13 @@ import { Restaurant } from '../types/restaurant';
 interface RandomPickerProps {
   restaurants: Restaurant[];
   onRestaurantSelected: (restaurant: Restaurant) => void;
+  onMarkVisited?: (restaurant: Restaurant) => void;
 }
 
 export const RandomPicker: React.FC<RandomPickerProps> = ({ 
   restaurants, 
-  onRestaurantSelected 
+  onRestaurantSelected,
+  onMarkVisited
 }) => {
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -104,7 +106,7 @@ export const RandomPicker: React.FC<RandomPickerProps> = ({
         )}
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex flex-wrap justify-center gap-4">
         <button
           onClick={handleRandomPick}
           disabled={isAnimating}
@@ -121,6 +123,15 @@ export const RandomPicker: React.FC<RandomPickerProps> = ({
           >
             View Details
             <ArrowRight className="w-4 h-4" />
+          </button>
+        )}
+
+        {onMarkVisited && selectedRestaurant && !isAnimating && (
+          <button
+            onClick={() => onMarkVisited(selectedRestaurant)}
+            className="bg-white dark:bg-dark-card text-blue-600 dark:text-dark-primary border border-blue-200 dark:border-dark-border hover:bg-blue-50 dark:hover:bg-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200"
+          >
+            Mark as visited
           </button>
         )}
       </div>

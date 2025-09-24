@@ -5,11 +5,13 @@ import { Restaurant } from '../types/restaurant';
 interface SpinWheelProps {
   restaurants: Restaurant[];
   onRestaurantSelected: (restaurant: Restaurant) => void;
+  onMarkVisited?: (restaurant: Restaurant) => void;
 }
 
 export const SpinWheel: React.FC<SpinWheelProps> = ({ 
   restaurants, 
-  onRestaurantSelected 
+  onRestaurantSelected,
+  onMarkVisited 
 }) => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
@@ -159,6 +161,15 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
             <p className="text-sm opacity-90 mt-1">{selectedRestaurant.cuisine}</p>
           )}
         </div>
+      )}
+
+      {onMarkVisited && selectedRestaurant && (
+        <button
+          onClick={() => onMarkVisited(selectedRestaurant)}
+          className="mt-4 bg-white dark:bg-dark-card text-blue-600 dark:text-dark-primary border border-blue-200 dark:border-dark-border hover:bg-blue-50 dark:hover:bg-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200"
+        >
+          Mark as visited
+        </button>
       )}
     </div>
   );
