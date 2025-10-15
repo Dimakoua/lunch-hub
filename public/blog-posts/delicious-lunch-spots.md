@@ -1,6 +1,9 @@
-# Discovering Delicious Lunch Spots
-
-**Date:** September 1, 2025
+---
+title: "Discovering Delicious Lunch Spots"
+date: "September 1, 2025"
+description: "Finding the perfect lunch spot can be a fun discovery. Learn how Lunch Hub's features can help you find delicious meals and hidden gems near you."
+cover_image: "/images/delicious-lunch-spots.jpg"
+---
 
 Finding the perfect lunch spot can sometimes be a challenge. With Lunch Hub, it becomes an enjoyable discovery!
 

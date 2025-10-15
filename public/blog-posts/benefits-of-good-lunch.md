@@ -1,6 +1,9 @@
-# The Benefits of a Good Lunch Break
-
-**Date:** September 8, 2025
+---
+title: "The Benefits of a Good Lunch Break"
+date: "September 8, 2025"
+description: "Discover why taking a proper lunch break is crucial for your productivity and well-being, and how Lunch Hub can help you make the most of it."
+cover_image: "/images/lunch-break-benefits.jpg"
+---
 
 Taking a proper lunch break is more than just a pause in your workday; it's an essential part of maintaining productivity and well-being.
 
