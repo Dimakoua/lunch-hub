@@ -3,13 +3,13 @@
 
 <url>
   <loc>https://thelunchub.com</loc>
-  <lastmod>2025-09-07</lastmod>
+  <lastmod>2025-09-15</lastmod>
   <changefreq>daily</changefreq>
   <priority>1.00</priority>
 </url>
 <url>
   <loc>https://thelunchub.com/blog</loc>
-  <lastmod>2025-09-07</lastmod>
+  <lastmod>2025-09-15</lastmod>
   <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
@@ -40,6 +40,18 @@
 <url>
   <loc>https://thelunchub.com/blog/5-tips-for-a-healthier-lunch</loc>
   <lastmod>2025-09-10</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://thelunchub.com/blog/lunch-on-a-budget</loc>
+  <lastmod>2025-09-12</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://thelunchub.com/blog/quick-and-delicious-lunches</loc>
+  <lastmod>2025-09-15</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.64</priority>
 </url>
