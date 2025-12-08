@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2 } from 'lucide-react';
+import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles } from 'lucide-react';
 import { RestaurantCard } from '../components/RestaurantCard';
 import { MapView } from '../components/MapView';
 import { SpinWheel } from '../components/SpinWheel';
@@ -11,6 +11,7 @@ import { Restaurant, Location } from '../types/restaurant';
 import { FilterRule, FilterField } from '../types/filter';
 import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../services/analytics';
 import { fetchRoute } from '../services/routing'; // Import fetchRoute
+import { OnboardingTour } from '../components/OnboardingTour';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
@@ -41,6 +42,9 @@ interface RestaurantsPageProps {
   onAddFilterRule: (field: FilterField, value: string) => void;
   onRemoveFilterRule: (ruleId: string) => void;
   onClearFilterRules: () => void;
+  onOpenTour: () => void;
+  tourOpen: boolean;
+  onTourClose: () => void;
 }
 
 const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
@@ -68,7 +72,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   onClearVisitedRestaurants,
   onAddFilterRule,
   onRemoveFilterRule,
-  onClearFilterRules
+  onClearFilterRules,
+  onOpenTour,
+  tourOpen,
+  onTourClose
 }) => {
   const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
@@ -159,8 +166,18 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   </p>
                 )}
               </div>
-              
+
               <button
+                onClick={onOpenTour}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                title="Show onboarding tour"
+              >
+                <Sparkles className="w-5 h-5 text-amber-500" />
+                <span className="sr-only">Open onboarding tour</span>
+              </button>
+
+              <button
+                data-tour-target="settings-button"
                 onClick={() => setShowSettings(!showSettings)}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
               >
@@ -295,7 +312,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
           )}
 
           {/* View Mode Tabs */}
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div
+            className="mt-4 flex flex-wrap gap-2"
+            data-tour-target="view-mode-tabs"
+          >
             <button
               onClick={() => setViewMode('map')}
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
@@ -347,6 +367,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   ? 'bg-amber-500 dark:bg-orange-500 text-white shadow-md' 
                   : 'bg-white dark:bg-dark-card text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-dark-border'
               }`}
+              data-tour-target="history-tab"
             >
               <History className="w-4 h-4" />
               History
@@ -366,7 +387,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         ) : (
           <>
             {viewMode === 'map' && (
-              <div className="h-[calc(100vh-180px)] min-h-[400px] bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden">
+              <div
+                data-tour-target="map-container"
+                className="h-[calc(100vh-180px)] min-h-[400px] bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden"
+              >
                 <MapView 
                   center={[location.lat, location.lon]}
                   restaurants={restaurants}
@@ -470,6 +494,8 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
           </>
         )}
       </main>
+
+      <OnboardingTour isOpen={tourOpen} onClose={onTourClose} />
     </div>
   );
 };

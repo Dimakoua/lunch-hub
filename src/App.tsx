@@ -25,6 +25,8 @@ type Theme = 'light' | 'dark';
 function App() {
   const navigate = useNavigate();
   const pageLocation = useLocation();
+  const ONBOARDING_STORAGE_KEY = 'lunch-hub-tour-seen';
+  const [showTour, setShowTour] = useState(false);
   const [location, setLocation] = useState<Location | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(false);
@@ -78,6 +80,31 @@ function App() {
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    if (pageLocation.pathname !== '/restaurants') {
+      return;
+    }
+    if (showTour) {
+      return;
+    }
+    const seenTour = window.localStorage.getItem(ONBOARDING_STORAGE_KEY);
+    if (!seenTour) {
+      setShowTour(true);
+    }
+  }, [pageLocation.pathname, showTour]);
+
+  const handleTourClose = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    }
+    setShowTour(false);
+  };
+
+  const openTour = () => setShowTour(true);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -398,6 +425,9 @@ function App() {
                   onAddFilterRule={addFilterRule}
                   onRemoveFilterRule={removeFilterRule}
                   onClearFilterRules={clearFilterRules}
+                  onOpenTour={openTour}
+                  tourOpen={showTour}
+                  onTourClose={handleTourClose}
                 />
               ) : (
                 <HomePage
