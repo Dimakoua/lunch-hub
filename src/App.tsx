@@ -18,6 +18,7 @@ import {
 } from './services/analytics';
 import { Restaurant, Location } from './types/restaurant';
 import { FilterRule, FilterField } from './types/filter';
+import { isRestaurantOpen } from './utils/openingHours'; // NEW IMPORT
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
@@ -35,6 +36,7 @@ function App() {
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [radius, setRadius] = useState(1000); // 1km default
   const [showSettings, setShowSettings] = useState(false);
+  const [filterByOpenNow, setFilterByOpenNow] = useState(false); // NEW STATE
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem('theme') as Theme;
     return savedTheme || 'light';
@@ -231,18 +233,22 @@ function App() {
   }, []);
 
   const applyAvailabilityFilters = useCallback((restaurantList: Restaurant[]) => {
-    const withoutVisited = restaurantList.filter(
+    let filtered = restaurantList.filter(
       (restaurantItem) => !visitedRestaurants.some((visited) => visited.id === restaurantItem.id)
     );
 
-    if (filterRules.length === 0) {
-      return withoutVisited;
+    if (filterRules.length > 0) {
+      filtered = filtered.filter(
+        (restaurantItem) => !filterRules.some((rule) => shouldExcludeByFilter(restaurantItem, rule))
+      );
     }
 
-    return withoutVisited.filter(
-      (restaurantItem) => !filterRules.some((rule) => shouldExcludeByFilter(restaurantItem, rule))
-    );
-  }, [visitedRestaurants, filterRules, shouldExcludeByFilter]);
+    if (filterByOpenNow) {
+      filtered = filtered.filter((restaurant) => isRestaurantOpen(restaurant));
+    }
+
+    return filtered;
+  }, [visitedRestaurants, filterRules, shouldExcludeByFilter, filterByOpenNow]);
 
   const searchRestaurants = async (lat: number, lon: number) => {
     try {
@@ -425,6 +431,8 @@ function App() {
                   onAddFilterRule={addFilterRule}
                   onRemoveFilterRule={removeFilterRule}
                   onClearFilterRules={clearFilterRules}
+                  filterByOpenNow={filterByOpenNow} // NEW PROP
+                  setFilterByOpenNow={setFilterByOpenNow} // NEW PROP
                   onOpenTour={openTour}
                   tourOpen={showTour}
                   onTourClose={handleTourClose}

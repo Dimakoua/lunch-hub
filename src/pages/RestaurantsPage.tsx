@@ -43,6 +43,8 @@ interface RestaurantsPageProps {
   onAddFilterRule: (field: FilterField, value: string) => void;
   onRemoveFilterRule: (ruleId: string) => void;
   onClearFilterRules: () => void;
+  filterByOpenNow: boolean;
+  setFilterByOpenNow: (value: boolean) => void;
   onOpenTour: () => void;
   tourOpen: boolean;
   onTourClose: () => void;
@@ -76,7 +78,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   onClearFilterRules,
   onOpenTour,
   tourOpen,
-  onTourClose
+  onTourClose,
+  filterByOpenNow,
+  setFilterByOpenNow
 }) => {
   const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
@@ -219,6 +223,22 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     <option value={2000}>2km</option>
                     <option value={5000}>5km</option>
                   </select>
+                </div>
+              </div>
+
+              {/* NEW: Open Now Filter */}
+              <div className="p-4 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="open-now-filter" className="text-sm font-medium text-gray-700 dark:text-dark-text">
+                    Show only open restaurants
+                  </label>
+                  <input
+                    type="checkbox"
+                    id="open-now-filter"
+                    checked={filterByOpenNow}
+                    onChange={(e) => setFilterByOpenNow(e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-dark-card dark:border-dark-border dark:checked:bg-dark-primary"
+                  />
                 </div>
               </div>
 
