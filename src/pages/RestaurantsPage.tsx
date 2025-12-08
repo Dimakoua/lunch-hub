@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles } from 'lucide-react';
+import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles, Share2 } from 'lucide-react'; // Added Share2
 import { RestaurantCard } from '../components/RestaurantCard';
 import { MapView } from '../components/MapView';
 import { SpinWheel } from '../components/SpinWheel';
@@ -12,6 +12,7 @@ import { FilterRule, FilterField } from '../types/filter';
 import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../services/analytics';
 import { fetchRoute } from '../services/routing'; // Import fetchRoute
 import { OnboardingTour } from '../components/OnboardingTour';
+import { shareRestaurant } from '../utils/share'; // Added shareRestaurant
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
@@ -375,6 +376,23 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
           </div>
         </div>
       </header>
+
+      {selectedRestaurant && (
+        <div className="max-w-7xl mx-auto px-4 py-4 bg-white dark:bg-dark-card shadow-sm rounded-b-xl flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600 dark:text-dark-text-secondary">Selected Lunch Spot:</p>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-dark-text">{selectedRestaurant.name}</h2>
+            <p className="text-sm text-gray-600 dark:text-dark-text-secondary">{selectedRestaurant.address}</p>
+          </div>
+          <button
+            onClick={() => shareRestaurant(selectedRestaurant)}
+            className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+          >
+            <Share2 className="w-4 h-4" />
+            Share
+          </button>
+        </div>
+      )}
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">

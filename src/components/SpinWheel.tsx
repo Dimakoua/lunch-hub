@@ -154,22 +154,26 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
 
       {/* Selected restaurant */}
       {selectedRestaurant && (
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 dark:from-dark-primary dark:to-orange-500 text-white p-6 rounded-xl shadow-lg max-w-md text-center animate-bounce">
-          <h3 className="text-xl font-bold mb-2">🎉 Winner!</h3>
-          <p className="text-lg font-medium">{selectedRestaurant.name}</p>
-          {selectedRestaurant.cuisine && (
-            <p className="text-sm opacity-90 mt-1">{selectedRestaurant.cuisine}</p>
-          )}
-        </div>
-      )}
+        <>
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 dark:from-dark-primary dark:to-orange-500 text-white p-6 rounded-xl shadow-lg max-w-md text-center animate-bounce">
+            <h3 className="text-xl font-bold mb-2">🎉 Winner!</h3>
+            <p className="text-lg font-medium">{selectedRestaurant.name}</p>
+            {selectedRestaurant.cuisine && (
+              <p className="text-sm opacity-90 mt-1">{selectedRestaurant.cuisine}</p>
+            )}
+          </div>
+          <div className="flex gap-4 mt-4">
+            {onMarkVisited && (
+              <button
+                onClick={() => onMarkVisited(selectedRestaurant)}
+                className="bg-white dark:bg-dark-card text-blue-600 dark:text-dark-primary border border-blue-200 dark:border-dark-border hover:bg-blue-50 dark:hover:bg-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200"
+              >
+                Mark as visited
+              </button>
+            )}
 
-      {onMarkVisited && selectedRestaurant && (
-        <button
-          onClick={() => onMarkVisited(selectedRestaurant)}
-          className="mt-4 bg-white dark:bg-dark-card text-blue-600 dark:text-dark-primary border border-blue-200 dark:border-dark-border hover:bg-blue-50 dark:hover:bg-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200"
-        >
-          Mark as visited
-        </button>
+          </div>
+        </>
       )}
     </div>
   );

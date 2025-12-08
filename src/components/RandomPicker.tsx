@@ -134,6 +134,8 @@ export const RandomPicker: React.FC<RandomPickerProps> = ({
             Mark as visited
           </button>
         )}
+
+
       </div>
 
       <div className="text-center text-sm text-gray-500 dark:text-dark-text-secondary">
