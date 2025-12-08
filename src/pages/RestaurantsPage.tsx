@@ -229,16 +229,30 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               {/* NEW: Open Now Filter */}
               <div className="p-4 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="open-now-filter" className="text-sm font-medium text-gray-700 dark:text-dark-text">
-                    Show only open restaurants
+                  <label htmlFor="open-now-filter" className="flex items-center cursor-pointer">
+                    <span className="text-sm font-medium text-gray-700 dark:text-dark-text mr-3">
+                      Show only open restaurants
+                    </span>
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        id="open-now-filter"
+                        className="sr-only" // Hide the default checkbox visually
+                        checked={filterByOpenNow}
+                        onChange={(e) => setFilterByOpenNow(e.target.checked)}
+                      />
+                      <div
+                        className={`block w-10 h-6 rounded-full transition ${
+                          filterByOpenNow ? 'bg-blue-500 dark:bg-dark-primary' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}
+                      ></div>
+                      <div
+                        className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
+                          filterByOpenNow ? 'translate-x-full bg-blue-600 dark:bg-dark-secondary' : ''
+                        }`}
+                      ></div>
+                    </div>
                   </label>
-                  <input
-                    type="checkbox"
-                    id="open-now-filter"
-                    checked={filterByOpenNow}
-                    onChange={(e) => setFilterByOpenNow(e.target.checked)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-dark-card dark:border-dark-border dark:checked:bg-dark-primary"
-                  />
                 </div>
               </div>
 
