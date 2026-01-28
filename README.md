@@ -38,7 +38,6 @@ Lunch Hub is your team's central place for planning group meals, coordinating ta
 
 - **Frontend:** React + Vite + Tailwind CSS
 - **Backend:** [Cloudflare Workers](https://workers.cloudflare.com/)
-- **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
 
 ## 🏁 Getting Started
 
