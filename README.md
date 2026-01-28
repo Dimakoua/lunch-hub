@@ -2,69 +2,41 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Your team's central place for planning group meals, coordinating takeout orders, and discovering new places to eat.
+
+Lunch Hub is your team's central place for planning group meals, coordinating takeout orders, and discovering new places to eat. It also helps individuals and teams discover restaurants nearby with a modern, user-friendly interface.
+
 
 ## 🚀 Core Features
 
-- **Group/Team Creation:** Users can create or join teams (e.g., "Marketing Dept," "Frontend Devs") to plan lunches with specific groups of colleagues.
-- **Restaurant Polling:** A user can propose a few restaurant options, and team members can vote for their preference. The poll can have a deadline, after which the winning restaurant is announced.
-- **Order Aggregation:** For takeout, once a restaurant is chosen, team members can add their specific orders. The organizer gets a consolidated list, making it easy to place the order by phone or online.
-- **Morning Coffee Runs:** Not just for lunch! Organize group coffee orders to kickstart the day.
+- **Find Nearby Restaurants:** Enter your address or use your location to discover restaurants within a chosen radius.
+- **Search & Filters:** Filter restaurants by name, keyword, cuisine, or amenity. Exclude brands or types (e.g., coffee shops) to tailor your suggestions. Toggle to show only open restaurants.
+- **Multiple Views:**
+    - **Map View:** See restaurants plotted on an interactive map.
+    - **List View:** Browse a list of restaurants with details.
+    - **Random Picker:** Can't decide? Let Lunch Hub pick a restaurant for you at random.
+    - **Spin Wheel:** Use a fun wheel to choose your meal.
+    - **History:** Review your recent picks and searches.
+- **Modern UI:** Clean, dark and light themes with intuitive navigation and controls.
+- **Group/Team Creation:** Create or join teams (e.g., "Marketing Dept," "Frontend Devs") to plan lunches with colleagues.
+- **Restaurant Polling:** Propose restaurant options and let team members vote. Polls can have deadlines, and the winner is announced automatically.
+- **Order Aggregation:** For takeout, team members add their orders, and the organizer gets a consolidated list for easy ordering.
+- **Morning Coffee Runs:** Organize group coffee orders to kickstart the day.
 
-## 📝 Implementation Plan: Morning Coffee Runs
 
-This is the high-level plan for building the "Morning Coffee Runs" feature.
+## 🖼️ Screenshots
 
-### I. Backend (Cloudflare Workers)
+| Home Page | Map View | Random Picker |
+|-----------|----------|--------------|
+| ![Home](public/readme/Screenshot%202026-01-28%20at%2010.58.56%E2%80%AFAM.png) | ![Map](public/readme/Screenshot%202026-01-28%20at%2010.59.24%E2%80%AFAM.png) | ![Random](public/readme/Screenshot%202026-01-28%20at%2010.59.33%E2%80%AFAM.png) |
 
-1.  **Project Setup:**
-    *   Configure `wrangler.toml` for the project.
-    *   Set up local development with the Wrangler CLI.
+| Filters & Controls |
+|-------------------|
+| ![Filters](public/readme/Screenshot%202026-01-28%20at%2010.59.45%E2%80%AFAM.png) |
 
-2.  **Data Storage (Cloudflare D1):**
-    *   **`coffee_runs` table:** `id`, `host_email`, `created_at`, `status` (`open`, `ordering`, `closed`), `restaurant`, `session_link_secret`.
-    *   **`orders` table:** `id`, `coffee_run_id`, `user_email`, `order_details`, `created_at`.
 
-3.  **API Endpoints:**
-    *   `POST /api/runs`: Create a new coffee run.
-        *   Body: `{ "host_email": "...", "restaurant": "..." }`
-        *   Action: Creates a run, generates a unique session link, and sends an email to the host.
-    *   `GET /api/runs/:id`: Get details for a specific coffee run (including all orders).
-    *   `POST /api/runs/:id/orders`: Add a new order to a run.
-        *   Body: `{ "user_email": "...", "order_details": "..." }`
-    *   `PUT /api/runs/:id/status`: Update the status of a run (e.g., to `closed`).
-        *   Body: `{ "status": "closed" }`
-        *   Action: Notifies users in the email chain that the run is complete.
+## 🛠️ Tech Stack
 
-4.  **Data Retention Policy:**
-    *   Implement a mechanism (e.g., Cloudflare Workers Cron Trigger) to automatically remove `coffee_runs` and their associated `orders` that are older than 7 days.
-5.  **Email Notifications:**
-    *   Use a service like Mailgun or SendGrid via the Worker.
-    *   **On Run Creation:** Send an email to the host with a unique session link to share.
-    *   **On Status Update:** When the run is closed, send an update to the same email chain.
-
-### II. Frontend (UI)
-
-1.  **Host View (`/run/:id`):**
-    *   Display the session link to share.
-    *   Show a list of current orders.
-    *   Button to "Close Orders & Notify".
-    *   Button to "Copy All Orders" which formats them nicely for a clipboard.
-
-2.  **User View (`/run/:id`):**
-    *   Simple form to add an order: Name/Email and Order Details.
-    *   Display the list of existing orders.
-
-### III. Future Enhancements
-
-1.  **Third-Party Integrations:**
-    *   Research APIs for services like Tim Hortons or Starbucks.
-    *   If an API exists, add a feature to place the consolidated order programmatically.
-    *   If not, provide a view that makes it easy to manually place the order on their website/app.
-
-## �️ Tech Stack
-
-- **Frontend:** TBD (e.g., React, Svelte, Vue)
+- **Frontend:** React + Vite + Tailwind CSS
 - **Backend:** [Cloudflare Workers](https://workers.cloudflare.com/)
 - **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
 
@@ -72,7 +44,6 @@ This is the high-level plan for building the "Morning Coffee Runs" feature.
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
 
 ### Installation
@@ -81,7 +52,14 @@ This is the high-level plan for building the "Morning Coffee Runs" feature.
    ```sh
    git clone https://github.com/your_username/lunch-hub.git
    ```
-2. _(Setup steps will be added here)_
+2. Install dependencies
+    ```sh
+    npm install
+    ```
+3. Start the development server
+    ```sh
+    npm run dev
+    ```
 
 ## 🤝 Contributing
 
