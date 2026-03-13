@@ -82,6 +82,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   filterByOpenNow,
   setFilterByOpenNow
 }) => {
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.lunchhub.com';
   const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
   const [routeDuration, setRouteDuration] = useState<number | null>(null);
@@ -130,6 +131,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       <Helmet>
         <title>Lunch Hub - Restaurants Near You</title>
         <meta name="description" content={`Found ${restaurants.length} restaurants near you. Explore on map, browse list, or use our fun selection tools!`} />
+        <link rel="canonical" href={`${origin}${window.location.pathname}`} />
       </Helmet>
       
       {/* Header */}

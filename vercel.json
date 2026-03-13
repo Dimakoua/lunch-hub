@@ -1,0 +1,20 @@
+{
+  "rewrites": [],
+  "redirects": [
+    {
+      "source": "https://lunchhub.com/:path*",
+      "destination": "https://www.lunchhub.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "http://lunchhub.com/:path*",
+      "destination": "https://www.lunchhub.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "http://www.lunchhub.com/:path*",
+      "destination": "https://www.lunchhub.com/:path*",
+      "permanent": true
+    }
+  ]
+}

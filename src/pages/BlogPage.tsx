@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { parseBlogPost, BlogPost } from '../services/blog';
 
 const BlogPage: React.FC = () => {
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.lunchhub.com';
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 9; // Use 9 for a 3-column grid
@@ -54,12 +55,13 @@ const BlogPage: React.FC = () => {
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Helmet>
-        <title>Our Blog - Lunch Hub</title>
-        <meta name="description" content="Explore articles, tips, and stories about finding the best lunch spots and enjoying your midday meal. Your guide to a better lunch break." />
-        <meta property="og:title" content="Our Blog - Lunch Hub" />
-        <meta property="og:description" content="Explore articles, tips, and stories about finding the best lunch spots and enjoying your midday meal." />
-        <meta property="og:image" content={`${window.location.origin}/images/lunchhub-og-image.png`} />
-        <meta property="og:url" content={`${window.location.origin}/blog`} />
+        <title>Lunch Hub Blog — Tips, Reviews & Meal Inspiration</title>
+        <meta name="description" content="Get lunch ideas, restaurant picks, and meal planning tips from the Lunch Hub team. Explore our latest posts and discover new places to eat." />
+        <link rel="canonical" href={`${origin}/blog`} />
+        <meta property="og:title" content="Lunch Hub Blog — Tips, Reviews & Meal Inspiration" />
+        <meta property="og:description" content="Get lunch ideas, restaurant picks, and meal planning tips from the Lunch Hub team. Explore our latest posts and discover new places to eat." />
+        <meta property="og:image" content={`${origin}/images/lunchhub-og-image.png`} />
+        <meta property="og:url" content={`${origin}/blog`} />
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
       <div className="relative z-10 container mx-auto px-4 py-8 pt-20">

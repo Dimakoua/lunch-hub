@@ -22,11 +22,15 @@ const HomePage: React.FC<HomePageProps> = ({
   theme,
   toggleTheme
 }) => {
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.lunchhub.com';
+
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Helmet>
         <title>Lunch Hub - Discover Restaurants Near You</title>
         <meta name="description" content="Discover amazing restaurants near you. Search by location or let us find your next favorite meal!" />
+        <link rel="canonical" href={`${origin}/`} />
+        <meta property="og:url" content={`${origin}/`} />
       </Helmet>
       
       {/* Background Pattern */}
@@ -63,6 +67,11 @@ const HomePage: React.FC<HomePageProps> = ({
           </Link>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
             Discover amazing restaurants near you. Search by location or let us find your next favorite meal!
+          </p>
+          <p className="mt-4 text-sm text-gray-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
+            <Link to="/blog" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
+              Read our blog
+            </Link> for lunch ideas, tips, and restaurant highlights.
           </p>
         </div>
 
