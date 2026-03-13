@@ -63,7 +63,15 @@ const BlogPostPage: React.FC = () => {
 
   const { attributes, body } = post;
   const postUrl = window.location.href;
-  const coverImageUrl = attributes.cover_image ? `${window.location.origin}${attributes.cover_image}` : `${window.location.origin}/images/lunchhub-og-image.png`;
+  
+  // Handle absolute Unsplash URLs or relative local paths
+  const getFullImageUrl = (imagePath?: string) => {
+    if (!imagePath) return `${window.location.origin}/images/lunchhub-og-image.png`;
+    if (imagePath.startsWith('http')) return imagePath;
+    return `${window.location.origin}${imagePath}`;
+  };
+
+  const coverImageUrl = getFullImageUrl(attributes.cover_image);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
