@@ -2,7 +2,8 @@
 title: "Top 5 Restaurants in Toronto: Must-Try Dining Experiences"
 date: "January 24, 2026"
 description: "Discover the top 5 restaurants in Toronto offering exceptional cuisine, from fine dining to casual eats. Plan your next meal with these highly-rated spots."
-cover_image: "/images/top-toronto-restaurants.jpg"
+cover_image: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop"
+keywords: "Toronto dining, Canadian restaurants, GTA food, best restaurants Toronto"
 ---
 
 Toronto's diverse food scene offers something for every palate. From upscale dining to hidden gems, here are the top 5 restaurants that consistently impress locals and visitors alike.

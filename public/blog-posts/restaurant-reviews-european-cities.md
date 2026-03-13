@@ -2,7 +2,8 @@
 title: "Restaurant Reviews: Hidden Gems and Standouts in European Cities"
 date: "January 24, 2026"
 description: "Read authentic restaurant reviews from European cities including Paris, Rome, and Barcelona. Discover hidden gems and must-visit dining spots."
-cover_image: "/images/european-restaurant-reviews.jpg"
+cover_image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=2070&auto=format&fit=crop"
+keywords: "European cuisine, Paris dining, Rome restaurants, Barcelona food, hidden gems Europe"
 ---
 
 Europe's culinary scene offers endless variety, from Michelin-starred establishments to local trattorias. Here are detailed reviews of exceptional restaurants across different European cities.

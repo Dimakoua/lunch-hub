@@ -2,7 +2,8 @@
 title: "Exploring Different Cuisines with Lunch Hub"
 date: "September 9, 2025"
 description: "Break out of your lunch rut and embark on a culinary adventure. Discover how Lunch Hub can be your passport to flavor, helping you find new and exciting cuisines."
-cover_image: "/images/exploring-cuisines.jpg"
+cover_image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop"
+keywords: "world cuisines, culinary adventure, ethnic food, food exploration, Lunch Hub"
 ---
 
 One of the best ways to add some excitement to your week is by exploring different cuisines. With Lunch Hub, you can embark on a culinary adventure without leaving your neighborhood.

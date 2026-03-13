@@ -2,7 +2,8 @@
 title: "Top 5 Restaurants in New York City: Iconic Dining Destinations"
 date: "January 24, 2026"
 description: "Explore the top 5 restaurants in New York City, from world-renowned establishments to neighborhood favorites. Experience the best of NYC's culinary scene."
-cover_image: "/images/top-nyc-restaurants.jpg"
+cover_image: "https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?q=80&w=2070&auto=format&fit=crop"
+keywords: "NYC restaurants, New York City dining, iconic food, Manhattan eats"
 ---
 
 New York City's restaurant landscape is legendary, offering everything from Michelin-starred fine dining to iconic pizza slices. Here are the top 5 restaurants that define the city's diverse and dynamic food culture.

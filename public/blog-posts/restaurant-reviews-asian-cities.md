@@ -2,7 +2,8 @@
 title: "Restaurant Reviews: Must-Try Spots in Asian Cities"
 date: "January 24, 2026"
 description: "Explore restaurant reviews from vibrant Asian cities including Tokyo, Bangkok, and Singapore. Discover authentic flavors and unique dining experiences."
-cover_image: "/images/asian-restaurant-reviews.jpg"
+cover_image: "https://images.unsplash.com/photo-1540648639573-8c848de23f0a?q=80&w=2072&auto=format&fit=crop"
+keywords: "Asian cuisine, Tokyo restaurants, Bangkok food, Singapore dining, restaurant reviews"
 ---
 
 Asia's culinary diversity is unparalleled, offering everything from street food stalls to world-class fine dining. Here are reviews of exceptional restaurants across different Asian cities.

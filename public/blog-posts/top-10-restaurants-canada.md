@@ -2,7 +2,8 @@
 title: "Top 10 Restaurants in Canada: Coast to Coast Culinary Excellence"
 date: "January 24, 2026"
 description: "Discover the top 10 restaurants across Canada, from Vancouver to Halifax. Experience the best of Canadian cuisine and international influences."
-cover_image: "/images/top-canada-restaurants.jpg"
+cover_image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=2074&auto=format&fit=crop"
+keywords: "Canada restaurants, Vancouver dining, Toronto food, coast to coast, Canadian cuisine"
 ---
 
 Canada's restaurant scene blends indigenous ingredients with global influences, creating unique dining experiences. Here are the top 10 restaurants that represent the country's culinary diversity and excellence.

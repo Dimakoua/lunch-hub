@@ -2,7 +2,8 @@
 title: "Eating Well on a Budget: Your Guide to Affordable Lunches"
 date: "September 12, 2025"
 description: "Think eating out for lunch is always expensive? Think again! Discover practical tips for finding delicious and affordable lunch options with Lunch Hub."
-cover_image: "/images/lunch-on-a-budget.jpg"
+cover_image: "https://images.unsplash.com/photo-1549466600-1288ca786884?q=80&w=2070&auto=format&fit=crop"
+keywords: "budget lunch, affordable dining, cheap eats, meal savings, Lunch Hub"
 ---
 
 Enjoying a delicious lunch out doesn't have to break the bank. With a few smart strategies and the help of Lunch Hub, you can find satisfying meals that are also budget-friendly.

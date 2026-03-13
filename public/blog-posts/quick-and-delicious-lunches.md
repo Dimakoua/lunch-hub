@@ -2,7 +2,8 @@
 title: "In a Rush? Quick and Delicious Lunch Ideas"
 date: "September 15, 2025"
 description: "Short on time? You don't have to settle for a sad desk lunch. Learn how to find quick and delicious meal options that fit into your busy schedule."
-cover_image: "/images/quick-lunches.jpg"
+cover_image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2080&auto=format&fit=crop"
+keywords: "quick lunch, healthy fast food, meal on the go, lunch break, Lunch Hub"
 ---
 
 We've all been there: a packed schedule and only a few minutes to grab lunch. But being short on time doesn't mean you have to sacrifice a satisfying meal.

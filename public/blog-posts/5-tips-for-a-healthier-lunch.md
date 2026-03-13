@@ -1,11 +1,12 @@
 ---
-title: "5 Tips for a Healthier Lunch"
+title: "5 Tips for a Healthier Lunch: Nutritious Meal Ideas"
 date: "September 10, 2025"
 description: "Discover 5 simple tips for making your lunch healthier and more energizing. Learn how Lunch Hub can help you find nutritious and delicious meal options near you."
-cover_image: "/images/healthy-lunch-tips.jpg"
+cover_image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop"
+keywords: "healthy lunch tips, nutritious meals, Lunch Hub, healthy eating, meal planning"
 ---
 
-Eating a healthy lunch can have a big impact on your energy levels and overall well-being. Here are five tips for making healthier choices with the help of Lunch Hub.
+Eating a healthy lunch can have a big impact on your energy levels and overall well-being. Understanding [the benefits of a good lunch break](benefits-of-good-lunch) is the first step toward a more productive day. Here are five tips for making healthier choices with the help of Lunch Hub.
 
 ## Simple Swaps for a Better Meal
 

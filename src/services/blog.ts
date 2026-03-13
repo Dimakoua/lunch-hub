@@ -6,6 +6,7 @@ export interface BlogPostAttributes {
   date: string;
   description: string;
   cover_image?: string;
+  keywords?: string;
 }
 
 export interface BlogPost {
