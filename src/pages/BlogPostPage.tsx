@@ -1,10 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Helmet } from 'react-helmet-async';
 import remarkGfm from 'remark-gfm';
 import { parseBlogPost, BlogPost } from '../services/blog';
 import {LoadingSpinner} from '../components/LoadingSpinner';
+
+const ReadingTime: React.FC<{ text: string }> = ({ text }) => {
+  const stats = useMemo(() => {
+    const words = text.trim().split(/\s+/).length;
+    const time = Math.ceil(words / 200);
+    return time;
+  }, [text]);
+
+  return (
+    <span className="flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      {stats} min read
+    </span>
+  );
+};
 
 const LinkRenderer: React.FC<any> = ({ href, children }) => {
   const isInternal = href && !href.startsWith('http') && !href.startsWith('https') && !href.startsWith('//');
@@ -149,16 +164,22 @@ const BlogPostPage: React.FC = () => {
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 line-tight leading-tight">
               {attributes.title}
             </h1>
-            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-              <time dateTime={new Date(attributes.date).toISOString()}>
+            <div className="flex flex-wrap items-center gap-y-2 text-sm text-gray-500 dark:text-gray-400">
+              <time dateTime={new Date(attributes.date).toISOString()} className="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
                 {new Date(attributes.date).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 })}
               </time>
-              <span className="mx-2">•</span>
-              <span>Lunch Hub Team</span>
+              <span className="mx-3 hidden sm:inline">•</span>
+              <ReadingTime text={body} />
+              <span className="mx-3 hidden sm:inline">•</span>
+              <span className="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Lunch Hub Team
+              </span>
             </div>
           </header>
           
@@ -180,6 +201,40 @@ const BlogPostPage: React.FC = () => {
               {body}
             </ReactMarkdown>
           </div>
+          
+          <footer className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">Lunch Hub Team</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Curating the best dining experiences.</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: attributes.title,
+                        text: attributes.description,
+                        url: postUrl,
+                      });
+                    } else {
+                      navigator.clipboard.writeText(postUrl);
+                      alert('Link copied to clipboard!');
+                    }
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 transition-all duration-200 text-sm font-medium"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
+                  Share Post
+                </button>
+              </div>
+            </div>
+          </footer>
         </article>
       </div>
     </main>
