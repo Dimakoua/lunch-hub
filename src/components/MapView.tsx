@@ -172,7 +172,7 @@ export const MapView: React.FC<MapViewProps> = ({
         <div
           role="status"
           aria-live="polite"
-          className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white dark:bg-dark-card p-2 rounded-full shadow-md text-sm font-medium text-gray-800 dark:text-dark-text flex items-center gap-3"
+          className="absolute top-16 left-1/2 -translate-x-1/2 z-[10001] bg-white dark:bg-dark-card p-2 rounded-full shadow-md text-sm font-medium text-gray-800 dark:text-dark-text flex items-center gap-3"
         >
           <div className="flex items-center gap-2">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
