@@ -79,13 +79,23 @@ export const MapView: React.FC<MapViewProps> = ({
   const formatDuration = (seconds: number | null | undefined) => {
     if (seconds === null || seconds === undefined) return 'N/A';
     const minutes = Math.round(seconds / 60);
-    return `${minutes} min`;
+    return `${minutes} ${minutes === 1 ? 'min' : 'mins'}`;
   };
 
   const formatDistance = (meters: number | null | undefined) => {
     if (meters === null || meters === undefined) return 'N/A';
     if (meters < 1000) return `${Math.round(meters)} m`;
     return `${(meters / 1000).toFixed(1)} km`;
+  };
+
+  const formatETA = (seconds: number | null | undefined) => {
+    if (seconds === null || seconds === undefined) return null;
+    try {
+      const eta = new Date(Date.now() + seconds * 1000);
+      return eta.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    } catch (e) {
+      return null;
+    }
   };
 
   return (
@@ -114,13 +124,31 @@ export const MapView: React.FC<MapViewProps> = ({
 
       {/* Route Info Overlay */}
       {routeDistance !== null && routeDuration !== null && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white dark:bg-dark-card p-3 rounded-lg shadow-md text-sm font-medium text-gray-800 dark:text-dark-text flex items-center space-x-4">
-          <p>
-            <strong className="text-blue-600 dark:text-dark-primary">Distance:</strong> {formatDistance(routeDistance)}
-          </p>
-          <p>
-            <strong className="text-blue-600 dark:text-dark-primary">Est. Walk Time:</strong> {formatDuration(routeDuration)}
-          </p>
+        <div
+          role="status"
+          aria-live="polite"
+          className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white dark:bg-dark-card p-2 rounded-full shadow-md text-sm font-medium text-gray-800 dark:text-dark-text flex items-center gap-3"
+        >
+          <div className="flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z" fill="#E0F2FE" />
+              <path d="M12 7a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" fill="#0369A1" />
+            </svg>
+          </div>
+
+          <div className="flex flex-col text-left leading-tight">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500 dark:text-dark-text-secondary">Walk</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-dark-text">{formatDuration(routeDuration)}</span>
+              <span className="text-xs text-gray-400">•</span>
+              <span className="text-xs text-gray-600 dark:text-dark-text-secondary">{formatDistance(routeDistance)}</span>
+            </div>
+            {formatETA(routeDuration) && (
+              <div className="text-center text-[11px] text-gray-500 dark:text-dark-text-secondary">
+                Arrive ~ {formatETA(routeDuration)}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
