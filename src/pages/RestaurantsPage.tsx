@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles, Share2 } from 'lucide-react'; // Added Share2
+import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles, Share2, Loader2 } from 'lucide-react'; // Added Share2, Loader2
 import { RestaurantCard } from '../components/RestaurantCard';
 import { MapView } from '../components/MapView';
 import { SpinWheel } from '../components/SpinWheel';
@@ -469,10 +469,15 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             <p className="text-red-700 dark:text-red-200 text-lg font-medium">{error}</p>
             <button
               onClick={onRetry}
-              className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-md transition-all duration-200 hover:scale-105 active:scale-95"
+              disabled={loading}
+              className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-bold shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:scale-100 disabled:cursor-not-allowed"
             >
-              <RotateCcw className="w-5 h-5" />
-              Retry Search
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <RotateCcw className="w-5 h-5" />
+              )}
+              {loading ? 'Retrying...' : 'Retry Search'}
             </button>
           </div>
         ) : (

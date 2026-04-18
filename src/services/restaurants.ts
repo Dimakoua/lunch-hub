@@ -1,4 +1,5 @@
 import { Restaurant } from '../types/restaurant';
+import { cacheService } from './cache';
 
 // Haversine formula to calculate distance between two lat/lon points in meters
 const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -21,6 +22,13 @@ export const fetchRestaurants = async (
   lon: number,
   radius: number = 1000
 ): Promise<Restaurant[]> => {
+  const cacheKey = cacheService.generateKey(lat, lon, radius);
+  const cachedData = cacheService.get<Restaurant[]>(cacheKey);
+  
+  if (cachedData) {
+    return cachedData;
+  }
+
   try {
     // Convert radius from meters to degrees (approximate) for bounding box
     // This is a rough estimate for the Overpass API query to get a superset of results
@@ -78,6 +86,9 @@ export const fetchRestaurants = async (
       const distance = haversineDistance(lat, lon, restaurant.lat, restaurant.lon);
       return distance <= radius;
     });
+
+    // Cache the result
+    cacheService.set(cacheKey, filteredRestaurants);
 
     return filteredRestaurants;
   } catch (error) {

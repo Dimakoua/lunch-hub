@@ -6,8 +6,8 @@ import { SearchBar } from '../components/SearchBar';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
 interface HomePageProps {
-  onSearch: (query: string) => void;
-  onCurrentLocation: () => void;
+  onSearch: (query: string, radius: number, openNow: boolean) => void;
+  onCurrentLocation: (radius: number, openNow: boolean) => void;
   loading: boolean;
   error: string | null;
   theme: 'light' | 'dark';

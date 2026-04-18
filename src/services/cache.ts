@@ -4,34 +4,70 @@ type CacheEntry<T> = {
 };
 
 class CacheService {
-  private cache: Map<string, CacheEntry<any>> = new Map();
+  private readonly STORAGE_PREFIX = 'lunch-hub-cache-';
   private readonly DEFAULT_TTL = 1000 * 60 * 60; // 1 hour
 
-  set<T>(key: string, data: T, ttl: number = this.DEFAULT_TTL): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now() + ttl,
+  constructor() {
+    this.cleanup();
+  }
+
+  private cleanup(): void {
+    if (typeof window === 'undefined') return;
+    
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(this.STORAGE_PREFIX)) {
+        this.get(key.replace(this.STORAGE_PREFIX, ''));
+      }
     });
   }
 
-  get<T>(key: string): T | null {
-    const entry = this.cache.get(key);
-    if (!entry) return null;
+  set<T>(key: string, data: T, ttl: number = this.DEFAULT_TTL): void {
+    if (typeof window === 'undefined') return;
 
-    if (Date.now() > entry.timestamp) {
-      this.cache.delete(key);
+    const entry: CacheEntry<T> = {
+      data,
+      timestamp: Date.now() + ttl,
+    };
+    localStorage.setItem(this.STORAGE_PREFIX + key, JSON.stringify(entry));
+  }
+
+  get<T>(key: string): T | null {
+    if (typeof window === 'undefined') return null;
+
+    const stored = localStorage.getItem(this.STORAGE_PREFIX + key);
+    if (!stored) return null;
+
+    try {
+      const entry: CacheEntry<T> = JSON.parse(stored);
+      if (Date.now() > entry.timestamp) {
+        localStorage.removeItem(this.STORAGE_PREFIX + key);
+        return null;
+      }
+      return entry.data;
+    } catch (e) {
+      localStorage.removeItem(this.STORAGE_PREFIX + key);
       return null;
     }
-
-    return entry.data as T;
   }
 
   clear(): void {
-    this.cache.clear();
+    if (typeof window === 'undefined') return;
+
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(this.STORAGE_PREFIX)) {
+        localStorage.removeItem(key);
+      }
+    });
   }
 
   generateKey(...args: any[]): string {
-    return args.map(arg => JSON.stringify(arg)).join('|');
+    return args.map(arg => {
+      if (typeof arg === 'number') {
+        // Round coordinates to ~11m precision to improve cache hit rate
+        return arg.toFixed(4);
+      }
+      return JSON.stringify(arg);
+    }).join('|');
   }
 }
 

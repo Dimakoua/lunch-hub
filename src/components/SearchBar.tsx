@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, Loader2, X } from 'lucide-react';
+import { Search, MapPin, Loader2, X, SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import { searchLocationSuggestions } from '../services/geocoding';
 
 interface SearchBarProps {
-  onSearch: (query: string) => void;
-  onCurrentLocation: () => void;
+  onSearch: (query: string, radius: number, openNow: boolean) => void;
+  onCurrentLocation: (radius: number, openNow: boolean) => void;
   loading: boolean;
+  initialRadius?: number;
+  initialOpenNow?: boolean;
 }
 
 interface LocationSuggestion {
@@ -19,13 +21,18 @@ interface LocationSuggestion {
 export const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
   onCurrentLocation,
-  loading
+  loading,
+  initialRadius = 1000,
+  initialOpenNow = false
 }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [radius, setRadius] = useState(initialRadius);
+  const [openNow, setOpenNow] = useState(initialOpenNow);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -82,14 +89,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     setQuery(suggestion.display_name);
     setShowSuggestions(false);
     setSelectedIndex(-1);
-    onSearch(suggestion.display_name);
+    onSearch(suggestion.display_name, radius, openNow);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
       setShowSuggestions(false);
-      onSearch(query.trim());
+      onSearch(query.trim(), radius, openNow);
     }
   };
 
@@ -115,8 +122,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <div className="w-full max-w-2xl mx-auto relative">
       <form onSubmit={handleSubmit} className="relative">
-        <div className="flex items-center bg-white dark:bg-dark-card rounded-full shadow-lg border border-gray-200 dark:border-dark-border hover:shadow-xl transition-shadow duration-300">
-          <Search className="w-5 h-5 text-gray-400 dark:text-dark-text-secondary ml-4" />
+        <div className="flex items-center bg-white dark:bg-dark-card rounded-full shadow-lg border border-gray-200 dark:border-dark-border hover:shadow-xl transition-shadow duration-300 px-2">
+          <Search className="w-5 h-5 text-gray-400 dark:text-dark-text-secondary ml-3" />
           <input
             ref={inputRef}
             type="text"
@@ -130,46 +137,111 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             disabled={loading}
             autoComplete="off"
           />
-          {query && (
+          
+          <div className="flex items-center">
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  setSuggestions([]);
+                  setShowSuggestions(false);
+                }}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                title="Clear search"
+              >
+                <X className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary" />
+              </button>
+            )}
+            
             <button
               type="button"
-              onClick={() => {
-                setQuery('');
-                setSuggestions([]);
-                setShowSuggestions(false);
-              }}
-              className="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-              title="Clear search"
+              onClick={() => setShowFilters(!showFilters)}
+              className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${showFilters ? 'text-blue-600 dark:text-dark-primary' : 'text-gray-600 dark:text-dark-text-secondary'}`}
+              title="Search filters"
             >
-              <X className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary" />
+              <SlidersHorizontal className="w-5 h-5" />
             </button>
-          )}
-          <button
-            type="button"
-            onClick={onCurrentLocation}
-            disabled={loading}
-            className="p-2 sm:p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group"
-            title="Use current location"
-          >
-            {loading ? (
-              <Loader2 className="w-5 h-5 text-blue-600 dark:text-dark-primary animate-spin" />
-            ) : (
-              <MapPin className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary group-hover:text-blue-600 dark:group-hover:text-dark-primary transition-colors duration-200" />
-            )}
-          </button>
-          <button
-            type="submit"
-            disabled={loading || !query.trim()}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full mr-1 transition-all duration-200 font-medium hidden md:block"
-          >
-            Search
-          </button>
+
+            <button
+              type="button"
+              onClick={() => onCurrentLocation(radius, openNow)}
+              disabled={loading}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group"
+              title="Use current location"
+            >
+              {loading ? (
+                <Loader2 className="w-5 h-5 text-blue-600 dark:text-dark-primary animate-spin" />
+              ) : (
+                <MapPin className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary group-hover:text-blue-600 dark:group-hover:text-dark-primary transition-colors duration-200" />
+              )}
+            </button>
+            
+            <button
+              type="submit"
+              disabled={loading || !query.trim()}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full ml-1 transition-all duration-200 font-medium hidden md:block"
+            >
+              Search
+            </button>
+          </div>
         </div>
       </form>
 
-      {/* New location for the search button */}
+      {/* Filters Panel */}
+      {showFilters && (
+        <div className="mt-3 p-4 bg-white dark:bg-dark-card rounded-2xl shadow-lg border border-gray-200 dark:border-dark-border animate-slide-up">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-dark-text flex items-center gap-2">
+                Search radius
+              </label>
+              <select
+                value={radius}
+                onChange={(e) => setRadius(Number(e.target.value))}
+                className="px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg text-sm bg-white dark:bg-dark-background dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary"
+              >
+                <option value={500}>500m</option>
+                <option value={1000}>1km</option>
+                <option value={2000}>2km</option>
+                <option value={5000}>5km</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center justify-between md:justify-end">
+              <label htmlFor="home-open-now" className="flex items-center cursor-pointer group">
+                <span className="text-sm font-medium text-gray-700 dark:text-dark-text mr-3">
+                  Open now only
+                </span>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    id="home-open-now"
+                    className="sr-only"
+                    checked={openNow}
+                    onChange={(e) => setOpenNow(e.target.checked)}
+                  />
+                  <div
+                    className={`block w-10 h-6 rounded-full transition ${
+                      openNow ? 'bg-blue-600 dark:bg-dark-primary' : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                  ></div>
+                  <div
+                    className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
+                      openNow ? 'translate-x-full' : ''
+                    }`}
+                  ></div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Search Button */}
       <button
-        type="submit"
+        type="button"
+        onClick={handleSubmit}
         disabled={loading || !query.trim()}
         className="mt-4 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full transition-all duration-200 font-medium md:hidden"
       >

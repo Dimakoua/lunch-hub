@@ -167,14 +167,22 @@ function App() {
     revokeConsent();
   };
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = async (query: string, searchRadius?: number, openNow?: boolean) => {
     setLoading(true);
     setError(null);
+    if (searchRadius !== undefined) setRadius(searchRadius);
+    if (openNow !== undefined) setFilterByOpenNow(openNow);
+    
     try {
       const result = await geocodeAddress(query);
       if (result) {
         setLocation(result);
-        const availableCount = await searchRestaurants(result.lat, result.lon);
+        const availableCount = await searchRestaurants(
+          result.lat, 
+          result.lon, 
+          searchRadius !== undefined ? searchRadius : radius,
+          openNow !== undefined ? openNow : filterByOpenNow
+        );
         trackRestaurantSearch(query, availableCount);
         navigate('/restaurants');
       } else {
@@ -187,14 +195,22 @@ function App() {
     }
   };
 
-  const handleCurrentLocation = async () => {
+  const handleCurrentLocation = async (searchRadius?: number, openNow?: boolean) => {
     setLoading(true);
     setError(null);
+    if (searchRadius !== undefined) setRadius(searchRadius);
+    if (openNow !== undefined) setFilterByOpenNow(openNow);
+
     try {
       const position = await getCurrentLocation();
       const newLocation = { lat: position.lat, lon: position.lon };
       setLocation(newLocation);
-      const availableCount = await searchRestaurants(position.lat, position.lon);
+      const availableCount = await searchRestaurants(
+        position.lat, 
+        position.lon,
+        searchRadius !== undefined ? searchRadius : radius,
+        openNow !== undefined ? openNow : filterByOpenNow
+      );
       trackLocationPermission(true);
       trackRestaurantSearch('current_location', availableCount);
       navigate('/restaurants');
@@ -234,7 +250,7 @@ function App() {
     return source.toLowerCase().includes(value);
   }, []);
 
-  const applyAvailabilityFilters = useCallback((restaurantList: Restaurant[]) => {
+  const applyAvailabilityFilters = useCallback((restaurantList: Restaurant[], openNow?: boolean) => {
     let filtered = restaurantList.filter(
       (restaurantItem) => !visitedRestaurants.some((visited) => visited.id === restaurantItem.id)
     );
@@ -245,22 +261,24 @@ function App() {
       );
     }
 
-    if (filterByOpenNow) {
+    const checkOpenNow = openNow !== undefined ? openNow : filterByOpenNow;
+    if (checkOpenNow) {
       filtered = filtered.filter((restaurant) => isRestaurantOpen(restaurant));
     }
 
     return filtered;
   }, [visitedRestaurants, filterRules, shouldExcludeByFilter, filterByOpenNow]);
 
-  const searchRestaurants = async (lat: number, lon: number) => {
+  const searchRestaurants = async (lat: number, lon: number, searchRadius?: number, openNow?: boolean) => {
     try {
-      const foundRestaurants = await fetchRestaurants(lat, lon, radius);
+      const currentRadius = searchRadius !== undefined ? searchRadius : radius;
+      const foundRestaurants = await fetchRestaurants(lat, lon, currentRadius);
       setRestaurants(foundRestaurants);
       if (foundRestaurants.length === 0) {
         setError('No restaurants found in this area. Try increasing the search radius.');
         return 0;
       }
-      const availableAfterFilters = applyAvailabilityFilters(foundRestaurants);
+      const availableAfterFilters = applyAvailabilityFilters(foundRestaurants, openNow);
       if (availableAfterFilters.length === 0) {
         if (filterRules.length > 0) {
           setError(FILTER_EMPTY_MESSAGE);
@@ -377,9 +395,11 @@ function App() {
     setFilterRules([]);
   };
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
     if (location) {
-      searchRestaurants(location.lat, location.lon);
+      setLoading(true);
+      await searchRestaurants(location.lat, location.lon);
+      setLoading(false);
     }
   };
 

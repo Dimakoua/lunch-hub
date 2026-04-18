@@ -1,4 +1,13 @@
+import { cacheService } from './cache';
+
 export const geocodeAddress = async (address: string) => {
+  const cacheKey = cacheService.generateKey('geocode', address);
+  const cached = cacheService.get<{ lat: number; lon: number; display_name: string }>(cacheKey);
+  
+  if (cached) {
+    return cached;
+  }
+
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
@@ -6,11 +15,13 @@ export const geocodeAddress = async (address: string) => {
     const data = await response.json();
     
     if (data.length > 0) {
-      return {
+      const result = {
         lat: parseFloat(data[0].lat),
         lon: parseFloat(data[0].lon),
         display_name: data[0].display_name
       };
+      cacheService.set(cacheKey, result);
+      return result;
     }
     return null;
   } catch (error) {
