@@ -1,4 +1,5 @@
 import { cacheService } from './cache';
+import { CACHE_TTL_LONG } from '../constants';
 
 export const fetchRoute = async (
   start: [number, number],
@@ -30,8 +31,7 @@ export const fetchRoute = async (
         duration,
         distance,
       };
-
-      cacheService.set(cacheKey, result);
+      cacheService.set(cacheKey, result, CACHE_TTL_LONG);
       return result;
     }
     return null;

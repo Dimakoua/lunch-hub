@@ -1,5 +1,6 @@
 import { Restaurant } from '../types/restaurant';
 import { cacheService } from './cache';
+import { CACHE_TTL_LONG } from '../constants';
 
 // Haversine formula to calculate distance between two lat/lon points in meters
 const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -109,8 +110,8 @@ export const fetchRestaurants = async (
       return distance <= radius;
     });
 
-    // Cache the result
-    cacheService.set(cacheKey, filteredRestaurants);
+    // Cache the result for 5 days to keep geo search results available
+    cacheService.set(cacheKey, filteredRestaurants, CACHE_TTL_LONG);
 
     return filteredRestaurants;
   } catch (error) {

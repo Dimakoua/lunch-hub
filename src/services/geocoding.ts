@@ -1,4 +1,5 @@
 import { cacheService } from './cache';
+import { CACHE_TTL_LONG } from '../constants';
 
 export const geocodeAddress = async (address: string) => {
   const cacheKey = cacheService.generateKey('geocode', address);
@@ -20,7 +21,7 @@ export const geocodeAddress = async (address: string) => {
         lon: parseFloat(data[0].lon),
         display_name: data[0].display_name
       };
-      cacheService.set(cacheKey, result);
+      cacheService.set(cacheKey, result, CACHE_TTL_LONG);
       return result;
     }
     return null;
@@ -53,6 +54,12 @@ export const searchLocationSuggestions = async (query: string) => {
 };
 
 export const getCurrentLocation = (): Promise<{ lat: number; lon: number }> => {
+  const cacheKey = cacheService.generateKey('currentLocation');
+  const cached = cacheService.get<{ lat: number; lon: number }>(cacheKey);
+  if (cached) {
+    return Promise.resolve(cached);
+  }
+
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported'));
@@ -61,10 +68,13 @@ export const getCurrentLocation = (): Promise<{ lat: number; lon: number }> => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        resolve({
+        const result = {
           lat: position.coords.latitude,
           lon: position.coords.longitude
-        });
+        };
+        // Cache detected location so repeated "detect" clicks use cached coords
+        cacheService.set(cacheKey, result, CACHE_TTL_LONG);
+        resolve(result);
       },
       (error) => {
         reject(error);

@@ -202,6 +202,23 @@ export const MapView: React.FC<MapViewProps> = ({
                 </span>
               )}
               <p className="text-xs text-gray-600 dark:text-dark-text-secondary mb-1 line-clamp-1">{restaurant.address}</p>
+              {selectedRestaurant?.id === restaurant.id && routeDistance !== null && routeDuration !== null && (
+                <div className="mt-1 text-xs text-gray-500 dark:text-dark-text-secondary flex items-center gap-2">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                    <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z" fill="#E0F2FE" />
+                    <path d="M12 7a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" fill="#0369A1" />
+                  </svg>
+                  <span className="font-medium">{formatDuration(routeDuration)}</span>
+                  <span className="text-gray-400">•</span>
+                  <span>{formatDistance(routeDistance)}</span>
+                  {formatETA(routeDuration) && (
+                    <span className="text-gray-400">•</span>
+                  )}
+                  {formatETA(routeDuration) && (
+                    <span className="text-xs">Arrive ~ {formatETA(routeDuration)}</span>
+                  )}
+                </div>
+              )}
               
               <div className="mt-2 flex flex-col gap-1.5">
                 {selectedRestaurant?.id !== restaurant.id ? (
