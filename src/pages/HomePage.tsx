@@ -23,6 +23,7 @@ const HomePage: React.FC<HomePageProps> = ({
   toggleTheme
 }) => {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.lunchhub.com';
+  const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -34,18 +35,20 @@ const HomePage: React.FC<HomePageProps> = ({
       </Helmet>
       
       {/* Background Pattern */}
-      <div className="absolute top-4 right-4 z-20">
-        <button
-          onClick={toggleTheme}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 theme-toggle-button"
-        >
-          {theme === 'light' ? (
-            <Moon className="w-6 h-6 text-gray-600" />
-          ) : (
-            <Sun className="w-6 h-6 text-yellow-400" />
-          )}
-        </button>
-      </div>
+      {!isPWA && (
+        <div className="absolute top-4 right-4 z-20">
+          <button
+            onClick={toggleTheme}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 theme-toggle-button"
+          >
+            {theme === 'light' ? (
+              <Moon className="w-6 h-6 text-gray-600" />
+            ) : (
+              <Sun className="w-6 h-6 text-yellow-400" />
+            )}
+          </button>
+        </div>
+      )}
       
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-repeat bg-center" style={{

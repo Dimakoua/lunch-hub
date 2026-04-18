@@ -16,6 +16,8 @@ interface MapViewProps {
   center: [number, number];
   restaurants: Restaurant[];
   selectedRestaurant?: Restaurant | null;
+  onRestaurantSelected?: (restaurant: Restaurant | null) => void;
+  onMarkVisited?: (restaurant: Restaurant) => void;
   zoom?: number;
   routeGeometry?: [number, number][] | null;
   routeDistance: number | null;
@@ -44,6 +46,8 @@ export const MapView: React.FC<MapViewProps> = ({
   center, 
   restaurants, 
   selectedRestaurant,
+  onRestaurantSelected,
+  onMarkVisited,
   zoom = 13,
   radius,
   routeGeometry,
@@ -101,7 +105,13 @@ export const MapView: React.FC<MapViewProps> = ({
       <MapController center={center} selectedRestaurant={selectedRestaurant} />
 
       {routeGeometry && (
-        <Polyline positions={routeGeometry} color="#2563EB" weight={5} opacity={0.7} />
+        <Polyline 
+          positions={routeGeometry} 
+          color="#2563EB" 
+          weight={5} 
+          opacity={0.7} 
+          dashArray="10, 10"
+        />
       )}
 
       {/* Route Info Overlay */}
@@ -144,6 +154,13 @@ export const MapView: React.FC<MapViewProps> = ({
           key={restaurant.id}
           position={[restaurant.lat, restaurant.lon]}
           icon={selectedRestaurant?.id === restaurant.id ? selectedIcon : restaurantIcon}
+          eventHandlers={{
+            click: () => {
+              if (onRestaurantSelected) {
+                onRestaurantSelected(restaurant);
+              }
+            },
+          }}
         >
           <Tooltip permanent={selectedRestaurant?.id === restaurant.id}>
             {restaurant.name}
@@ -176,7 +193,40 @@ export const MapView: React.FC<MapViewProps> = ({
                   </a>
                 </p>
               )}
-              <div className="mt-2 pt-2 border-t dark:border-dark-border">
+              
+              <div className="mt-3 flex flex-col gap-2">
+                {selectedRestaurant?.id !== restaurant.id ? (
+                  <button
+                    onClick={() => onRestaurantSelected?.(restaurant)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                  >
+                    Select as Target
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => onRestaurantSelected?.(null)}
+                    className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-dark-text text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                  >
+                    Deselect Target
+                  </button>
+                )}
+                
+                <button
+                  onClick={() => {
+                    if (onMarkVisited) {
+                      onMarkVisited(restaurant);
+                    }
+                    if (selectedRestaurant?.id === restaurant.id) {
+                      onRestaurantSelected?.(null);
+                    }
+                  }}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                >
+                  Mark as Visited
+                </button>
+              </div>
+
+              <div className="mt-3 pt-2 border-t dark:border-dark-border">
                 <p className="text-sm mt-1">
                   <a 
                     href={`https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lon}&travelmode=walking`}

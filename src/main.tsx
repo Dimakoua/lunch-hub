@@ -8,6 +8,15 @@ import './i18n'; // Import the i18n configuration
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(error => {
+      console.log('SW registration failed: ', error);
+    });
+  });
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>

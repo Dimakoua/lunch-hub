@@ -65,63 +65,87 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
         {/* Wheel */}
         <div 
           ref={wheelRef}
-          className="relative w-80 h-80 rounded-full border-4 border-gray-300 dark:border-dark-border shadow-lg"
+          className="relative w-80 h-80 rounded-full border-4 border-gray-300 dark:border-dark-border shadow-lg overflow-hidden"
           style={{
             transform: `rotate(${rotation}deg)`,
             transition: isSpinning ? 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none'
           }}
         >
-          <svg className="w-full h-full" viewBox="0 0 200 200">
-            {restaurants.map((restaurant, index) => {
-              const startAngle = index * segmentAngle;
-              const endAngle = (index + 1) * segmentAngle;
-              const startAngleRad = (startAngle * Math.PI) / 180;
-              const endAngleRad = (endAngle * Math.PI) / 180;
-              
-              const x1 = 100 + 90 * Math.cos(startAngleRad);
-              const y1 = 100 + 90 * Math.sin(startAngleRad);
-              const x2 = 100 + 90 * Math.cos(endAngleRad);
-              const y2 = 100 + 90 * Math.sin(endAngleRad);
-              
-              const largeArcFlag = segmentAngle > 180 ? 1 : 0;
-              
-              const pathData = [
-                `M 100 100`,
-                `L ${x1} ${y1}`,
-                `A 90 90 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                'Z'
-              ].join(' ');
-              
-              const textAngle = startAngle + segmentAngle / 2;
-              const textX = 100 + 60 * Math.cos((textAngle * Math.PI) / 180);
-              const textY = 100 + 60 * Math.sin((textAngle * Math.PI) / 180);
+          <svg 
+            className="w-full h-full block" 
+            viewBox="0 0 200 200"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {restaurants.length === 1 ? (
+              <g>
+                <circle cx="100" cy="100" r="90" fill={colors[0]} stroke="white" strokeWidth="2" />
+                <text
+                  x="100"
+                  y="100"
+                  fill="white"
+                  fontSize="12"
+                  fontWeight="bold"
+                  textAnchor="middle"
+                  alignmentBaseline="central"
+                >
+                  {restaurants[0].name.length > 20 
+                    ? restaurants[0].name.substring(0, 20) + '...' 
+                    : restaurants[0].name
+                  }
+                </text>
+              </g>
+            ) : (
+              restaurants.map((restaurant, index) => {
+                const startAngle = index * segmentAngle;
+                const endAngle = (index + 1) * segmentAngle;
+                const startAngleRad = (startAngle * Math.PI) / 180;
+                const endAngleRad = (endAngle * Math.PI) / 180;
+                
+                const x1 = 100 + 90 * Math.cos(startAngleRad);
+                const y1 = 100 + 90 * Math.sin(startAngleRad);
+                const x2 = 100 + 90 * Math.cos(endAngleRad);
+                const y2 = 100 + 90 * Math.sin(endAngleRad);
+                
+                const largeArcFlag = segmentAngle > 180 ? 1 : 0;
+                
+                const pathData = [
+                  `M 100 100`,
+                  `L ${x1} ${y1}`,
+                  `A 90 90 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                  'Z'
+                ].join(' ');
+                
+                const textAngle = startAngle + segmentAngle / 2;
+                const textX = 100 + 65 * Math.cos((textAngle * Math.PI) / 180);
+                const textY = 100 + 65 * Math.sin((textAngle * Math.PI) / 180);
 
-              return (
-                <g key={restaurant.id}>
-                  <path
-                    d={pathData}
-                    fill={colors[index % colors.length]}
-                    stroke="white"
-                    strokeWidth="2"
-                  />
-                  <text
-                    x={textX}
-                    y={textY}
-                    fill="white"
-                    fontSize="8"
-                    fontWeight="bold"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    transform={`rotate(${textAngle}, ${textX}, ${textY})`}
-                  >
-                    {restaurant.name.length > 12 
-                      ? restaurant.name.substring(0, 12) + '...' 
-                      : restaurant.name
-                    }
-                  </text>
-                </g>
-              );
-            })}
+                return (
+                  <g key={restaurant.id}>
+                    <path
+                      d={pathData}
+                      fill={colors[index % colors.length]}
+                      stroke="white"
+                      strokeWidth="1"
+                    />
+                    <text
+                      x={textX}
+                      y={textY}
+                      fill="white"
+                      fontSize={restaurants.length > 10 ? "6" : "8"}
+                      fontWeight="bold"
+                      textAnchor="middle"
+                      alignmentBaseline="central"
+                      transform={`rotate(${textAngle}, ${textX}, ${textY})`}
+                    >
+                      {restaurant.name.length > 15 
+                        ? restaurant.name.substring(0, 12) + '...' 
+                        : restaurant.name
+                      }
+                    </text>
+                  </g>
+                );
+              })
+            )}
           </svg>
         </div>
 

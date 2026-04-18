@@ -2,6 +2,8 @@ import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback } from
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
 import { Header } from './components/Header';
+import { InstallPWA } from './components/InstallPWA';
+import { BottomNav } from './components/BottomNav';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const RestaurantsPage = lazy(() => import('./pages/RestaurantsPage'));
@@ -281,9 +283,10 @@ function App() {
   };
 
   const handleRestaurantSelected = (restaurant: Restaurant | null): void => {
-    if(!restaurant) return;
     setSelectedRestaurant(restaurant);
-    setViewMode('map');
+    if (restaurant) {
+      setViewMode('map');
+    }
   };
 
   // Auto-search when radius changes
@@ -374,11 +377,18 @@ function App() {
     setFilterRules([]);
   };
 
+  const handleRetry = () => {
+    if (location) {
+      searchRestaurants(location.lat, location.lon);
+    }
+  };
+
   // Determine if header should be shown
   const showHeader = pageLocation.pathname.startsWith('/blog');
+  const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
 
   return (
-    <>
+    <div className={isPWA ? 'pb-16' : ''}>
       {showCookieConsent && (
         <CookieConsent
           onAccept={handleCookieAccept}
@@ -436,6 +446,7 @@ function App() {
                   onOpenTour={openTour}
                   tourOpen={showTour}
                   onTourClose={handleTourClose}
+                  onRetry={handleRetry}
                 />
               ) : (
                 <HomePage
@@ -453,7 +464,9 @@ function App() {
           <Route path="/blog/:slug" element={<BlogPostPage />} />
         </Routes>
       </Suspense>
-    </>
+      <InstallPWA />
+      {isPWA && <BottomNav />}
+    </div>
   );
 }
 
