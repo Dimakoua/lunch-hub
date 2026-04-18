@@ -1,6 +1,6 @@
 import { Restaurant } from '../types/restaurant';
 import { cacheService } from './cache';
-import { CACHE_TTL_LONG } from '../constants';
+import { CACHE_TTL_LONG, OVERPASS_ENDPOINTS } from '../constants';
 
 // Haversine formula to calculate distance between two lat/lon points in meters
 const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -44,14 +44,8 @@ export const fetchRestaurants = async (
       out meta 100;
     `;
 
-    const urls = [
-      'https://overpass-api.de/api/interpreter',
-      'https://lz4.overpass-api.de/api/interpreter',
-      'https://overpass.kumi.systems/api/interpreter'
-    ];
-
     let response;
-    for (const url of urls) {
+    for (const url of OVERPASS_ENDPOINTS) {
       try {
         response = await fetch(url, {
           method: 'POST',
