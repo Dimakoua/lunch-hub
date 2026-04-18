@@ -35,27 +35,49 @@ export const fetchRestaurants = async (
     const radiusDegrees = radius / 111000; 
     
     const overpassQuery = `
-      [out:json][timeout:25];
+      [out:json][timeout:120];
       (
-        node["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court|canteen)$"]
-          (${lat - radiusDegrees},${lon - radiusDegrees},${lat + radiusDegrees},${lon + radiusDegrees});
-        way["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court)$"]
-          (${lat - radiusDegrees},${lon - radiusDegrees},${lat + radiusDegrees},${lon + radiusDegrees});
-        relation["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court)$"]
+        node["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court)$"]
           (${lat - radiusDegrees},${lon - radiusDegrees},${lat + radiusDegrees},${lon + radiusDegrees});
       );
-      out center meta 100;
+      out meta 100;
     `;
 
-    const response = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      body: overpassQuery,
-      headers: {
-        'Content-Type': 'text/plain',
-      },
-    });
+    const urls = [
+      'https://overpass-api.de/api/interpreter',
+      'https://lz4.overpass-api.de/api/interpreter',
+      'https://overpass.kumi.systems/api/interpreter'
+    ];
 
-    const data = await response.json();
+    let response;
+    for (const url of urls) {
+      try {
+        response = await fetch(url, {
+          method: 'POST',
+          body: overpassQuery,
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+        });
+        if (response.ok) break;
+      } catch (err) {
+        console.warn(`Failed to fetch from ${url}, trying next...`);
+      }
+    }
+
+    if (!response || !response.ok) {
+      throw new Error('All Overpass API endpoints failed');
+    }
+
+    const responseText = await response.text();
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Overpass API returned non-JSON response:', responseText);
+      throw new Error('Failed to parse response from Overpass API');
+    }
     
     const restaurants: Restaurant[] = data.elements
       .filter((element: any) => element.tags && element.tags.name)

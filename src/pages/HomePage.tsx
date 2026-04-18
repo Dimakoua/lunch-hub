@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { MapPin, Shuffle, RotateCcw, Sun, Moon } from 'lucide-react';
 import { SearchBar } from '../components/SearchBar';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { SEOContent } from '../components/SEOContent';
 
 interface HomePageProps {
   onSearch: (query: string, radius: number, openNow: boolean) => void;
@@ -119,6 +120,8 @@ const HomePage: React.FC<HomePageProps> = ({
             <p className="text-gray-600 dark:text-dark-text-secondary">Use our fun wheel to choose your meal</p>
           </div>
         </div>
+
+        <SEOContent />
       </div>
     </main>
   );
