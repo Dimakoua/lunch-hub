@@ -246,7 +246,7 @@ export const MapView: React.FC<MapViewProps> = ({
                   {restaurant.cuisine}
                 </span>
               )}
-              <p className="text-xs text-gray-600 dark:text-dark-text-secondary mb-1 line-clamp-1">{restaurant.address}</p>
+              {/* <p className="text-xs text-gray-600 dark:text-dark-text-secondary mb-1 line-clamp-1">{restaurant.address}</p> */}
 
               {/* Distance row */}
               {(() => {
