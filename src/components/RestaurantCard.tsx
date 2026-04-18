@@ -1,18 +1,47 @@
 import React from 'react';
-import { MapPin, Phone, Globe, Clock, Utensils } from 'lucide-react';
+import { MapPin, Phone, Globe, Clock, Utensils, PersonStanding } from 'lucide-react';
 import { Restaurant } from '../types/restaurant';
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
   onViewOnMap: (restaurant: Restaurant) => void;
   onMarkVisited?: (restaurant: Restaurant) => void;
+  userLat?: number;
+  userLon?: number;
+}
+
+function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function formatDist(m: number): string {
+  return m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`;
+}
+
+function formatWalk(m: number): string {
+  // ~80 m/min walking pace
+  const mins = Math.max(1, Math.round(m / 80));
+  return `${mins} min`;
 }
 
 export const RestaurantCard: React.FC<RestaurantCardProps> = ({ 
   restaurant, 
   onViewOnMap,
-  onMarkVisited
+  onMarkVisited,
+  userLat,
+  userLon,
 }) => {
+  const distMeters =
+    userLat !== undefined && userLon !== undefined
+      ? haversineMeters(userLat, userLon, restaurant.lat, restaurant.lon)
+      : null;
   const getAmenityIcon = (amenity: string) => {
     switch (amenity) {
       case 'restaurant':
@@ -50,6 +79,15 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
               </span>
             </div>
           </div>
+          {distMeters !== null && (
+            <div className="flex-shrink-0 flex flex-col items-end gap-0.5">
+              <span className="text-sm font-semibold text-gray-800 dark:text-dark-text">{formatDist(distMeters)}</span>
+              <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-dark-text-secondary">
+                <PersonStanding className="w-3 h-3" />
+                {formatWalk(distMeters)}
+              </span>
+            </div>
+          )}
         </div>
 
         {restaurant.cuisine && (

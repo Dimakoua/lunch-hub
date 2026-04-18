@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles, Share2, Loader2 } from 'lucide-react'; // Added Share2, Loader2
+import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles, Share2, Loader2, ChevronLeft, Navigation, Route } from 'lucide-react';
 import { RestaurantCard } from '../components/RestaurantCard';
 import { MapView } from '../components/MapView';
 import { SpinWheel } from '../components/SpinWheel';
@@ -50,6 +50,60 @@ interface RestaurantsPageProps {
   onTourClose: () => void;
   onRetry: () => void;
 }
+
+// ── Inline helpers ──────────────────────────────────────────────────────────
+function calcDist(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function fmtDist(m: number) { return m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`; }
+function fmtWalk(m: number) { const mins = Math.max(1, Math.round(m / 80)); return `${mins} min`; }
+
+interface HistoryCardProps {
+  restaurant: Restaurant;
+  userLat: number;
+  userLon: number;
+  onRemove: (id: string) => void;
+}
+
+const HistoryCard: React.FC<HistoryCardProps> = ({ restaurant, userLat, userLon, onRemove }) => {
+  const dist = calcDist(userLat, userLon, restaurant.lat, restaurant.lon);
+  return (
+    <>
+      <div className="flex items-start gap-3">
+        <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
+          <History className="w-4 h-4 text-amber-500" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text truncate">{restaurant.name}</h3>
+          {restaurant.cuisine && (
+            <span className="inline-block text-[11px] bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 px-2 py-0.5 rounded-full mt-0.5">
+              {restaurant.cuisine}
+            </span>
+          )}
+        </div>
+        <div className="flex-shrink-0 flex flex-col items-end gap-0.5">
+          <span className="text-xs font-semibold text-gray-700 dark:text-dark-text">{fmtDist(dist)}</span>
+          <span className="text-[11px] text-gray-400 dark:text-dark-text-secondary">{fmtWalk(dist)} walk</span>
+        </div>
+      </div>
+      {restaurant.address && (
+        <p className="text-xs text-gray-500 dark:text-dark-text-secondary line-clamp-2 pl-12">{restaurant.address}</p>
+      )}
+      <button
+        onClick={() => onRemove(restaurant.id)}
+        className="mt-1 inline-flex items-center justify-center w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-dark-primary bg-blue-50 dark:bg-dark-primary/10 hover:bg-blue-100 dark:hover:bg-dark-primary/20 rounded-lg transition-colors duration-200"
+      >
+        Restore to results
+      </button>
+    </>
+  );
+};
 
 const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   location,
@@ -273,6 +327,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     </div>
   );
 
+  const tabBase = 'px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-sm';
+  const tabInactive = 'bg-white dark:bg-dark-card text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-dark-border';
+
   const viewModeTabs = (
     <div
       className="mt-4 flex flex-wrap gap-2"
@@ -280,10 +337,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     >
       <button
         onClick={() => setViewMode('map')}
-        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-          viewMode === 'map' 
-            ? 'bg-blue-600 dark:bg-dark-primary text-white shadow-md' 
-            : 'bg-white dark:bg-dark-card text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-dark-border'
+        className={`${tabBase} ${
+          viewMode === 'map'
+            ? 'bg-gradient-to-r from-blue-600 to-blue-700 dark:from-dark-primary dark:to-orange-600 text-white shadow-md'
+            : tabInactive
         }`}
       >
         <MapPin className="w-4 h-4" />
@@ -291,10 +348,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       </button>
       <button
         onClick={() => setViewMode('list')}
-        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-          viewMode === 'list' 
-            ? 'bg-blue-600 dark:bg-dark-primary text-white shadow-md' 
-            : 'bg-white dark:bg-dark-card text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-dark-border'
+        className={`${tabBase} ${
+          viewMode === 'list'
+            ? 'bg-gradient-to-r from-blue-600 to-blue-700 dark:from-dark-primary dark:to-orange-600 text-white shadow-md'
+            : tabInactive
         }`}
       >
         <List className="w-4 h-4" />
@@ -302,10 +359,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       </button>
       <button
         onClick={() => setViewMode('random')}
-        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-          viewMode === 'random' 
-            ? 'bg-purple-600 dark:bg-dark-primary text-white shadow-md' 
-            : 'bg-white dark:bg-dark-card text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-dark-border'
+        className={`${tabBase} ${
+          viewMode === 'random'
+            ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md'
+            : tabInactive
         }`}
       >
         <Shuffle className="w-4 h-4" />
@@ -313,10 +370,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       </button>
       <button
         onClick={() => setViewMode('wheel')}
-        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-          viewMode === 'wheel' 
-                    ? 'bg-emerald-600 dark:bg-dark-primary text-white shadow-md' 
-                    : 'bg-white dark:bg-dark-card text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-dark-border'
+        className={`${tabBase} ${
+          viewMode === 'wheel'
+            ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-md'
+            : tabInactive
         }`}
       >
         <RotateCcw className="w-4 h-4" />
@@ -324,10 +381,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       </button>
       <button
         onClick={() => setViewMode('history')}
-        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-          viewMode === 'history' 
-            ? 'bg-amber-500 dark:bg-orange-500 text-white shadow-md' 
-            : 'bg-white dark:bg-dark-card text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-dark-border'
+        className={`${tabBase} ${
+          viewMode === 'history'
+            ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
+            : tabInactive
         }`}
         data-tour-target="history-tab"
       >
@@ -443,22 +500,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         </div>
       )}
 
-      {selectedRestaurant && (
-        <div className="max-w-7xl mx-auto px-4 py-4 bg-white dark:bg-dark-card shadow-sm rounded-b-xl flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-600 dark:text-dark-text-secondary">Selected Lunch Spot:</p>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-dark-text">{selectedRestaurant.name}</h2>
-            <p className="text-sm text-gray-600 dark:text-dark-text-secondary">{selectedRestaurant.address}</p>
-          </div>
-          <button
-            onClick={() => shareRestaurant(selectedRestaurant)}
-            className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
-          >
-            <Share2 className="w-4 h-4" />
-            Share
-          </button>
-        </div>
-      )}
+      {/* Selected restaurant banner removed — sharing now available in the map popup. */}
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
@@ -485,109 +527,250 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             {viewMode === 'map' && (
               <div
                 data-tour-target="map-container"
-                className="h-[calc(100vh-180px)] min-h-[400px] bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden"
+                className="fixed inset-0 z-40"
               >
-                <MapView 
-                  center={[location.lat, location.lon]}
-                  restaurants={restaurants}
-                  selectedRestaurant={selectedRestaurant}
-                  onRestaurantSelected={onRestaurantSelected}
-                  onMarkVisited={onMarkRestaurantVisited}
-                  routeGeometry={routeGeometry}
-                  routeDistance={routeDistance}
-                  routeDuration={routeDuration}
-                  radius={radius}
-                />
+                {/* Full-screen map */}
+                <div className="absolute inset-0">
+                  <MapView 
+                    center={[location.lat, location.lon]}
+                    restaurants={restaurants}
+                    selectedRestaurant={selectedRestaurant}
+                    onRestaurantSelected={onRestaurantSelected}
+                    onMarkVisited={onMarkRestaurantVisited}
+                    routeGeometry={routeGeometry}
+                    routeDistance={routeDistance}
+                    routeDuration={routeDuration}
+                    radius={radius}
+                  />
+                </div>
+
+                {/* Top HUD bar */}
+                <div className="absolute top-0 left-0 right-0 z-[9999] flex items-center justify-between px-4 py-3 bg-white/85 dark:bg-dark-card/85 backdrop-blur-md border-b border-gray-200/60 dark:border-dark-border/60 shadow-sm">
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:text-blue-600 dark:hover:text-dark-primary transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    List
+                  </button>
+
+                  <span className="text-sm font-semibold text-gray-800 dark:text-dark-text">
+                    {restaurants.length} restaurants
+                  </span>
+
+                  <div className="flex items-center gap-0.5">
+                    <button
+                      onClick={() => setShowSettings(!showSettings)}
+                      className={`p-2 rounded-lg transition-colors ${
+                        showSettings
+                          ? 'bg-blue-100 dark:bg-dark-primary/20 text-blue-600 dark:text-dark-primary'
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary'
+                      }`}
+                      aria-label="Filters"
+                    >
+                      <Settings className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={toggleTheme}
+                      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary transition-colors"
+                      aria-label="Toggle theme"
+                    >
+                      {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Settings slide-down panel */}
+                {showSettings && (
+                  <div className="absolute top-[57px] left-0 right-0 z-[9998] max-h-[65vh] overflow-y-auto bg-white dark:bg-dark-card border-b border-gray-200 dark:border-dark-border shadow-xl">
+                    <div className="px-4 py-2">
+                      {settingsPanel}
+                    </div>
+                  </div>
+                )}
+
+                {/* Right-side floating map actions */}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 z-[9999] flex flex-col gap-2">
+                  <button
+                    onClick={() => window.dispatchEvent(new CustomEvent('lunchhub:recenter'))}
+                    className="w-10 h-10 flex items-center justify-center bg-white dark:bg-dark-card shadow-md rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200/50 dark:border-dark-border/50"
+                    aria-label="Recenter map"
+                    title="Recenter"
+                  >
+                    <Navigation className="w-5 h-5 text-blue-600 dark:text-dark-primary" />
+                  </button>
+                  {routeGeometry && (
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent('lunchhub:fitRoute', { detail: routeGeometry }))}
+                      className="w-10 h-10 flex items-center justify-center bg-white dark:bg-dark-card shadow-md rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200/50 dark:border-dark-border/50"
+                      aria-label="Fit route"
+                      title="Fit route"
+                    >
+                      <Route className="w-5 h-5 text-emerald-600" />
+                    </button>
+                  )}
+                  {selectedRestaurant && (
+                    <button
+                      onClick={() => shareRestaurant(selectedRestaurant)}
+                      className="w-10 h-10 flex items-center justify-center bg-white dark:bg-dark-card shadow-md rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200/50 dark:border-dark-border/50"
+                      aria-label="Share restaurant"
+                      title="Share"
+                    >
+                      <Share2 className="w-5 h-5 text-purple-600" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Bottom mode-switcher pill */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[9999]">
+                  <div className="flex items-center gap-0.5 bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-full shadow-lg px-2 py-1.5 border border-gray-200/60 dark:border-dark-border/60">
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      title="List"
+                    >
+                      <List className="w-4 h-4" />
+                      <span className="hidden sm:inline">List</span>
+                    </button>
+                    <button
+                      onClick={() => setViewMode('random')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                      title="Random"
+                    >
+                      <Shuffle className="w-4 h-4" />
+                      <span className="hidden sm:inline">Random</span>
+                    </button>
+                    <button
+                      onClick={() => setViewMode('wheel')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      title="Wheel"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      <span className="hidden sm:inline">Wheel</span>
+                    </button>
+                    <button
+                      onClick={() => setViewMode('history')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                      title="History"
+                    >
+                      <History className="w-4 h-4" />
+                      <span className="hidden sm:inline">History</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
             {viewMode === 'list' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {restaurants.map((restaurant) => (
-                  <RestaurantCard
-                    key={restaurant.id}
-                    restaurant={restaurant}
-                    onViewOnMap={(restaurantToView) => {
-                      trackRestaurantView(restaurantToView.name, 'map');
-                      onViewOnMap(restaurantToView);
-                    }}
-                    onMarkVisited={onMarkRestaurantVisited}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">
+                    Nearby restaurants
+                    <span className="ml-2 text-sm font-normal text-gray-400 dark:text-dark-text-secondary">{restaurants.length} found</span>
+                  </h2>
+                </div>
+                {restaurants.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-dark-text-secondary gap-3">
+                    <MapPin className="w-10 h-10 opacity-30" />
+                    <p className="text-base">No restaurants found in this area.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {restaurants.map((restaurant) => (
+                      <RestaurantCard
+                        key={restaurant.id}
+                        restaurant={restaurant}
+                        userLat={location.lat}
+                        userLon={location.lon}
+                        onViewOnMap={(restaurantToView) => {
+                          trackRestaurantView(restaurantToView.name, 'map');
+                          onViewOnMap(restaurantToView);
+                        }}
+                        onMarkVisited={onMarkRestaurantVisited}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
             {viewMode === 'random' && (
-              <div className="flex justify-center">
-                <RandomPicker 
-                  restaurants={restaurants}
-                  onRestaurantSelected={handleRandomPickResult}
-                  onMarkVisited={onMarkRestaurantVisited}
-                />
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-full max-w-lg">
+                  <div className="mb-4 text-center">
+                    <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">Random pick</h2>
+                    <p className="text-sm text-gray-500 dark:text-dark-text-secondary">Let luck decide your lunch from {restaurants.length} options</p>
+                  </div>
+                  <RandomPicker 
+                    restaurants={restaurants}
+                    onRestaurantSelected={handleRandomPickResult}
+                    onMarkVisited={onMarkRestaurantVisited}
+                  />
+                </div>
               </div>
             )}
 
             {viewMode === 'wheel' && (
-              <div className="flex justify-center">
-                <SpinWheel 
-                  restaurants={restaurants}
-                  onRestaurantSelected={handleSpinWheelResult}
-                  onMarkVisited={onMarkRestaurantVisited}
-                />
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-full max-w-2xl">
+                  <div className="mb-4 text-center">
+                    <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">Spin the wheel</h2>
+                    <p className="text-sm text-gray-500 dark:text-dark-text-secondary">Give it a spin and see where lunch takes you</p>
+                  </div>
+                  <SpinWheel 
+                    restaurants={restaurants}
+                    onRestaurantSelected={handleSpinWheelResult}
+                    onMarkVisited={onMarkRestaurantVisited}
+                  />
+                </div>
               </div>
             )}
 
             {viewMode === 'history' && (
-              <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-6 border border-gray-100 dark:border-dark-border">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+              <>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-dark-text">Visited restaurants</h2>
                     <p className="text-sm text-gray-500 dark:text-dark-text-secondary">
-                      Manage your saved places or clear the list to rediscover them in search results.
+                      {visitedRestaurants.length === 0
+                        ? 'Mark restaurants as visited to track them here.'
+                        : `${visitedRestaurants.length} place${visitedRestaurants.length !== 1 ? 's' : ''} visited — restore any to see it in results again.`}
                     </p>
                   </div>
                   {visitedRestaurants.length > 0 && (
                     <button
                       onClick={onClearVisitedRestaurants}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 transition-colors duration-200"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors duration-200 self-start md:self-auto"
                     >
                       <Trash2 className="w-4 h-4" />
-                      Clear history
+                      Clear all
                     </button>
                   )}
                 </div>
 
                 {visitedRestaurants.length === 0 ? (
-                  <div className="text-center py-10 text-gray-500 dark:text-dark-text-secondary">
-                    You have not marked any restaurants as visited yet.
+                  <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-dark-text-secondary gap-3">
+                    <History className="w-10 h-10 opacity-30" />
+                    <p className="text-base">No visited restaurants yet.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {visitedRestaurants.map((restaurant) => (
                       <div
                         key={restaurant.id}
-                        className="border border-gray-200 dark:border-dark-border rounded-xl p-4 bg-gray-50 dark:bg-dark-background"
+                        className="bg-white dark:bg-dark-card rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100 dark:border-dark-border p-5 flex flex-col gap-2"
                       >
-                        <h3 className="text-base font-semibold text-gray-900 dark:text-dark-text mb-1">
-                          {restaurant.name}
-                        </h3>
-                        {restaurant.cuisine && (
-                          <p className="text-xs text-emerald-600 dark:text-emerald-400 mb-1">{restaurant.cuisine}</p>
-                        )}
-                        {restaurant.address && (
-                          <p className="text-sm text-gray-600 dark:text-dark-text-secondary mb-2">{restaurant.address}</p>
-                        )}
-                        <button
-                          onClick={() => onRemoveVisitedRestaurant(restaurant.id)}
-                          className="mt-2 inline-flex items-center justify-center w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-dark-primary bg-white dark:bg-dark-card border border-blue-200 dark:border-dark-border rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                        >
-                          Return to results
-                        </button>
+                        <HistoryCard
+                          restaurant={restaurant}
+                          userLat={location.lat}
+                          userLon={location.lon}
+                          onRemove={onRemoveVisitedRestaurant}
+                        />
                       </div>
                     ))}
                   </div>
                 )}
-              </div>
+              </>
             )}
           </>
         )}

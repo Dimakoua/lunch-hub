@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, Polyline, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import { Restaurant } from '../types/restaurant';
+import { shareRestaurant } from '../utils/share';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers
@@ -11,6 +12,17 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
+
+function haversineM(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+const fmtM = (m: number) => m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`;
+const fmtWalk = (m: number) => { const mins = Math.max(1, Math.round(m / 80)); return `${mins} min`; };
 
 interface MapViewProps {
   center: [number, number];
@@ -25,9 +37,10 @@ interface MapViewProps {
   radius?: number;
 }
 
-const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: Restaurant | null }> = ({ 
+const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: Restaurant | null; routeGeometry?: [number, number][] | null }> = ({ 
   center, 
-  selectedRestaurant 
+  selectedRestaurant,
+  routeGeometry
 }) => {
   const map = useMap();
 
@@ -36,6 +49,38 @@ const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: R
       map.setView([selectedRestaurant.lat, selectedRestaurant.lon], 16);
     }
   }, [selectedRestaurant, map]);
+
+  useEffect(() => {
+    const onRecenter = () => {
+      try {
+        map.setView(center, 15, { animate: true });
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    const onFitRoute = (ev: Event) => {
+      try {
+        // Event detail may provide geometry; fall back to routeGeometry prop
+        // @ts-ignore
+        const detail = (ev as CustomEvent)?.detail as [number, number][] | undefined;
+        const geom = detail || routeGeometry;
+        if (!geom || geom.length === 0) return;
+        const bounds = geom.map(([lat, lon]) => [lat, lon]) as any;
+        map.fitBounds(bounds, { padding: [40, 40] });
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    window.addEventListener('lunchhub:recenter', onRecenter);
+    window.addEventListener('lunchhub:fitRoute', onFitRoute as EventListener);
+
+    return () => {
+      window.removeEventListener('lunchhub:recenter', onRecenter);
+      window.removeEventListener('lunchhub:fitRoute', onFitRoute as EventListener);
+    };
+  }, [map, center, routeGeometry]);
 
   return null;
 };
@@ -103,14 +148,14 @@ export const MapView: React.FC<MapViewProps> = ({
       center={center} 
       zoom={zoom} 
       className="w-full h-full rounded-xl"
-      zoomControl={true}
+      zoomControl={false}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       
-      <MapController center={center} selectedRestaurant={selectedRestaurant} />
+      <MapController center={center} selectedRestaurant={selectedRestaurant} routeGeometry={routeGeometry} />
 
       {routeGeometry && (
         <Polyline 
@@ -202,7 +247,27 @@ export const MapView: React.FC<MapViewProps> = ({
                 </span>
               )}
               <p className="text-xs text-gray-600 dark:text-dark-text-secondary mb-1 line-clamp-1">{restaurant.address}</p>
-              
+
+              {/* Distance row */}
+              {(() => {
+                const isSelected = selectedRestaurant?.id === restaurant.id;
+                const straight = haversineM(center[0], center[1], restaurant.lat, restaurant.lon);
+                return isSelected && routeDistance !== null && routeDuration !== null ? (
+                  <div className="flex items-center gap-2 mb-1 px-1.5 py-1 bg-blue-50 rounded-md">
+                    <span className="text-[10px] font-semibold text-blue-700">🚶 {formatDuration(routeDuration)}</span>
+                    <span className="text-[10px] text-gray-400">•</span>
+                    <span className="text-[10px] text-blue-600">{formatDistance(routeDistance)}</span>
+                    <span className="text-[10px] text-gray-400 ml-auto">routed</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 mb-1 text-[10px] text-gray-500">
+                    <span>🚶 ~{fmtWalk(straight)}</span>
+                    <span className="text-gray-300">•</span>
+                    <span>{fmtM(straight)}</span>
+                  </div>
+                );
+              })()}
+
               <div className="mt-2 flex flex-col gap-1.5">
                 {selectedRestaurant?.id !== restaurant.id ? (
                   <button
@@ -252,6 +317,13 @@ export const MapView: React.FC<MapViewProps> = ({
                 >
                   Apple Maps
                 </a>
+                <button
+                  onClick={() => shareRestaurant(restaurant)}
+                  className="text-[10px] text-blue-600 hover:underline dark:text-dark-primary"
+                  aria-label={`Share ${restaurant.name}`}
+                >
+                  Share
+                </button>
               </div>
             </div>
           </Popup>
