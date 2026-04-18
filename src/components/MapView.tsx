@@ -34,10 +34,8 @@ const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: R
   useEffect(() => {
     if (selectedRestaurant) {
       map.setView([selectedRestaurant.lat, selectedRestaurant.lon], 16);
-    } else {
-      map.setView(center, 13);
     }
-  }, [center, selectedRestaurant, map]);
+  }, [selectedRestaurant, map]);
 
   return null;
 };
@@ -131,9 +129,9 @@ export const MapView: React.FC<MapViewProps> = ({
         <Tooltip permanent>
           Your Location
         </Tooltip>
-        <Popup>
-          <div className="text-center">
-            <strong>Your Location</strong>
+        <Popup autoPan={false} closeOnClick={false}>
+          <div className="text-center p-1">
+            <strong className="text-sm">Your Location</strong>
           </div>
         </Popup>
       </Marker>
@@ -165,47 +163,30 @@ export const MapView: React.FC<MapViewProps> = ({
           <Tooltip permanent={selectedRestaurant?.id === restaurant.id}>
             {restaurant.name}
           </Tooltip>
-          <Popup className="custom-popup">
-            <div className="p-2 min-w-[200px]">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-dark-text mb-2">
+          <Popup className="custom-popup" autoPan={false} closeOnClick={false}>
+            <div className="p-1 min-w-[150px] max-w-[200px]">
+              <h3 className="font-bold text-sm text-gray-900 dark:text-dark-text mb-1">
                 {restaurant.name}
               </h3>
               {restaurant.cuisine && (
-                <span className="inline-block text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-400 px-2 py-1 rounded-full mb-2">
+                <span className="inline-block text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-400 px-1.5 py-0.5 rounded-full mb-1">
                   {restaurant.cuisine}
                 </span>
               )}
-              <p className="text-sm text-gray-600 dark:text-dark-text-secondary mb-2">{restaurant.address}</p>
-              {restaurant.phone && (
-                <p className="text-sm">
-                  <strong>Phone:</strong> {restaurant.phone}
-                </p>
-              )}
-              {restaurant.website && (
-                <p className="text-sm mt-1">
-                  <a 
-                    href={restaurant.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline dark:text-dark-primary"
-                  >
-                    Visit Website
-                  </a>
-                </p>
-              )}
+              <p className="text-xs text-gray-600 dark:text-dark-text-secondary mb-1 line-clamp-1">{restaurant.address}</p>
               
-              <div className="mt-3 flex flex-col gap-2">
+              <div className="mt-2 flex flex-col gap-1.5">
                 {selectedRestaurant?.id !== restaurant.id ? (
                   <button
                     onClick={() => onRestaurantSelected?.(restaurant)}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold py-1.5 px-2 rounded-md transition-colors"
                   >
                     Select as Target
                   </button>
                 ) : (
                   <button
                     onClick={() => onRestaurantSelected?.(null)}
-                    className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-dark-text text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                    className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-dark-text text-[10px] font-bold py-1.5 px-2 rounded-md transition-colors"
                   >
                     Deselect Target
                   </button>
@@ -220,33 +201,29 @@ export const MapView: React.FC<MapViewProps> = ({
                       onRestaurantSelected?.(null);
                     }
                   }}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold py-1.5 px-2 rounded-md transition-colors"
                 >
                   Mark as Visited
                 </button>
               </div>
 
-              <div className="mt-3 pt-2 border-t dark:border-dark-border">
-                <p className="text-sm mt-1">
-                  <a 
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lon}&travelmode=walking`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline dark:text-dark-primary"
-                  >
-                    Open in Google Maps
-                  </a>
-                </p>
-                <p className="text-sm mt-1">
-                  <a 
-                    href={`http://maps.apple.com/?daddr=${restaurant.lat},${restaurant.lon}&dirflg=w`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline dark:text-dark-primary"
-                  >
-                    Open in Apple Maps
-                  </a>
-                </p>
+              <div className="mt-2 pt-1.5 border-t dark:border-dark-border flex flex-row gap-2 justify-between">
+                <a 
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lon}&travelmode=walking`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-blue-600 hover:underline dark:text-dark-primary"
+                >
+                  Google Maps
+                </a>
+                <a 
+                  href={`http://maps.apple.com/?daddr=${restaurant.lat},${restaurant.lon}&dirflg=w`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-blue-600 hover:underline dark:text-dark-primary"
+                >
+                  Apple Maps
+                </a>
               </div>
             </div>
           </Popup>
