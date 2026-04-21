@@ -21,7 +21,12 @@ const ReadingTime: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-const LinkRenderer: React.FC<any> = ({ href, children }) => {
+interface LinkRendererProps {
+  href?: string;
+  children?: React.ReactNode;
+}
+
+const LinkRenderer: React.FC<LinkRendererProps> = ({ href, children }) => {
   const isInternal = href && !href.startsWith('http') && !href.startsWith('https') && !href.startsWith('//');
   
   if (isInternal) {
@@ -191,11 +196,11 @@ const BlogPostPage: React.FC = () => {
               remarkPlugins={[remarkGfm]}
               components={{
                 a: LinkRenderer,
-                h2: ({node, ...props}) => <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-gray-100 dark:border-gray-700" {...props} />,
-                h3: ({node, ...props}) => <h3 className="text-xl mt-8 mb-4 font-semibold" {...props} />,
-                ul: ({node, ...props}) => <ul className="list-disc pl-6 space-y-2 mb-6 text-gray-700 dark:text-gray-300" {...props} />,
-                ol: ({node, ...props}) => <ol className="list-decimal pl-6 space-y-2 mb-6 text-gray-700 dark:text-gray-300" {...props} />,
-                blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-emerald-500 pl-4 italic my-8 bg-emerald-50 dark:bg-emerald-900/20 py-4 rounded-r-lg" {...props} />,
+                h2: ({...props}) => <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-gray-100 dark:border-gray-700" {...props} />,
+                h3: ({...props}) => <h3 className="text-xl mt-8 mb-4 font-semibold" {...props} />,
+                ul: ({...props}) => <ul className="list-disc pl-6 space-y-2 mb-6 text-gray-700 dark:text-gray-300" {...props} />,
+                ol: ({...props}) => <ol className="list-decimal pl-6 space-y-2 mb-6 text-gray-700 dark:text-gray-300" {...props} />,
+                blockquote: ({...props}) => <blockquote className="border-l-4 border-emerald-500 pl-4 italic my-8 bg-emerald-50 dark:bg-emerald-900/20 py-4 rounded-r-lg" {...props} />,
               }}
             >
               {body}

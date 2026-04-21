@@ -9,7 +9,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   // const changeLanguage = (lng: string) => {
   //   i18n.changeLanguage(lng);

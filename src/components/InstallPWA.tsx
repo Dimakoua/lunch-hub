@@ -18,7 +18,6 @@ export const InstallPWA: React.FC = () => {
 
     const ua = window.navigator.userAgent;
     const isIOS = /iPhone|iPad|iPod/.test(ua);
-    const isAndroid = /Android/.test(ua);
 
     // iOS logic
     if (isIOS) {

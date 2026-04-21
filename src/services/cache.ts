@@ -44,7 +44,7 @@ class CacheService {
         return null;
       }
       return entry.data;
-    } catch (e) {
+    } catch {
       localStorage.removeItem(this.STORAGE_PREFIX + key);
       return null;
     }
@@ -60,7 +60,7 @@ class CacheService {
     });
   }
 
-  generateKey(...args: any[]): string {
+  generateKey(...args: unknown[]): string {
     return args.map(arg => {
       if (typeof arg === 'number') {
         // Round coordinates to ~11m precision to improve cache hit rate

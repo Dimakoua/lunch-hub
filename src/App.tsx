@@ -155,7 +155,7 @@ function App() {
     const path = window.location.pathname;
     const title = document.title;
     trackPageView(path, title);
-  }, [location]);
+  }, [pageLocation.pathname]);
 
   const handleCookieAccept = () => {
     setShowCookieConsent(false);
@@ -165,61 +165,6 @@ function App() {
   const handleCookieDecline = () => {
     setShowCookieConsent(false);
     revokeConsent();
-  };
-
-  const handleSearch = async (query: string, searchRadius?: number, openNow?: boolean) => {
-    setLoading(true);
-    setError(null);
-    if (searchRadius !== undefined) setRadius(searchRadius);
-    if (openNow !== undefined) setFilterByOpenNow(openNow);
-    
-    try {
-      const result = await geocodeAddress(query);
-      if (result) {
-        setLocation(result);
-        const availableCount = await searchRestaurants(
-          result.lat, 
-          result.lon, 
-          searchRadius !== undefined ? searchRadius : radius,
-          openNow !== undefined ? openNow : filterByOpenNow
-        );
-        trackRestaurantSearch(query, availableCount);
-        navigate('/restaurants');
-      } else {
-        setError('Location not found. Please try a different address.');
-      }
-    } catch (err) {
-      setError('Error searching for location. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCurrentLocation = async (searchRadius?: number, openNow?: boolean) => {
-    setLoading(true);
-    setError(null);
-    if (searchRadius !== undefined) setRadius(searchRadius);
-    if (openNow !== undefined) setFilterByOpenNow(openNow);
-
-    try {
-      const position = await getCurrentLocation();
-      const newLocation = { lat: position.lat, lon: position.lon };
-      setLocation(newLocation);
-      const availableCount = await searchRestaurants(
-        position.lat, 
-        position.lon,
-        searchRadius !== undefined ? searchRadius : radius,
-        openNow !== undefined ? openNow : filterByOpenNow
-      );
-      trackLocationPermission(true);
-      trackRestaurantSearch('current_location', availableCount);
-      navigate('/restaurants');
-    } catch (err) {
-      trackLocationPermission(false);
-      setError('Unable to get your location. Please enter an address manually.');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const shouldExcludeByFilter = useCallback((restaurantItem: Restaurant, rule: FilterRule) => {
@@ -269,10 +214,10 @@ function App() {
     return filtered;
   }, [visitedRestaurants, filterRules, shouldExcludeByFilter, filterByOpenNow]);
 
-  const searchRestaurants = async (lat: number, lon: number, searchRadius?: number, openNow?: boolean) => {
+  const searchRestaurants = useCallback(async (lat: number, lon: number, searchRadius?: number, openNow?: boolean, forceRefresh: boolean = false) => {
     try {
       const currentRadius = searchRadius !== undefined ? searchRadius : radius;
-      const foundRestaurants = await fetchRestaurants(lat, lon, currentRadius);
+      const foundRestaurants = await fetchRestaurants(lat, lon, currentRadius, forceRefresh);
       setRestaurants(foundRestaurants);
       if (foundRestaurants.length === 0) {
         setError('No restaurants found in this area. Try increasing the search radius.');
@@ -289,9 +234,64 @@ function App() {
         setError(null);
       }
       return availableAfterFilters.length;
-    } catch (err) {
+    } catch {
       setError('Error finding restaurants. Please try again.');
       return 0;
+    }
+  }, [radius, applyAvailabilityFilters, filterRules.length]);
+
+  const handleSearch = async (query: string, searchRadius?: number, openNow?: boolean) => {
+    setLoading(true);
+    setError(null);
+    if (searchRadius !== undefined) setRadius(searchRadius);
+    if (openNow !== undefined) setFilterByOpenNow(openNow);
+    
+    try {
+      const result = await geocodeAddress(query);
+      if (result) {
+        setLocation(result);
+        const availableCount = await searchRestaurants(
+          result.lat, 
+          result.lon, 
+          searchRadius !== undefined ? searchRadius : radius,
+          openNow !== undefined ? openNow : filterByOpenNow
+        );
+        trackRestaurantSearch(query, availableCount);
+        navigate('/restaurants');
+      } else {
+        setError('Location not found. Please try a different address.');
+      }
+    } catch {
+      setError('Error searching for location. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCurrentLocation = async (searchRadius?: number, openNow?: boolean) => {
+    setLoading(true);
+    setError(null);
+    if (searchRadius !== undefined) setRadius(searchRadius);
+    if (openNow !== undefined) setFilterByOpenNow(openNow);
+
+    try {
+      const position = await getCurrentLocation();
+      const newLocation = { lat: position.lat, lon: position.lon };
+      setLocation(newLocation);
+      const availableCount = await searchRestaurants(
+        position.lat,
+        position.lon,
+        searchRadius !== undefined ? searchRadius : radius,
+        openNow !== undefined ? openNow : filterByOpenNow
+      );
+      trackLocationPermission(true);
+      trackRestaurantSearch('current_location', availableCount);
+      navigate('/restaurants');
+    } catch {
+      trackLocationPermission(false);
+      setError('Unable to get your location. Please enter an address manually.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -312,7 +312,7 @@ function App() {
     if (location) {
       searchRestaurants(location.lat, location.lon);
     }
-  }, [radius]);
+  }, [radius, location, searchRestaurants]);
 
   const availableRestaurants = useMemo(
     () => applyAvailabilityFilters(restaurants),
@@ -398,7 +398,7 @@ function App() {
   const handleRetry = async () => {
     if (location) {
       setLoading(true);
-      await searchRestaurants(location.lat, location.lon);
+      await searchRestaurants(location.lat, location.lon, undefined, undefined, true);
       setLoading(false);
     }
   };

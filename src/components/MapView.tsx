@@ -6,7 +6,7 @@ import { shareRestaurant } from '../utils/share';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -54,7 +54,7 @@ const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: R
     const onRecenter = () => {
       try {
         map.setView(center, 15, { animate: true });
-      } catch (e) {
+      } catch {
         // ignore
       }
     };
@@ -62,13 +62,13 @@ const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: R
     const onFitRoute = (ev: Event) => {
       try {
         // Event detail may provide geometry; fall back to routeGeometry prop
-        // @ts-ignore
-        const detail = (ev as CustomEvent)?.detail as [number, number][] | undefined;
+        // @ts-expect-error detail is not standard on Event
+        const detail = (ev as CustomEvent<[number, number][] | undefined>)?.detail;
         const geom = detail || routeGeometry;
         if (!geom || geom.length === 0) return;
-        const bounds = geom.map(([lat, lon]) => [lat, lon]) as any;
+        const bounds = L.latLngBounds(geom.map(([lat, lon]) => [lat, lon]));
         map.fitBounds(bounds, { padding: [40, 40] });
-      } catch (e) {
+      } catch {
         // ignore
       }
     };
@@ -138,7 +138,7 @@ export const MapView: React.FC<MapViewProps> = ({
     try {
       const eta = new Date(Date.now() + seconds * 1000);
       return eta.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    } catch (e) {
+    } catch {
       return null;
     }
   };

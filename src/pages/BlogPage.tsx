@@ -19,7 +19,7 @@ const BlogPage: React.FC = () => {
         return parseBlogPost(slug, content);
       });
 
-      let postsData = await Promise.all(postPromises);
+      const postsData = await Promise.all(postPromises);
       postsData.sort((a, b) => new Date(b.attributes.date).getTime() - new Date(a.attributes.date).getTime());
 
       setPosts(postsData);

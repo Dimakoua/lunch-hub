@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, Loader2, X, SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, MapPin, Loader2, X, SlidersHorizontal } from 'lucide-react';
 import { searchLocationSuggestions } from '../services/geocoding';
 
 interface SearchBarProps {

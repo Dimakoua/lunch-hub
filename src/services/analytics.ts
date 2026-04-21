@@ -2,8 +2,8 @@
 
 declare global {
   interface Window {
-    dataLayer: any[];
-    gtag: (...args: any[]) => void;
+    dataLayer: unknown[];
+    gtag: (...args: unknown[]) => void;
   }
 }
 
@@ -83,6 +83,10 @@ export const trackLocationPermission = (granted: boolean) => {
 
 export const trackLanguageChange = (language: string) => {
   trackEvent('language_change', 'user_interaction', language);
+};
+
+export const trackLanguageRedirect = (language: string) => {
+  trackEvent('language_redirect', 'user_interaction', language);
 };
 
 export const trackThemeChange = (theme: string) => {

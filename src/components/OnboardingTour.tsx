@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, List, Shuffle, RotateCcw, History, Sparkles, Settings } from 'lucide-react';
+import { MapPin, List, Shuffle, History, Sparkles, Settings } from 'lucide-react';
 
 interface TourStep {
   title: string;
