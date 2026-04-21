@@ -309,7 +309,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 />
 
                 {showFilterSuggestions && filterSuggestions.length > 0 && (
-                  <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-md shadow-xl z-[10002] max-h-40 overflow-y-auto ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="fixed bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-md shadow-xl z-50 max-h-40 overflow-y-auto ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-100" style={{
+                    width: `${document.getElementById(`filter-value-${newFilterField}`)?.getBoundingClientRect().width ?? 0}px`,
+                  }}>
                     {filterSuggestions.map((suggestion) => (
                       <button
                         key={suggestion}
@@ -595,7 +597,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
                 {/* Left Floating Sidebar HUD */}
                 <div className="absolute top-4 left-4 z-[9999] w-72 md:w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-3">
-                  <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/60 dark:border-dark-border/60 overflow-hidden flex flex-col">
+                  <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/60 dark:border-dark-border/60 flex flex-col">
                     {/* HUD Header */}
                     <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50">
                       <button
@@ -645,7 +647,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
                     {/* Settings / Filters Panel - Expands inside sidebar */}
                     {settingsPanel && (
-                      <div className="p-4 max-h-[60vh] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="p-4 max-h-[60vh] overflow-y-auto">
                         {settingsPanel}
                       </div>
                     )}
