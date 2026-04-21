@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { MapPin, List, Shuffle, History, Sparkles, Settings } from 'lucide-react';
 
 interface TourStep {
@@ -11,6 +11,7 @@ interface TourStep {
 interface OnboardingTourProps {
   isOpen: boolean;
   onClose: () => void;
+  onStepChange?: (stepIndex: number) => void;
 }
 
 const steps: TourStep[] = [
@@ -49,15 +50,62 @@ const steps: TourStep[] = [
   }
 ];
 
-export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose }) => {
+export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose, onStepChange }) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [highlightRect, setHighlightRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const wasOpenRef = useRef(false);
+
+  // Reset step only when transition from closed to open
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      setStepIndex(0);
+      onStepChange?.(0);
+    }
+    wasOpenRef.current = isOpen;
+  }, [isOpen, onStepChange]);
+
+  const updateHighlightRect = useCallback(() => {
+    if (!isOpen) {
+      setHighlightRect(null);
+      return;
+    }
+    const selector = steps[stepIndex].selector;
+    if (!selector) {
+      setHighlightRect(null);
+      return;
+    }
+    
+    // Use a small timeout to allow for any transitions/rendering to complete
+    const timer = setTimeout(() => {
+      const found = document.querySelector<HTMLElement>(selector);
+      if (!found) {
+        setHighlightRect(null);
+        return;
+      }
+      const rect = found.getBoundingClientRect();
+      
+      // If the element is hidden (0 width/height), don't highlight
+      if (rect.width === 0 || rect.height === 0) {
+        setHighlightRect(null);
+        return;
+      }
+
+      setHighlightRect({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height
+      });
+    }, 150); // Increased slightly for stability
+
+    return () => clearTimeout(timer);
+  }, [isOpen, stepIndex]);
 
   useEffect(() => {
-    if (isOpen) {
-      setStepIndex(0);
-    }
-  }, [isOpen]);
+    updateHighlightRect();
+    window.addEventListener('resize', updateHighlightRect);
+    return () => window.removeEventListener('resize', updateHighlightRect);
+  }, [updateHighlightRect]);
 
   const currentStep = steps[stepIndex];
 
@@ -68,43 +116,23 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose 
       onClose();
       return;
     }
-    setStepIndex((prev) => prev + 1);
+    const nextIndex = stepIndex + 1;
+    setStepIndex(nextIndex);
+    onStepChange?.(nextIndex);
   };
 
   const handleBack = () => {
     if (stepIndex === 0) {
       return;
     }
-    setStepIndex((prev) => prev - 1);
+    const nextIndex = stepIndex - 1;
+    setStepIndex(nextIndex);
+    onStepChange?.(nextIndex);
   };
 
   const handleSkip = () => {
     onClose();
   };
-
-  useEffect(() => {
-    if (!isOpen) {
-      setHighlightRect(null);
-      return;
-    }
-    const selector = steps[stepIndex].selector;
-    if (!selector) {
-      setHighlightRect(null);
-      return;
-    }
-    const found = document.querySelector<HTMLElement>(selector);
-    if (!found) {
-      setHighlightRect(null);
-      return;
-    }
-    const rect = found.getBoundingClientRect();
-    setHighlightRect({
-      top: rect.top,
-      left: rect.left,
-      width: rect.width,
-      height: rect.height
-    });
-  }, [isOpen, stepIndex]);
 
   if (!isOpen) {
     return null;
@@ -115,10 +143,11 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose 
       <div
         className="absolute inset-0 bg-slate-900/80"
         aria-hidden="true"
+        onClick={handleSkip}
       />
       {highlightRect && (
         <div
-          className="pointer-events-none absolute rounded-2xl border-2 border-white/70 shadow-[0_0_30px_rgba(15,23,42,0.55)] bg-white/10 backdrop-saturate-150 backdrop-brightness-125"
+          className="pointer-events-none absolute rounded-2xl border-2 border-white/70 shadow-[0_0_30px_rgba(15,23,42,0.55)] bg-white/10 backdrop-saturate-150 backdrop-brightness-125 transition-all duration-300"
           style={{
             top: highlightRect.top - 8,
             left: highlightRect.left - 8,
@@ -129,7 +158,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose 
           }}
         />
       )}
-      <div className="relative z-10 max-w-2xl w-full bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-3xl shadow-2xl p-6 text-slate-900 dark:text-dark-text">
+      <div className="relative z-10 max-w-2xl w-full bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-3xl shadow-2xl p-6 text-slate-900 dark:text-dark-text animate-slide-up">
         <div className="flex items-center gap-3 mb-6">
           <Sparkles className="w-6 h-6 text-amber-500" />
           <div>
@@ -141,7 +170,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose 
         </div>
 
         <div className="flex flex-col gap-6 lg:flex-row">
-          <div className="flex items-center justify-center">{currentStep.icon}</div>
+          <div className="flex items-center justify-center min-w-[80px]">{currentStep.icon}</div>
           <p className="text-base text-slate-500 dark:text-dark-text-secondary leading-relaxed">
             {currentStep.description}
           </p>
@@ -150,7 +179,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose 
         <div className="mt-8 flex items-center justify-between text-sm text-slate-500 dark:text-dark-text-secondary">
           <button
             onClick={handleSkip}
-            className="hover:text-slate-700 dark:hover:text-dark-text"
+            className="hover:text-slate-700 dark:hover:text-dark-text transition-colors"
             type="button"
           >
             Skip tour
@@ -170,7 +199,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose 
             </button>
             <button
               onClick={handleNext}
-              className="px-5 py-2 rounded-full bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition"
+              className="px-5 py-2 rounded-full bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition active:scale-95"
               type="button"
             >
               {isLastStep ? 'Finish' : 'Next'}

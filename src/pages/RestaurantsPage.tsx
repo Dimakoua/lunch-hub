@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles, Share2, Loader2, ChevronLeft, Navigation, Route } from 'lucide-react';
@@ -181,6 +181,16 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     trackRandomPick(restaurant.name);
     onRestaurantSelected(restaurant);
   };
+
+  const handleTourStepChange = useCallback((stepIndex: number) => {
+    // Step 0 is map-container, so force map view
+    if (stepIndex === 0) {
+      setViewMode('map');
+    } else {
+      // Other steps are header-based, better to be in list view to ensure header is visible and stable
+      setViewMode('list');
+    }
+  }, [setViewMode]);
 
   const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
 
@@ -485,7 +495,11 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <span className="font-bold text-gray-900 dark:text-white">Lunch Hub</span>
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={() => setShowSettings(!showSettings)} className="p-1.5 text-gray-600 dark:text-gray-400">
+              <button 
+                data-tour-target="settings-button"
+                onClick={() => setShowSettings(!showSettings)} 
+                className="p-1.5 text-gray-600 dark:text-gray-400"
+              >
                 <Settings className="w-5 h-5" />
               </button>
               <button onClick={toggleTheme} className="p-1.5 text-gray-600 dark:text-gray-400">
@@ -560,6 +574,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
                   <div className="flex items-center gap-0.5">
                     <button
+                      data-tour-target="settings-button"
                       onClick={() => setShowSettings(!showSettings)}
                       className={`p-2 rounded-lg transition-colors ${
                         showSettings
@@ -776,7 +791,11 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         )}
       </main>
 
-      <OnboardingTour isOpen={tourOpen} onClose={onTourClose} />
+      <OnboardingTour 
+        isOpen={tourOpen} 
+        onClose={onTourClose} 
+        onStepChange={handleTourStepChange}
+      />
     </div>
   );
 };

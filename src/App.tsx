@@ -108,7 +108,10 @@ function App() {
     setShowTour(false);
   };
 
-  const openTour = () => setShowTour(true);
+  const openTour = () => {
+    setViewMode('map');
+    setShowTour(true);
+  };
 
   useEffect(() => {
     if (theme === 'dark') {
