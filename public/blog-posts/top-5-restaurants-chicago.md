@@ -23,6 +23,6 @@ While technically a diner, Au Cheval is famous for its double cheese burger, oft
 ## 5. Monteverde - Italian Soul
 Chef Sarah Grueneberg’s Monteverde combines traditional Italian techniques with global influences. The pasta is made fresh in the middle of the dining room at their "Pastificio," creating a truly immersive experience.
 
-Chicago's diversity is reflected in its food. While these spots are legendary, Lunch Hub can help you find [more delicious lunch spots](delicious-lunch-spots) across the city's unique neighborhoods.
+Chicago's diversity is reflected in its food. While these spots are legendary, Lunch Hub can help you find more delicious lunch spots across the city's unique neighborhoods.
 
 What's your favorite Chicago flavor?

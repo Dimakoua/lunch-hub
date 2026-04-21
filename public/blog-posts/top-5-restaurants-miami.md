@@ -23,6 +23,6 @@ Chef Jeremy Ford's Stubborn Seed in South Beach is a playground for culinary inn
 ## 5. Lucali - Brick-Oven Pizza Masterpiece
 While originally from Brooklyn, Lucali Miami has quickly become a local favorite. With its minimalist menu and incredible brick-oven pizzas, it's a must-visit for pizza lovers.
 
-Whether you're exploring the beaches of South Beach or the art of Wynwood, Miami has a flavor for everyone. Use [Lunch Hub](delicious-lunch-spots) to discover more amazing restaurants in the Magic City.
+Whether you're exploring the beaches of South Beach or the art of Wynwood, Miami has a flavor for everyone. Use Lunch Hub to discover more amazing restaurants in the Magic City.
 
 Have you tried any of these Miami staples?

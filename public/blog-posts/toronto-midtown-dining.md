@@ -23,6 +23,6 @@ For some of the best Middle Eastern food in the city, head to Tabülè on Bayvie
 ## 5. Byblos Uptown - Eastern Mediterranean Flavors
 Byblos Uptown brings the coastal flavors of the Eastern Mediterranean to North Toronto. The menu is designed for sharing, featuring aromatic rice dishes, delicate dumplings, and wood-fired meats. The stunning, high-ceilinged space on Yonge Street is an experience in itself.
 
-Midtown Toronto continues to evolve as a premier dining destination. Whether you're looking for a [quick lunch](quick-and-delicious-lunches) or a lavish dinner, this area has it all. Use Lunch Hub to explore more creative dining spots in your neighborhood.
+Midtown Toronto continues to evolve as a premier dining destination. Whether you're looking for a quick lunch or a lavish dinner, this area has it all. Use Lunch Hub to explore more creative dining spots in your neighborhood.
 
 What's your favorite Midtown Toronto hangout?

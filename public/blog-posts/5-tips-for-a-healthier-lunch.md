@@ -6,7 +6,7 @@ cover_image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&
 keywords: "healthy lunch tips, nutritious meals, Lunch Hub, healthy eating, meal planning"
 ---
 
-Eating a healthy lunch can have a big impact on your energy levels and overall well-being. Understanding [the benefits of a good lunch break](benefits-of-good-lunch) is the first step toward a more productive day. Here are five tips for making healthier choices with the help of Lunch Hub.
+Eating a healthy lunch can have a big impact on your energy levels and overall well-being. Understanding the benefits of a good lunch break is the first step toward a more productive day. Here are five tips for making healthier choices with the help of Lunch Hub.
 
 ## Simple Swaps for a Better Meal
 

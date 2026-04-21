@@ -23,6 +23,6 @@ A Michelin-starred bistro directed by the Orfali brothers. Their innovative appr
 ## 5. Al Hadheerah - Authentic Desert Dining
 Experience the magic of the desert at Al Hadheerah, located in the Bab Al Shams Desert Resort. Enjoy traditional Emirati food while surrounded by the beauty of the dunes.
 
-Dubai's culinary landscape is as dazzling as its skyline. Whether you're in the mood for [fine dining or a hidden gem](delicious-lunch-spots), Lunch Hub can help you find the perfect restaurant in the City of Gold.
+Dubai's culinary landscape is as dazzling as its skyline. Whether you're in the mood for fine dining or a hidden gem, Lunch Hub can help you find the perfect restaurant in the City of Gold.
 
 What's your favorite Dubai dining experience?

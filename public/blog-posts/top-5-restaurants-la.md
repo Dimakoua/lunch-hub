@@ -23,6 +23,6 @@ A two-Michelin-star haven for sushi lovers. Chef Brandon Hayato Go's meticulous 
 ## 5. République - Modern French & Beyond
 Located in a historic building, République offers a stunning setting for modern French-inspired cuisine. Whether for a casual brunch or an elegant dinner, the pastries and roasted dishes are top-notch.
 
-From the beaches of Santa Monica to the streets of Hollywood, Los Angeles offers endless culinary adventures. Use [Lunch Hub](delicious-lunch-spots) to discover more hidden gems and iconic spots in the City of Angels.
+From the beaches of Santa Monica to the streets of Hollywood, Los Angeles offers endless culinary adventures. Use Lunch Hub to discover more hidden gems and iconic spots in the City of Angels.
 
 What's your favorite place to eat in L.A.?
