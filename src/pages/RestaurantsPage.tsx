@@ -421,27 +421,17 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               
               <div className="flex flex-col items-end md:flex-row md:items-center gap-2 md:gap-4">
                 <div className="text-right md:text-left">
-                  <p className="text-sm text-gray-600 dark:text-dark-text-secondary">
+                  <p className="text-sm text-gray-600 dark:text-dark-text-secondary font-medium">
                     Showing {restaurants.length} restaurants
+                    {hiddenByHistoryCount + hiddenByFiltersCount > 0 && (
+                      <span className="text-xs opacity-60 ml-1">
+                        ({hiddenByHistoryCount + hiddenByFiltersCount} hidden)
+                      </span>
+                    )}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
                     within {radius}m radius
                   </p>
-                  {hiddenByHistoryCount > 0 && (
-                    <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
-                      {hiddenByHistoryCount} hidden by history
-                    </p>
-                  )}
-                  {hiddenByFiltersCount > 0 && (
-                    <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
-                      {hiddenByFiltersCount} hidden by filters
-                    </p>
-                  )}
-                  {visitedRestaurants.length > 0 && (
-                    <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
-                      History size: {visitedRestaurants.length}
-                    </p>
-                  )}
                 </div>
 
                 <button
@@ -587,7 +577,15 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
                     {/* Stats section */}
                     <div className="px-4 py-2 bg-gray-50/50 dark:bg-gray-800/30 flex items-center justify-between text-[11px] font-medium text-gray-500 dark:text-dark-text-secondary border-b border-gray-100 dark:border-gray-700/50">
-                      <span>{restaurants.length} restaurants</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-900 dark:text-dark-text font-bold">{restaurants.length}</span>
+                        <span>visible</span>
+                        {hiddenByHistoryCount + hiddenByFiltersCount > 0 && (
+                          <span className="opacity-60">
+                            ({hiddenByHistoryCount + hiddenByFiltersCount} hidden)
+                          </span>
+                        )}
+                      </div>
                       <span>{radius}m radius</span>
                     </div>
 
@@ -677,7 +675,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">
                     Nearby restaurants
-                    <span className="ml-2 text-sm font-normal text-gray-400 dark:text-dark-text-secondary">{restaurants.length} found</span>
+                    <span className="ml-2 text-sm font-normal text-gray-400 dark:text-dark-text-secondary">
+                      {restaurants.length} visible
+                      {hiddenByHistoryCount + hiddenByFiltersCount > 0 && ` (${hiddenByHistoryCount + hiddenByFiltersCount} hidden)`}
+                    </span>
                   </h2>
                 </div>
                 {restaurants.length === 0 ? (
