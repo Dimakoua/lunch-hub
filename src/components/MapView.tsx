@@ -180,20 +180,6 @@ export const MapView: React.FC<MapViewProps> = ({
               <path d="M12 7a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" fill="#0369A1" />
             </svg>
           </div>
-
-          <div className="flex flex-col text-left leading-tight">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 dark:text-dark-text-secondary">Walk</span>
-              <span className="text-sm font-semibold text-gray-900 dark:text-dark-text">{formatDuration(routeDuration)}</span>
-              <span className="text-xs text-gray-400">•</span>
-              <span className="text-xs text-gray-600 dark:text-dark-text-secondary">{formatDistance(routeDistance)}</span>
-            </div>
-            {formatETA(routeDuration) && (
-              <div className="text-center text-[11px] text-gray-500 dark:text-dark-text-secondary">
-                Arrive ~ {formatETA(routeDuration)}
-              </div>
-            )}
-          </div>
         </div>
       )}
 

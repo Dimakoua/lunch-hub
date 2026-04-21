@@ -596,10 +596,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 </div>
 
                 {/* Left Floating Sidebar HUD */}
-                <div className="absolute top-4 left-4 z-[9999] w-72 md:w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-3">
-                  <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/60 dark:border-dark-border/60 flex flex-col">
+                <div className={`absolute left-3 sm:left-4 z-[9999] w-[calc(100vw-2rem)] sm:w-72 md:w-80 flex flex-col gap-3 ${isPWA ? 'top-28' : 'top-3 sm:top-4'}`}>
+                  <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/60 dark:border-dark-border/60 flex flex-col overflow-hidden">
                     {/* HUD Header */}
-                    <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50">
+                    <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
                       <button
                         onClick={() => setViewMode('list')}
                         className="flex items-center gap-1.5 text-sm font-bold text-blue-600 dark:text-dark-primary hover:scale-105 transition-transform"
@@ -632,7 +632,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     </div>
 
                     {/* Stats section */}
-                    <div className="px-4 py-2 bg-gray-50/50 dark:bg-gray-800/30 flex items-center justify-between text-[11px] font-medium text-gray-500 dark:text-dark-text-secondary border-b border-gray-100 dark:border-gray-700/50">
+                    <div className="px-4 py-2 bg-gray-50/50 dark:bg-gray-800/30 flex items-center justify-between text-[11px] font-medium text-gray-500 dark:text-dark-text-secondary border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-900 dark:text-dark-text font-bold">{restaurants.length}</span>
                         <span>visible</span>
@@ -647,7 +647,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
                     {/* Settings / Filters Panel - Expands inside sidebar */}
                     {settingsPanel && (
-                      <div className="p-4 max-h-[60vh] overflow-y-auto">
+                      <div className={`p-4 overflow-y-auto ${isPWA ? 'max-h-[calc(100dvh-18rem)]' : 'max-h-[calc(100dvh-12rem)]'}`}>
                         {settingsPanel}
                       </div>
                     )}
@@ -686,8 +686,8 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   )}
                 </div>
 
-                {/* Bottom mode-switcher pill */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[9999]">
+                {/* Bottom mode-switcher pill — shifted up in PWA to clear the BottomNav (64 px, z-2000) */}
+                <div className={`absolute ${isPWA ? 'bottom-20 lg:bottom-8' : 'bottom-6'} left-1/2 -translate-x-1/2 z-[9999]`}>
                   <div className="flex items-center gap-0.5 bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-full shadow-lg px-2 py-1.5 border border-gray-200/60 dark:border-dark-border/60">
                     <button
                       onClick={() => setViewMode('list')}
