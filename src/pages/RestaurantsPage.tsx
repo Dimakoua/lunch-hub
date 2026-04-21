@@ -194,11 +194,11 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
   const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
 
-  const settingsPanel = showSettings && (
-    <div className="mt-4 space-y-4">
-      <div className="p-4 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
-        <div className="flex flex-col gap-3">
-          <label className="text-sm font-medium text-gray-700 dark:text-dark-text">
+  const settingsPanel = (
+    <div className="space-y-4">
+      <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-dark-text-secondary">
             Search radius
           </label>
           <select
@@ -207,7 +207,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               setRadius(Number(event.target.value));
               onRestaurantSelected(null);
             }}
-            className="px-4 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary focus:border-transparent bg-white dark:bg-dark-card dark:text-dark-text"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary bg-white dark:bg-dark-card dark:text-dark-text"
           >
             <option value={500}>500m</option>
             <option value={1000}>1km</option>
@@ -217,29 +217,28 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         </div>
       </div>
 
-      {/* NEW: Open Now Filter */}
-      <div className="p-4 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
+      <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
         <div className="flex items-center justify-between">
           <label htmlFor="open-now-filter" className="flex items-center cursor-pointer">
             <span className="text-sm font-medium text-gray-700 dark:text-dark-text mr-3">
-              Show only open restaurants
+              Open now only
             </span>
             <div className="relative">
               <input
                 type="checkbox"
                 id="open-now-filter"
-                className="sr-only" // Hide the default checkbox visually
+                className="sr-only"
                 checked={filterByOpenNow}
                 onChange={(e) => setFilterByOpenNow(e.target.checked)}
               />
               <div
-                className={`block w-10 h-6 rounded-full transition ${
+                className={`block w-9 h-5 rounded-full transition ${
                   filterByOpenNow ? 'bg-blue-500 dark:bg-dark-primary' : 'bg-gray-300 dark:bg-gray-600'
                 }`}
               ></div>
               <div
-                className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
-                  filterByOpenNow ? 'translate-x-full bg-blue-600 dark:bg-dark-secondary' : ''
+                className={`dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition ${
+                  filterByOpenNow ? 'translate-x-4' : ''
                 }`}
               ></div>
             </div>
@@ -247,22 +246,19 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         </div>
       </div>
 
-      <div className="p-4 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
-        <div className="flex flex-col gap-4">
+      <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
+        <div className="flex flex-col gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-gray-800 dark:text-dark-text">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-dark-text-secondary">
               Filters
             </h3>
-            <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
-              Exclude restaurants by brand, cuisine, amenity, or keyword to tailor suggestions.
-            </p>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-3">
+          <div className="flex flex-col gap-2">
             <select
               value={newFilterField}
               onChange={(event) => setNewFilterField(event.target.value as FilterField)}
-              className="px-3 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary"
+              className="w-full px-3 py-1.5 border border-gray-300 dark:border-dark-border rounded-md text-sm bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="name">Name</option>
               <option value="cuisine">Cuisine</option>
@@ -270,44 +266,44 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <option value="keyword">Keyword</option>
             </select>
 
-            <input
-              value={newFilterValue}
-              onChange={(event) => setNewFilterValue(event.target.value)}
-              placeholder="e.g. Tim Hortons"
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary"
-            />
+            <div className="flex gap-2">
+              <input
+                value={newFilterValue}
+                onChange={(event) => setNewFilterValue(event.target.value)}
+                placeholder="e.g. Tim Hortons"
+                className="flex-1 min-w-0 px-3 py-1.5 border border-gray-300 dark:border-dark-border rounded-md text-sm bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
 
-            <button
-              onClick={() => {
-                if (!canAddFilter) {
-                  return;
-                }
-                onAddFilterRule(newFilterField, newFilterValue);
-                setNewFilterValue('');
-              }}
-              disabled={!canAddFilter}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
-                canAddFilter
-                  ? 'bg-blue-600 hover:bg-blue-700 dark:bg-dark-primary dark:hover:bg-orange-600 text-white'
-                  : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              Add filter
-            </button>
+              <button
+                onClick={() => {
+                  if (!canAddFilter) return;
+                  onAddFilterRule(newFilterField, newFilterValue);
+                  setNewFilterValue('');
+                }}
+                disabled={!canAddFilter}
+                className={`flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                  canAddFilter
+                    ? 'bg-blue-600 dark:bg-dark-primary text-white shadow-sm'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Add
+              </button>
+            </div>
           </div>
 
           {filterRules.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5 mt-1">
               {filterRules.map((rule) => (
                 <span
                   key={rule.id}
-                  className="inline-flex items-center gap-2 px-3 py-1 text-xs rounded-full bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-700 dark:text-dark-text"
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] rounded-md bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-700 dark:text-dark-text shadow-sm"
                 >
-                  <span className="font-medium capitalize">{rule.field}</span>
-                  <span className="text-gray-500 dark:text-dark-text-secondary">{rule.value}</span>
+                  <span className="font-bold uppercase opacity-60">{rule.field}</span>
+                  <span className="truncate max-w-[80px]">{rule.value}</span>
                   <button
                     onClick={() => onRemoveFilterRule(rule.id)}
-                    className="text-gray-400 hover:text-red-500"
+                    className="text-gray-400 hover:text-red-500 transition-colors ml-0.5"
                     aria-label={`Remove filter ${rule.value}`}
                   >
                     ×
@@ -316,21 +312,16 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
-              No filters active.
-            </p>
+            <p className="text-[11px] text-gray-400 italic">No filters active.</p>
           )}
 
           {filterRules.length > 0 && (
-            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-dark-text-secondary">
-              <span>{hiddenByFiltersCount} hidden by filters</span>
-              <button
-                onClick={onClearFilterRules}
-                className="text-blue-600 dark:text-dark-primary hover:underline"
-              >
-                Clear all filters
-              </button>
-            </div>
+            <button
+              onClick={onClearFilterRules}
+              className="text-[11px] font-bold text-blue-600 dark:text-dark-primary hover:underline text-left mt-1"
+            >
+              Clear all filters ({hiddenByFiltersCount} hidden)
+            </button>
           )}
         </div>
       </div>
@@ -558,51 +549,56 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   />
                 </div>
 
-                {/* Top HUD bar */}
-                <div className="absolute top-0 left-0 right-0 z-[9999] flex items-center justify-between px-4 py-3 bg-white/85 dark:bg-dark-card/85 backdrop-blur-md border-b border-gray-200/60 dark:border-dark-border/60 shadow-sm">
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:text-blue-600 dark:hover:text-dark-primary transition-colors"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    List
-                  </button>
+                {/* Left Floating Sidebar HUD */}
+                <div className="absolute top-4 left-4 z-[9999] w-72 md:w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-3">
+                  <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/60 dark:border-dark-border/60 overflow-hidden flex flex-col">
+                    {/* HUD Header */}
+                    <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50">
+                      <button
+                        onClick={() => setViewMode('list')}
+                        className="flex items-center gap-1.5 text-sm font-bold text-blue-600 dark:text-dark-primary hover:scale-105 transition-transform"
+                      >
+                        <ChevronLeft className="w-4 h-4 stroke-[3px]" />
+                        List
+                      </button>
 
-                  <span className="text-sm font-semibold text-gray-800 dark:text-dark-text">
-                    {restaurants.length} restaurants
-                  </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          data-tour-target="settings-button"
+                          onClick={() => setShowSettings(!showSettings)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            showSettings
+                              ? 'bg-blue-100 dark:bg-dark-primary/20 text-blue-600 dark:text-dark-primary'
+                              : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary'
+                          }`}
+                          aria-label="Filters"
+                        >
+                          <Settings className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={toggleTheme}
+                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary transition-colors"
+                          aria-label="Toggle theme"
+                        >
+                          {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
+                        </button>
+                      </div>
+                    </div>
 
-                  <div className="flex items-center gap-0.5">
-                    <button
-                      data-tour-target="settings-button"
-                      onClick={() => setShowSettings(!showSettings)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        showSettings
-                          ? 'bg-blue-100 dark:bg-dark-primary/20 text-blue-600 dark:text-dark-primary'
-                          : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary'
-                      }`}
-                      aria-label="Filters"
-                    >
-                      <Settings className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={toggleTheme}
-                      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary transition-colors"
-                      aria-label="Toggle theme"
-                    >
-                      {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
-                    </button>
+                    {/* Stats section */}
+                    <div className="px-4 py-2 bg-gray-50/50 dark:bg-gray-800/30 flex items-center justify-between text-[11px] font-medium text-gray-500 dark:text-dark-text-secondary border-b border-gray-100 dark:border-gray-700/50">
+                      <span>{restaurants.length} restaurants</span>
+                      <span>{radius}m radius</span>
+                    </div>
+
+                    {/* Settings / Filters Panel - Expands inside sidebar */}
+                    {showSettings && (
+                      <div className="p-4 max-h-[60vh] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                        {settingsPanel}
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Settings slide-down panel */}
-                {showSettings && (
-                  <div className="absolute top-[57px] left-0 right-0 z-[9998] max-h-[65vh] overflow-y-auto bg-white dark:bg-dark-card border-b border-gray-200 dark:border-dark-border shadow-xl">
-                    <div className="px-4 py-2">
-                      {settingsPanel}
-                    </div>
-                  </div>
-                )}
 
                 {/* Right-side floating map actions */}
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 z-[9999] flex flex-col gap-2">

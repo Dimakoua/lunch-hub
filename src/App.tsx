@@ -37,7 +37,7 @@ function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [radius, setRadius] = useState(1000); // 1km default
-  const [showSettings, setShowSettings] = useState(false);
+  const [showSettings, setShowSettings] = useState(true);
   const [filterByOpenNow, setFilterByOpenNow] = useState(false); // NEW STATE
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem('theme') as Theme;
