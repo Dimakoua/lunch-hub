@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles, Share2, Loader2, ChevronLeft, Navigation, Route } from 'lucide-react';
@@ -144,7 +144,29 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   const [routeDuration, setRouteDuration] = useState<number | null>(null);
   const [newFilterField, setNewFilterField] = useState<FilterField>('name');
   const [newFilterValue, setNewFilterValue] = useState('');
+  const [showFilterSuggestions, setShowFilterSuggestions] = useState(false);
   const canAddFilter = newFilterValue.trim().length > 0;
+
+  // Compute suggestions based on current restaurants and selected category
+  const filterSuggestions = useMemo(() => {
+    if (newFilterField === 'keyword') return [];
+    
+    const values = new Set<string>();
+    restaurants.forEach(r => {
+      if (newFilterField === 'name' && r.name) values.add(r.name);
+      if (newFilterField === 'cuisine' && r.cuisine) {
+        // Cuisines can be semicolon separated in OSM
+        r.cuisine.split(';').forEach(c => values.add(c.trim()));
+      }
+      if (newFilterField === 'amenity' && r.amenity) values.add(r.amenity);
+    });
+
+    const query = newFilterValue.toLowerCase().trim();
+    return Array.from(values)
+      .filter(v => v.toLowerCase().includes(query))
+      .sort((a, b) => a.localeCompare(b))
+      .slice(0, 10); // Limit to 10 suggestions
+  }, [restaurants, newFilterField, newFilterValue]);
 
   useEffect(() => {
     const getRoute = async () => {
@@ -194,7 +216,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
   const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
 
-  const settingsPanel = (
+  const settingsPanel = showSettings && (
     <div className="space-y-4">
       <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
         <div className="flex flex-col gap-2">
@@ -255,36 +277,68 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
           </div>
 
           <div className="flex flex-col gap-2">
-            <select
-              value={newFilterField}
-              onChange={(event) => setNewFilterField(event.target.value as FilterField)}
-              className="w-full px-3 py-1.5 border border-gray-300 dark:border-dark-border rounded-md text-sm bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="name">Name</option>
-              <option value="cuisine">Cuisine</option>
-              <option value="amenity">Amenity</option>
-              <option value="keyword">Keyword</option>
-            </select>
+            <div className="flex gap-1.5 items-stretch relative">
+              <select
+                value={newFilterField}
+                onChange={(event) => setNewFilterField(event.target.value as FilterField)}
+                className="w-20 px-1.5 py-1 border border-gray-300 dark:border-dark-border rounded-md text-[10px] font-black uppercase tracking-tight bg-gray-50 dark:bg-gray-800 dark:text-dark-text focus:outline-none transition-colors cursor-pointer"
+              >
+                <option value="name">Name</option>
+                <option value="cuisine">Cuisine</option>
+                <option value="amenity">Amenity</option>
+                <option value="keyword">Keyword</option>
+              </select>
 
-            <div className="flex gap-2">
-              <input
-                value={newFilterValue}
-                onChange={(event) => setNewFilterValue(event.target.value)}
-                placeholder="e.g. Tim Hortons"
-                className="flex-1 min-w-0 px-3 py-1.5 border border-gray-300 dark:border-dark-border rounded-md text-sm bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="flex-1 min-w-0 relative group">
+                <input
+                  value={newFilterValue}
+                  onChange={(event) => {
+                    setNewFilterValue(event.target.value);
+                    setShowFilterSuggestions(true);
+                  }}
+                  onFocus={() => setShowFilterSuggestions(true)}
+                  onBlur={() => {
+                    // Delay hiding to allow for click on suggestion
+                    setTimeout(() => setShowFilterSuggestions(false), 200);
+                  }}
+                  placeholder="Value..."
+                  className="w-full px-2 py-1 border border-gray-300 dark:border-dark-border rounded-md text-xs bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-blue-500 transition-shadow"
+                  autoComplete="disabled"
+                  name={`filter-value-${newFilterField}`}
+                  id={`filter-value-${newFilterField}`}
+                />
+
+                {showFilterSuggestions && filterSuggestions.length > 0 && (
+                  <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-md shadow-xl z-[10002] max-h-40 overflow-y-auto ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-100">
+                    {filterSuggestions.map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        onClick={() => {
+                          onAddFilterRule(newFilterField, suggestion);
+                          setNewFilterValue('');
+                          setShowFilterSuggestions(false);
+                        }}
+                        className="w-full text-left px-2 py-1.5 text-[11px] hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:text-dark-text transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={() => {
                   if (!canAddFilter) return;
                   onAddFilterRule(newFilterField, newFilterValue);
                   setNewFilterValue('');
+                  setShowFilterSuggestions(false);
                 }}
                 disabled={!canAddFilter}
-                className={`flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                className={`flex-shrink-0 px-3 py-1 rounded-md text-[10px] font-bold uppercase transition-all ${
                   canAddFilter
-                    ? 'bg-blue-600 dark:bg-dark-primary text-white shadow-sm'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                    ? 'bg-blue-600 dark:bg-dark-primary text-white shadow-sm hover:bg-blue-700 active:scale-95'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
                 }`}
               >
                 Add
@@ -464,7 +518,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               </div>
             </div>
 
-            {settingsPanel}
+            {viewMode !== 'map' && showSettings && settingsPanel}
             {viewModeTabs}
           </div>
         </header>
@@ -489,7 +543,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             </div>
           </div>
           <div className="px-4 pb-3">
-            {settingsPanel}
+            {viewMode !== 'map' && showSettings && settingsPanel}
             {viewModeTabs}
           </div>
         </div>
@@ -590,7 +644,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     </div>
 
                     {/* Settings / Filters Panel - Expands inside sidebar */}
-                    {showSettings && (
+                    {settingsPanel && (
                       <div className="p-4 max-h-[60vh] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
                         {settingsPanel}
                       </div>
