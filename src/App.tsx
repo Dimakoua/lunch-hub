@@ -1,7 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
-import { Header } from './components/Header';
 import { InstallPWA } from './components/InstallPWA';
 import { BottomNav } from './components/BottomNav';
 
@@ -406,19 +405,14 @@ function App() {
     }
   };
 
-  // Determine if header should be shown
-  const showHeader = pageLocation.pathname.startsWith('/blog');
-  const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
-
   return (
-    <div className={isPWA ? 'pb-16' : ''}>
+    <div className="pb-16 lg:pb-0">
       {showCookieConsent && (
         <CookieConsent
           onAccept={handleCookieAccept}
           onDecline={handleCookieDecline}
         />
       )}
-      {showHeader && <Header theme={theme} toggleTheme={toggleTheme} />}
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route 
@@ -488,7 +482,7 @@ function App() {
         </Routes>
       </Suspense>
       <InstallPWA />
-      {isPWA && <BottomNav />}
+      <BottomNav />
     </div>
   );
 }

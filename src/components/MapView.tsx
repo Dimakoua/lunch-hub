@@ -167,22 +167,6 @@ export const MapView: React.FC<MapViewProps> = ({
         />
       )}
 
-      {/* Route Info Overlay */}
-      {routeDistance !== null && routeDuration !== null && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="absolute top-16 left-1/2 -translate-x-1/2 z-[10001] bg-white dark:bg-dark-card p-2 rounded-full shadow-md text-sm font-medium text-gray-800 dark:text-dark-text flex items-center gap-3"
-        >
-          <div className="flex items-center gap-2">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-              <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z" fill="#E0F2FE" />
-              <path d="M12 7a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" fill="#0369A1" />
-            </svg>
-          </div>
-        </div>
-      )}
-
       {/* User location marker */}
       <Marker position={center} icon={userIcon}>
         <Tooltip permanent>

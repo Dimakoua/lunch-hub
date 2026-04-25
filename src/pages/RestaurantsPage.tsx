@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Sparkles, Share2, Loader2, ChevronLeft, Navigation, Route } from 'lucide-react';
+import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Share2, Loader2, ChevronLeft, Navigation, Route } from 'lucide-react';
 import { RestaurantCard } from '../components/RestaurantCard';
 import { MapView } from '../components/MapView';
 import { SpinWheel } from '../components/SpinWheel';
@@ -45,7 +44,6 @@ interface RestaurantsPageProps {
   onClearFilterRules: () => void;
   filterByOpenNow: boolean;
   setFilterByOpenNow: (value: boolean) => void;
-  onOpenTour: () => void;
   tourOpen: boolean;
   onTourClose: () => void;
   onRetry: () => void;
@@ -131,7 +129,6 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   onAddFilterRule,
   onRemoveFilterRule,
   onClearFilterRules,
-  onOpenTour,
   tourOpen,
   onTourClose,
   filterByOpenNow,
@@ -215,6 +212,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   }, [setViewMode]);
 
   const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
+
+  React.useEffect(() => {
+    setShowSettings(viewMode === 'map');
+  }, [viewMode, setShowSettings]);
 
   const settingsPanel = showSettings && (
     <div className="space-y-4">
@@ -384,14 +385,12 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     </div>
   );
 
-  const tabBase = 'px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-sm';
+  const tabBase = 'px-2 sm:px-3 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-[11px] sm:text-sm min-w-0';
   const tabInactive = 'bg-white dark:bg-dark-card text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-dark-border';
 
   const viewModeTabs = (
-    <div
-      className="mt-4 flex flex-wrap gap-2"
-      data-tour-target="view-mode-tabs"
-    >
+    <div className="fixed left-3 right-3 bottom-20 z-[9999] flex justify-center lg:left-1/2 lg:right-auto lg:-translate-x-1/2 lg:transform lg:bottom-8">
+      <div className="max-w-[calc(100vw-1.5rem)] lg:w-auto lg:max-w-xl flex items-center justify-center gap-0.5 bg-white/95 dark:bg-dark-card/95 backdrop-blur-md rounded-full shadow-xl px-1.5 py-1 border border-gray-200/70 dark:border-dark-border/70 overflow-hidden">
       <button
         onClick={() => setViewMode('map')}
         className={`${tabBase} ${
@@ -401,7 +400,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         }`}
       >
         <MapPin className="w-4 h-4" />
-        Map
+        <span className="hidden sm:inline">Map</span>
       </button>
       <button
         onClick={() => setViewMode('list')}
@@ -412,7 +411,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         }`}
       >
         <List className="w-4 h-4" />
-        List
+        <span className="hidden sm:inline">List</span>
       </button>
       <button
         onClick={() => setViewMode('random')}
@@ -423,7 +422,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         }`}
       >
         <Shuffle className="w-4 h-4" />
-        Random
+        <span className="hidden sm:inline">Random</span>
       </button>
       <button
         onClick={() => setViewMode('wheel')}
@@ -434,7 +433,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         }`}
       >
         <RotateCcw className="w-4 h-4" />
-        Wheel
+        <span className="hidden sm:inline">Wheel</span>
       </button>
       <button
         onClick={() => setViewMode('history')}
@@ -446,115 +445,29 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         data-tour-target="history-tab"
       >
         <History className="w-4 h-4" />
-        History
+        <span className="hidden sm:inline">History</span>
       </button>
-    </div>
-  );
+    </div>  </div>  );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-background pb-24 lg:pb-0">
       <Helmet>
         <title>Lunch Hub - Restaurants Near You</title>
         <meta name="description" content={`Found ${restaurants.length} restaurants near you. Explore on map, browse list, or use our fun selection tools!`} />
         <link rel="canonical" href={`${origin}${window.location.pathname}`} />
       </Helmet>
       
-      {/* Header - Hidden in PWA mode for a more native feel */}
-      {!isPWA ? (
-        <header className="bg-white dark:bg-dark-card shadow-sm border-b border-gray-200 dark:border-dark-border">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="bg-gradient-to-r from-blue-600 to-emerald-600 dark:from-dark-primary dark:to-orange-500 rounded-xl p-2">
-                  <MapPin className="w-6 h-6 text-white" />
-                </div>
-                <Link to="/">
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 dark:from-dark-primary dark:to-orange-500 bg-clip-text text-transparent cursor-pointer">
-                    Lunch Hub
-                  </h1>
-                </Link>
-              </div>
-              
-              <div className="flex flex-col items-end md:flex-row md:items-center gap-2 md:gap-4">
-                <div className="text-right md:text-left">
-                  <p className="text-sm text-gray-600 dark:text-dark-text-secondary font-medium">
-                    Showing {restaurants.length} restaurants
-                    {hiddenByHistoryCount + hiddenByFiltersCount > 0 && (
-                      <span className="text-xs opacity-60 ml-1">
-                        ({hiddenByHistoryCount + hiddenByFiltersCount} hidden)
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
-                    within {radius}m radius
-                  </p>
-                </div>
-
-                <button
-                  onClick={onOpenTour}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
-                  title="Show onboarding tour"
-                >
-                  <Sparkles className="w-5 h-5 text-amber-500" />
-                  <span className="sr-only">Open onboarding tour</span>
-                </button>
-
-                <button
-                  data-tour-target="settings-button"
-                  onClick={() => setShowSettings(!showSettings)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
-                >
-                  <Settings className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary" />
-                </button>
-
-                <button
-                  onClick={toggleTheme}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 theme-toggle-button"
-                >
-                  {theme === 'light' ? (
-                    <Moon className="w-5 h-5 text-gray-600" />
-                  ) : (
-                    <Sun className="w-5 h-5 text-yellow-400" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {viewMode !== 'map' && showSettings && settingsPanel}
-            {viewModeTabs}
-          </div>
-        </header>
-      ) : (
-        <div className="sticky top-0 z-[2000] bg-white dark:bg-dark-card border-b border-gray-100 dark:border-dark-border">
-          <div className="px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-blue-600 dark:text-orange-500" />
-              <span className="font-bold text-gray-900 dark:text-white">Lunch Hub</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <button 
-                data-tour-target="settings-button"
-                onClick={() => setShowSettings(!showSettings)} 
-                className="p-1.5 text-gray-600 dark:text-gray-400"
-              >
-                <Settings className="w-5 h-5" />
-              </button>
-              <button onClick={toggleTheme} className="p-1.5 text-gray-600 dark:text-gray-400">
-                {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
-              </button>
-            </div>
-          </div>
-          <div className="px-4 pb-3">
-            {viewMode !== 'map' && showSettings && settingsPanel}
-            {viewModeTabs}
-          </div>
-        </div>
-      )}
+      {/* Header removed for a cleaner, consistent mobile/PWA/web experience. The bottom island now manages view switching. */}
 
       {/* Selected restaurant banner removed — sharing now available in the map popup. */}
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
+        {viewMode !== 'map' && showSettings && (
+          <div className="mb-6 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-3xl shadow-xl p-4">
+            {settingsPanel}
+          </div>
+        )}
         {loading ? (
           <LoadingSpinner message="Finding restaurants..." />
         ) : error ? (
@@ -596,37 +509,37 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 </div>
 
                 {/* Left Floating Sidebar HUD */}
-                <div className={`absolute left-3 sm:left-4 z-[9999] w-[calc(100vw-2rem)] sm:w-72 md:w-80 flex flex-col gap-3 ${isPWA ? 'top-28' : 'top-3 sm:top-4'}`}>
+                <div className={`absolute left-3 sm:left-4 z-[9999] w-[calc(100vw-1.5rem)] max-w-sm sm:w-72 md:w-80 flex flex-col gap-3 ${isPWA ? 'top-28' : 'top-3 sm:top-4'}`}>
                   <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/60 dark:border-dark-border/60 flex flex-col overflow-hidden">
                     {/* HUD Header */}
-                    <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
+                    <div className="px-2 py-2 sm:px-4 sm:py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
                       <button
                         onClick={() => setViewMode('list')}
-                        className="flex items-center gap-1.5 text-sm font-bold text-blue-600 dark:text-dark-primary hover:scale-105 transition-transform"
+                        className="flex items-center gap-1 text-xs sm:gap-1.5 sm:text-sm font-bold text-blue-600 dark:text-dark-primary hover:scale-105 transition-transform"
                       >
                         <ChevronLeft className="w-4 h-4 stroke-[3px]" />
-                        List
+                        <span className="hidden sm:inline">List</span>
                       </button>
 
                       <div className="flex items-center gap-1">
                         <button
                           data-tour-target="settings-button"
                           onClick={() => setShowSettings(!showSettings)}
-                          className={`p-2 rounded-lg transition-colors ${
+                          className={`p-1.5 rounded-lg transition-colors ${
                             showSettings
                               ? 'bg-blue-100 dark:bg-dark-primary/20 text-blue-600 dark:text-dark-primary'
                               : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary'
                           }`}
                           aria-label="Filters"
                         >
-                          <Settings className="w-5 h-5" />
+                          <Settings className="w-4 h-4" />
                         </button>
                         <button
                           onClick={toggleTheme}
-                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary transition-colors"
                           aria-label="Toggle theme"
                         >
-                          {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
+                          {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4 text-yellow-400" />}
                         </button>
                       </div>
                     </div>
@@ -686,43 +599,6 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   )}
                 </div>
 
-                {/* Bottom mode-switcher pill — shifted up in PWA to clear the BottomNav (64 px, z-2000) */}
-                <div className={`absolute ${isPWA ? 'bottom-20 lg:bottom-8' : 'bottom-6'} left-1/2 -translate-x-1/2 z-[9999]`}>
-                  <div className="flex items-center gap-0.5 bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-full shadow-lg px-2 py-1.5 border border-gray-200/60 dark:border-dark-border/60">
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      title="List"
-                    >
-                      <List className="w-4 h-4" />
-                      <span className="hidden sm:inline">List</span>
-                    </button>
-                    <button
-                      onClick={() => setViewMode('random')}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                      title="Random"
-                    >
-                      <Shuffle className="w-4 h-4" />
-                      <span className="hidden sm:inline">Random</span>
-                    </button>
-                    <button
-                      onClick={() => setViewMode('wheel')}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                      title="Wheel"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                      <span className="hidden sm:inline">Wheel</span>
-                    </button>
-                    <button
-                      onClick={() => setViewMode('history')}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-                      title="History"
-                    >
-                      <History className="w-4 h-4" />
-                      <span className="hidden sm:inline">History</span>
-                    </button>
-                  </div>
-                </div>
               </div>
             )}
 
@@ -843,6 +719,25 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
           </>
         )}
       </main>
+
+      {viewModeTabs}
+
+      <div className="fixed right-4 bottom-32 z-[9999] flex flex-col gap-2 lg:bottom-10">
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="w-12 h-12 rounded-2xl bg-white dark:bg-dark-card shadow-xl border border-gray-200/70 dark:border-dark-border/70 flex items-center justify-center text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Toggle filters"
+        >
+          <Settings className="w-5 h-5" />
+        </button>
+        <button
+          onClick={toggleTheme}
+          className="w-12 h-12 rounded-2xl bg-white dark:bg-dark-card shadow-xl border border-gray-200/70 dark:border-dark-border/70 flex items-center justify-center text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Toggle theme"
+        >
+          {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
+        </button>
+      </div>
 
       <OnboardingTour 
         isOpen={tourOpen} 
