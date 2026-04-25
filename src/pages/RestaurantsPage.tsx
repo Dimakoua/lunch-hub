@@ -509,7 +509,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 </div>
 
                 {/* Left Floating Sidebar HUD */}
-                <div className={`absolute inset-x-3 sm:inset-x-4 z-[9999] max-w-sm sm:w-72 md:w-80 flex flex-col gap-3 ${isPWA ? 'top-28' : 'top-3 sm:top-4'}`}>
+                <div className={`absolute inset-x-3 sm:inset-x-4 z-[9999] max-w-sm sm:w-72 md:w-80 flex flex-col gap-3 top-3 sm:top-4`}>
                   <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/60 dark:border-dark-border/60 flex flex-col overflow-hidden">
                     {/* HUD Header */}
                     <div className="px-2 py-2 sm:px-4 sm:py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
