@@ -43,6 +43,7 @@ const LinkRenderer: React.FC<LinkRendererProps> = ({ href, children }) => {
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,6 +69,65 @@ const BlogPostPage: React.FC = () => {
 
     fetchPost();
   }, [slug]);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      const files = import.meta.glob('/public/blog-posts/*.md', { query: '?raw', import: 'default' });
+
+      const postPromises = Object.entries(files).map(async ([path, loader]) => {
+        const slug = path.split('/').pop()?.replace('.md', '') || '';
+        const content = await (loader as () => Promise<string>)();
+        return parseBlogPost(slug, content);
+      });
+
+      const allPosts = await Promise.all(postPromises);
+      allPosts.sort((a, b) => new Date(b.attributes.date).getTime() - new Date(a.attributes.date).getTime());
+      setPosts(allPosts);
+    };
+
+    loadPosts();
+  }, []);
+
+  const relatedPosts = useMemo(() => {
+    if (!post || posts.length === 0) {
+      return [];
+    }
+
+    const normalizeTerms = (text: string) =>
+      text
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter(Boolean);
+
+    const currentTerms = new Set<string>([
+      ...(post.attributes.keywords?.split(',').map((keyword) => keyword.trim().toLowerCase()) ?? []),
+      ...normalizeTerms(post.attributes.title),
+    ]);
+
+    const scored = posts
+      .filter((item) => item.slug !== post.slug)
+      .map((item) => {
+        const itemTerms = new Set<string>([
+          ...(item.attributes.keywords?.split(',').map((keyword) => keyword.trim().toLowerCase()) ?? []),
+          ...normalizeTerms(item.attributes.title),
+        ]);
+
+        const score = [...currentTerms].reduce((count, term) => (itemTerms.has(term) ? count + 1 : count), 0);
+        return { item, score };
+      });
+
+    const matches = scored
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score || new Date(b.item.attributes.date).getTime() - new Date(a.item.attributes.date).getTime())
+      .map(({ item }) => item)
+      .slice(0, 3);
+
+    if (matches.length > 0) {
+      return matches;
+    }
+
+    return posts.filter((item) => item.slug !== post.slug).slice(0, 3);
+  }, [post, posts]);
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen"><LoadingSpinner /></div>;
@@ -206,6 +266,30 @@ const BlogPostPage: React.FC = () => {
               {body}
             </ReactMarkdown>
           </div>
+
+          {relatedPosts.length > 0 && (
+            <section className="mt-16">
+              <div className="flex items-center justify-between mb-6 gap-4">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.24em] text-blue-600 dark:text-blue-400 font-semibold">Related Posts</p>
+                  <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">More content you may like</h2>
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-3">
+                {relatedPosts.map((related) => (
+                  <Link
+                    key={related.slug}
+                    to={`/blog/${related.slug}`}
+                    className="group block rounded-3xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-5 transition hover:border-blue-500 hover:shadow-xl"
+                  >
+                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-3">{new Date(related.attributes.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 mb-2">{related.attributes.title}</h3>
+                    <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">{related.attributes.description}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
           
           <footer className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-700">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
