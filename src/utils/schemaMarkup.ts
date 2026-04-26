@@ -115,6 +115,17 @@ export function generateArticleSchema(
   };
 }
 
+export interface BreadcrumbSchema {
+  '@context': string;
+  '@type': string;
+  itemListElement: Array<{
+    '@type': string;
+    position: number;
+    name: string;
+    item?: string;
+  }>;
+}
+
 export function generateFAQSchema(faqs: Array<{ question: string; answer: string }>): FAQSchema {
   return {
     '@context': 'https://schema.org',
@@ -126,6 +137,21 @@ export function generateFAQSchema(faqs: Array<{ question: string; answer: string
         '@type': 'Answer',
         text: faq.answer,
       },
+    })),
+  };
+}
+
+export function generateBreadcrumbSchema(
+  breadcrumbs: Array<{ name: string; url?: string }>
+): BreadcrumbSchema {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbs.map((crumb, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: crumb.name,
+      ...(crumb.url ? { item: crumb.url } : {}),
     })),
   };
 }

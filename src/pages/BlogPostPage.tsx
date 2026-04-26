@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import remarkGfm from 'remark-gfm';
 import { parseBlogPost, BlogPost } from '../services/blog';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { Breadcrumb } from '../components/Breadcrumb';
 import { generateArticleSchema, renderSchema } from '../utils/schemaMarkup';
 
 const ReadingTime: React.FC<{ text: string }> = ({ text }) => {
@@ -190,19 +191,7 @@ const BlogPostPage: React.FC = () => {
         <script type="application/ld+json">{renderSchema(articleSchema)}</script>
       </Helmet>
       <div className="relative z-10 container mx-auto px-4 py-8 pt-16 max-w-3xl lg:max-w-4xl">
-        <nav className="text-sm" aria-label="breadcrumb">
-          <ol className="inline-flex items-center space-x-2 not-prose text-gray-500 dark:text-gray-400 list-none mb-6">
-            <li className="inline-flex items-center">
-              <Link to="/blog" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium">Blog</Link>
-            </li>
-            <li>
-              <span className="mx-2 text-gray-400 dark:text-gray-600">/</span>
-            </li>
-            <li className="inline-flex items-center text-gray-800 dark:text-gray-100 font-semibold" aria-current="page">
-              {attributes.title}
-            </li>
-          </ol>
-        </nav>
+        <Breadcrumb items={[{ name: 'Home', url: '/' }, { name: 'Blog', url: '/blog' }, { name: attributes.title }]} className="mb-6" />
         <article className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-12">
           {attributes.cover_image && (
             <img 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { parseBlogPost, BlogPost } from '../services/blog';
+import { Breadcrumb } from '../components/Breadcrumb';
 
 const BlogPage: React.FC = () => {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.lunchhub.com';
@@ -65,6 +66,7 @@ const BlogPage: React.FC = () => {
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
       <div className="relative z-10 container mx-auto px-4 py-8 pt-20">
+        <Breadcrumb items={[{ name: 'Home', url: '/' }, { name: 'Blog' }]} className="mb-6 justify-center" />
         <h1 className="text-4xl font-bold mb-8 text-center text-gray-900 dark:text-white">Lunch Hub Blog</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {currentPosts.map((post) => (
