@@ -233,6 +233,7 @@ const BlogPostPage: React.FC = () => {
                 a: LinkRenderer,
                 h2: ({...props}) => <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-gray-100 dark:border-gray-700" {...props} />,
                 h3: ({...props}) => <h3 className="text-xl mt-8 mb-4 font-semibold" {...props} />,
+                p: ({...props}) => <p className="mb-1 p-0 leading-8 text-[1.05rem] text-gray-700 dark:text-gray-300 last:mb-0" {...props} />,
                 ul: ({...props}) => <ul className="list-disc pl-6 space-y-2 mb-6 text-gray-700 dark:text-gray-300" {...props} />,
                 ol: ({...props}) => <ol className="list-decimal pl-6 space-y-2 mb-6 text-gray-700 dark:text-gray-300" {...props} />,
                 blockquote: ({...props}) => <blockquote className="border-l-4 border-emerald-500 pl-4 italic my-8 bg-emerald-50 dark:bg-emerald-900/20 py-4 rounded-r-lg" {...props} />,
