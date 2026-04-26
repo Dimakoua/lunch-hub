@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
 import { InstallPWA } from './components/InstallPWA';
 import { BottomNav } from './components/BottomNav';
+import { Footer } from './components/Footer';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const RestaurantsPage = lazy(() => import('./pages/RestaurantsPage'));
@@ -481,6 +482,7 @@ function App() {
           <Route path="/blog/:slug" element={<BlogPostPage />} />
         </Routes>
       </Suspense>
+      <Footer />
       <InstallPWA />
       <BottomNav />
     </div>
