@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, Polyline, Circ
 import L from 'leaflet';
 import { Restaurant } from '../types/restaurant';
 import { shareRestaurant } from '../utils/share';
+import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers
@@ -35,6 +36,7 @@ interface MapViewProps {
   routeDistance: number | null;
   routeDuration: number | null;
   radius?: number;
+  breadcrumbItems?: BreadcrumbItem[];
 }
 
 const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: Restaurant | null; routeGeometry?: [number, number][] | null }> = ({ 
@@ -95,7 +97,8 @@ export const MapView: React.FC<MapViewProps> = ({
   radius,
   routeGeometry,
   routeDistance,
-  routeDuration
+  routeDuration,
+  breadcrumbItems,
 }) => {
   const userIcon = L.divIcon({
     html: `<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#2563EB"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
@@ -144,12 +147,13 @@ export const MapView: React.FC<MapViewProps> = ({
   };
 
   return (
-    <MapContainer 
-      center={center} 
-      zoom={zoom} 
-      className="w-full h-full rounded-xl"
-      zoomControl={false}
-    >
+    <div className="relative w-full h-full">
+      <MapContainer 
+        center={center} 
+        zoom={zoom} 
+        className="w-full h-full rounded-xl"
+        zoomControl={false}
+      >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -299,6 +303,12 @@ export const MapView: React.FC<MapViewProps> = ({
           </Popup>
         </Marker>
       ))}
-    </MapContainer>
+      </MapContainer>
+      {breadcrumbItems && breadcrumbItems.length > 0 && (
+        <div className="absolute top-4 left-4 z-50">
+          <Breadcrumb items={breadcrumbItems} className="bg-white/90 dark:bg-dark-card/90 px-3 py-2 rounded-2xl shadow-lg" />
+        </div>
+      )}
+    </div>
   );
 };

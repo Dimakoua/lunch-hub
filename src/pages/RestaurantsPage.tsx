@@ -6,6 +6,7 @@ import { MapView } from '../components/MapView';
 import { SpinWheel } from '../components/SpinWheel';
 import { RandomPicker } from '../components/RandomPicker';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { Breadcrumb } from '../components/Breadcrumb';
 import { Restaurant, Location } from '../types/restaurant';
 import { FilterRule, FilterField } from '../types/filter';
 import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../services/analytics';
@@ -212,6 +213,20 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   }, [setViewMode]);
 
   const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
+
+  const viewModeLabels: Record<ViewMode, string> = {
+    map: 'Map',
+    list: 'List',
+    wheel: 'Spin Wheel',
+    random: 'Random',
+    history: 'History',
+  };
+
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Restaurants' },
+    { name: viewModeLabels[viewMode] },
+  ];
 
   React.useEffect(() => {
     setShowSettings(viewMode === 'map');
@@ -463,6 +478,11 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
+        {viewMode !== 'map' && (
+          <div className="mb-6">
+            <Breadcrumb items={breadcrumbItems} className="mb-4" />
+          </div>
+        )}
         {viewMode !== 'map' && showSettings && (
           <div className="mb-6 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-3xl shadow-xl p-4">
             {settingsPanel}
@@ -505,6 +525,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     routeDistance={routeDistance}
                     routeDuration={routeDuration}
                     radius={radius}
+                    breadcrumbItems={breadcrumbItems}
                   />
                 </div>
 

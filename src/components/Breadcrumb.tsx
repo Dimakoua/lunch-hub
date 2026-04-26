@@ -6,6 +6,7 @@ import { generateBreadcrumbSchema, renderSchema } from '../utils/schemaMarkup';
 export interface BreadcrumbItem {
   name: string;
   url?: string;
+  onClick?: () => void;
 }
 
 interface BreadcrumbProps {
@@ -36,7 +37,15 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
             {index > 0 && (
               <span className="text-gray-400 dark:text-gray-500">/</span>
             )}
-            {item.url ? (
+            {item.onClick ? (
+              <button
+                type="button"
+                onClick={item.onClick}
+                className="text-gray-700 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+              >
+                {item.name}
+              </button>
+            ) : item.url ? (
               <Link
                 to={item.url}
                 className="text-gray-700 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
