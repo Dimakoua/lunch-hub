@@ -2,7 +2,7 @@
 title: "Best Quick Lunches in the Financial District for Under $15 in Toronto"
 date: "2026-04-26"
 author: "Dmytro Kozin"
-excerpt: "Tired of spending $20 on a sad desk salad? Navigate the PATH like a pro with these top budget-friendly lunch spots in Toronto's downtown core."
+description: "Tired of spending $20 on a sad desk salad? Navigate the PATH like a pro with these top budget-friendly lunch spots in Toronto's downtown core."
 image: "/images/quick-lunches.jpg"
 tags: ["Toronto", "Budget", "Financial District", "Quick Meals"]
 ---
