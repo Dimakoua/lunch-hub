@@ -4,7 +4,8 @@ import ReactMarkdown from 'react-markdown';
 import { Helmet } from 'react-helmet-async';
 import remarkGfm from 'remark-gfm';
 import { parseBlogPost, BlogPost } from '../services/blog';
-import {LoadingSpinner} from '../components/LoadingSpinner';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import { generateArticleSchema, renderSchema } from '../utils/schemaMarkup';
 
 const ReadingTime: React.FC<{ text: string }> = ({ text }) => {
   const stats = useMemo(() => {
@@ -143,15 +144,24 @@ const BlogPostPage: React.FC = () => {
 
   const { attributes, body } = post;
   const postUrl = window.location.href;
+  const origin = window.location.origin;
   
   // Handle absolute Unsplash URLs or relative local paths
   const getFullImageUrl = (imagePath?: string) => {
-    if (!imagePath) return `${window.location.origin}/images/lunchhub-og-image.png`;
+    if (!imagePath) return `${origin}/images/lunchhub-og-image.png`;
     if (imagePath.startsWith('http')) return imagePath;
-    return `${window.location.origin}${imagePath}`;
+    return `${origin}${imagePath}`;
   };
 
   const coverImageUrl = getFullImageUrl(attributes.cover_image);
+  const articleSchema = generateArticleSchema(
+    attributes.title,
+    attributes.description,
+    postUrl,
+    new Date(attributes.date).toISOString(),
+    coverImageUrl,
+    'Lunch Hub Team'
+  );
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -176,32 +186,8 @@ const BlogPostPage: React.FC = () => {
         <meta name="twitter:description" content={attributes.description} />
         <meta name="twitter:image" content={coverImageUrl} />
 
-        {/* JSON-LD Structured Data */}
-        <script type="application/ld+json">
-          {`
-            {
-              "@context": "https://schema.org",
-              "@type": "BlogPosting",
-              "headline": "${attributes.title}",
-              "description": "${attributes.description}",
-              "image": "${coverImageUrl}",
-              "url": "${postUrl}",
-              "datePublished": "${new Date(attributes.date).toISOString()}",
-              "author": {
-                "@type": "Organization",
-                "name": "Lunch Hub"
-              },
-              "publisher": {
-                "@type": "Organization",
-                "name": "Lunch Hub",
-                "logo": {
-                  "@type": "ImageObject",
-                  "url": "${window.location.origin}/images/lunchhub-og-image.png"
-                }
-              }
-            }
-          `}
-        </script>
+        {/* JSON-LD Article Schema */}
+        <script type="application/ld+json">{renderSchema(articleSchema)}</script>
       </Helmet>
       <div className="relative z-10 container mx-auto px-4 py-8 pt-16 max-w-3xl lg:max-w-4xl">
         <nav className="text-sm" aria-label="breadcrumb">

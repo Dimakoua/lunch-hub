@@ -5,6 +5,11 @@ import { MapPin, Shuffle, RotateCcw, Sun, Moon } from 'lucide-react';
 import { SearchBar } from '../components/SearchBar';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { SEOContent } from '../components/SEOContent';
+import {
+  generateFAQSchema,
+  generateLocalBusinessSchema,
+  renderSchema,
+} from '../utils/schemaMarkup';
 
 interface HomePageProps {
   onSearch: (query: string, radius: number, openNow: boolean) => void;
@@ -23,8 +28,31 @@ const HomePage: React.FC<HomePageProps> = ({
   theme,
   toggleTheme
 }) => {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.lunchhub.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.thelunchub.com';
   const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
+  const localBusinessSchema = generateLocalBusinessSchema(origin);
+  const faqSchema = generateFAQSchema([
+    {
+      question: 'How do I search for restaurants?',
+      answer: 'Enter your location or use current location, then select a search radius and filters to explore restaurants nearby.',
+    },
+    {
+      question: 'What is the Spin Wheel feature?',
+      answer: 'The Spin Wheel helps you choose a restaurant randomly when you can\'t decide, making lunch planning fun and fast.',
+    },
+    {
+      question: 'Can I use Lunch Hub offline?',
+      answer: 'Yes, Lunch Hub is a Progressive Web App, allowing cached access after the initial load for offline use.',
+    },
+    {
+      question: 'Is my location data private?',
+      answer: 'Location is only used to find nearby restaurants. Your data is not sold and is handled in a privacy-friendly manner.',
+    },
+    {
+      question: 'Can Lunch Hub help with group lunch decisions?',
+      answer: 'Yes, Lunch Hub includes tools that simplify group dining decisions with team coordination and polling features.',
+    },
+  ]);
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -33,6 +61,12 @@ const HomePage: React.FC<HomePageProps> = ({
         <meta name="description" content="Discover amazing restaurants near you. Search by location or let us find your next favorite meal!" />
         <link rel="canonical" href={`${origin}/`} />
         <meta property="og:url" content={`${origin}/`} />
+        <script type="application/ld+json">
+          {renderSchema(localBusinessSchema)}
+        </script>
+        <script type="application/ld+json">
+          {renderSchema(faqSchema)}
+        </script>
       </Helmet>
       
       {/* Background Pattern */}
