@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.lunchhub.com/sitemap.xml
+Sitemap: https://thelunchub.com/sitemap.xml
