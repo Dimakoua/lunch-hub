@@ -15,7 +15,8 @@
           "cuisine": "Thai",
           "area": "Entertainment District",
           "whyGo": "Bold northern Thai flavors and consistently strong lunch service.",
-          "mustTry": "Khao Soi"
+          "mustTry": "Khao Soi",
+          "website": "https://www.paitoronto.com/"
         },
         {
           "name": "Gusto 101",
@@ -30,6 +31,22 @@
           "area": "Downtown Toronto",
           "whyGo": "Energetic Japanese small plates that work well for group lunches.",
           "mustTry": "Aburi Salmon Oshi"
+        },
+        {
+          "name": "Canoe",
+          "cuisine": "Canadian",
+          "area": "Financial District",
+          "whyGo": "Stunning 54th-floor views with refined Canadian ingredients and a power-lunch atmosphere.",
+          "mustTry": "Ontario Lamb Loin",
+          "website": "https://www.oliverbonacini.com/restaurants/canoe/"
+        },
+        {
+          "name": "Byblos Toronto",
+          "cuisine": "Middle Eastern",
+          "area": "King West",
+          "whyGo": "Eastern Mediterranean flavors in a chic setting, great for groups or business lunches.",
+          "mustTry": "Lamb Flatbread",
+          "website": "https://www.byblosrestaurant.com/"
         }
       ],
       "cuisines": ["Italian", "Japanese", "Chinese", "Indian", "Korean", "Mexican", "Thai", "Vietnamese"]
@@ -56,7 +73,8 @@
           "cuisine": "Italian",
           "area": "West Loop",
           "whyGo": "Chef-driven pasta spot with excellent weekday lunch energy.",
-          "mustTry": "Cacio Whey Pepe"
+          "mustTry": "Cacio Whey Pepe",
+          "website": "https://monteverderestaurant.com/"
         },
         {
           "name": "HaiSous Vietnamese Kitchen",
@@ -64,6 +82,22 @@
           "area": "Pilsen",
           "whyGo": "Refined Vietnamese cooking in one of Chicago's strongest food neighborhoods.",
           "mustTry": "Banh Xeo"
+        },
+        {
+          "name": "Girl & the Goat",
+          "cuisine": "American",
+          "area": "West Loop",
+          "whyGo": "James Beard Award-winning Stephanie Izard's flagship—bold vegetable-forward dishes and unforgettable shared plates.",
+          "mustTry": "Wood Roasted Pig Face",
+          "website": "https://www.girlandthegoat.com/"
+        },
+        {
+          "name": "Lou Malnati's Pizzeria",
+          "cuisine": "Italian",
+          "area": "River North",
+          "whyGo": "Chicago's most iconic deep-dish pizza institution—a must for any first-time visitor or local craving comfort.",
+          "mustTry": "Lou's Deep Dish with Sausage",
+          "website": "https://www.loumalnatis.com/"
         }
       ],
       "cuisines": ["Italian", "American", "Mexican", "Thai", "Vietnamese", "Japanese", "Korean"]
@@ -90,14 +124,32 @@
           "cuisine": "Japanese",
           "area": "East Village",
           "whyGo": "Dependable ramen destination ideal for quick but quality lunches.",
-          "mustTry": "Shiromaru Classic"
+          "mustTry": "Shiromaru Classic",
+          "website": "https://ippudony.com/"
         },
         {
           "name": "Xi'an Famous Foods",
           "cuisine": "Chinese",
           "area": "Midtown",
           "whyGo": "Fast casual regional Chinese flavors that stand out in the lunch crowd.",
-          "mustTry": "Spicy Cumin Lamb Hand-Ripped Noodles"
+          "mustTry": "Spicy Cumin Lamb Hand-Ripped Noodles",
+          "website": "https://www.xianfoods.com/"
+        },
+        {
+          "name": "Katz's Delicatessen",
+          "cuisine": "American",
+          "area": "Lower East Side",
+          "whyGo": "NYC's most legendary deli since 1888—towering pastrami sandwiches and a slice of living history.",
+          "mustTry": "Pastrami on Rye",
+          "website": "https://katzsdelicatessen.com/"
+        },
+        {
+          "name": "Superiority Burger",
+          "cuisine": "American",
+          "area": "East Village",
+          "whyGo": "Cult vegetarian spot proving that meatless lunch can be utterly craveable and deeply satisfying.",
+          "mustTry": "Superiority Burger",
+          "website": "https://superiorityburger.com/"
         }
       ],
       "cuisines": ["Italian", "French", "Japanese", "Chinese", "Indian", "Korean", "Thai", "Mexican"]
@@ -117,7 +169,8 @@
           "cuisine": "Mexican",
           "area": "Koreatown",
           "whyGo": "Landmark Oaxacan restaurant with deep flavor and lunch-friendly portions.",
-          "mustTry": "Mole Negro"
+          "mustTry": "Mole Negro",
+          "website": "https://www.ilovemole.com/"
         },
         {
           "name": "Daikokuya",
@@ -131,7 +184,24 @@
           "cuisine": "Asian Fusion",
           "area": "Mid-City",
           "whyGo": "Creative menu and polished setting for work lunches and client meetings.",
-          "mustTry": "Tuna Tartine"
+          "mustTry": "Tuna Tartine",
+          "website": "https://republiquela.com/"
+        },
+        {
+          "name": "Bestia",
+          "cuisine": "Italian",
+          "area": "Arts District",
+          "whyGo": "Outstanding house-made pastas and charcuterie in a stunning industrial warehouse setting.",
+          "mustTry": "Rigatoni con la Pajata",
+          "website": "https://www.bestiala.com/"
+        },
+        {
+          "name": "Howlin' Ray's",
+          "cuisine": "American",
+          "area": "Chinatown",
+          "whyGo": "LA's best Nashville hot chicken—expect a line but it's worth every minute.",
+          "mustTry": "Hot Chicken Sandwich",
+          "website": "https://www.howlinrays.com/"
         }
       ],
       "cuisines": ["Mexican", "Asian Fusion", "Japanese", "Thai", "Mediterranean", "Vietnamese", "Korean"]
@@ -151,7 +221,8 @@
           "cuisine": "Cuban",
           "area": "Little Havana",
           "whyGo": "An iconic Miami institution for classic Cuban lunch staples.",
-          "mustTry": "Lechon Asado"
+          "mustTry": "Lechon Asado",
+          "website": "https://www.versaillescuba.com/"
         },
         {
           "name": "Mignonette",
@@ -165,7 +236,24 @@
           "cuisine": "Mediterranean",
           "area": "Design District",
           "whyGo": "Sunny courtyard and fresh Mediterranean plates ideal for long lunches.",
-          "mustTry": "Grilled Octopus"
+          "mustTry": "Grilled Octopus",
+          "website": "https://www.mandolinmiami.com/"
+        },
+        {
+          "name": "KYU",
+          "cuisine": "Asian Fusion",
+          "area": "Wynwood",
+          "whyGo": "Wood-fired Asian BBQ in Wynwood's creative hub—inventive, shareable plates with serious depth.",
+          "mustTry": "Crispy Cauliflower",
+          "website": "https://kyurestaurants.com/miami/"
+        },
+        {
+          "name": "Zuma Miami",
+          "cuisine": "Japanese",
+          "area": "Downtown Miami",
+          "whyGo": "Contemporary Japanese izakaya on the waterfront—sleek setting and exceptional quality for a special lunch.",
+          "mustTry": "Spicy Beef Tenderloin",
+          "website": "https://zumarestaurant.com/locations/miami/"
         }
       ],
       "cuisines": ["Cuban", "Latin American", "Seafood", "Mediterranean", "Thai", "Japanese"]
@@ -199,7 +287,23 @@
           "cuisine": "Lebanese",
           "area": "JLT",
           "whyGo": "Warm Levantine home-style cooking with standout mezze.",
-          "mustTry": "Musakhan"
+          "mustTry": "Musakhan",
+          "website": "https://www.bait-maryam.com/"
+        },
+        {
+          "name": "Bu Qtair",
+          "cuisine": "Seafood",
+          "area": "Jumeirah",
+          "whyGo": "Legendary no-frills Dubai institution serving the freshest fried fish and prawns—a true local secret.",
+          "mustTry": "Fried Hammour with Masala Sauce"
+        },
+        {
+          "name": "Logma",
+          "cuisine": "Middle Eastern",
+          "area": "Wasl Square",
+          "whyGo": "Contemporary Emirati café bringing traditional Khaleeji flavours into a warm, modern casual setting.",
+          "mustTry": "Balaleet (Sweet Vermicelli)",
+          "website": "https://www.logma.ae/"
         }
       ],
       "cuisines": ["Middle Eastern", "Indian", "Lebanese", "Italian", "Asian Fusion", "Seafood"]
@@ -219,7 +323,8 @@
           "cuisine": "Japanese",
           "area": "Coal Harbour",
           "whyGo": "Well-known for polished service and signature flame-seared sushi.",
-          "mustTry": "Aburi Salmon Oshi"
+          "mustTry": "Aburi Salmon Oshi",
+          "website": "https://mikurestaurant.com/"
         },
         {
           "name": "Phnom Penh",
@@ -233,7 +338,24 @@
           "cuisine": "Mediterranean",
           "area": "Downtown Vancouver",
           "whyGo": "Contemporary room with shareable plates and business lunch appeal.",
-          "mustTry": "Fried Cauliflower"
+          "mustTry": "Fried Cauliflower",
+          "website": "https://www.nightingalerestaurant.ca/"
+        },
+        {
+          "name": "Bao Bei Chinese Brasserie",
+          "cuisine": "Chinese",
+          "area": "Chinatown",
+          "whyGo": "Modern Taiwanese-Chinese small plates in a buzzy room—one of Vancouver's most celebrated lunch destinations.",
+          "mustTry": "Mapo Tofu",
+          "website": "https://www.bao-bei.ca/"
+        },
+        {
+          "name": "Ask for Luigi",
+          "cuisine": "Italian",
+          "area": "Railtown",
+          "whyGo": "Beloved neighbourhood Italian with silky handmade pasta and convivial lunch-hour energy.",
+          "mustTry": "Crab Tagliolini",
+          "website": "https://www.askforluigi.com/"
         }
       ],
       "cuisines": ["Japanese", "Chinese", "Vietnamese", "Thai", "Indian", "Korean", "Mediterranean"]

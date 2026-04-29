@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, ChefHat, ArrowRight, Utensils, Clock, DollarSign, Star, Search, Globe } from 'lucide-react';
+import { MapPin, ChefHat, ArrowRight, Utensils, Clock, DollarSign, Star, Search, Globe, ExternalLink } from 'lucide-react';
 
 interface CityData {
   id: string;
@@ -22,6 +22,7 @@ interface Recommendation {
   area: string;
   whyGo: string;
   mustTry: string;
+  website?: string;
 }
 
 interface CuisineData {
@@ -238,20 +239,40 @@ const CityGuidePage: React.FC = () => {
                     Editorial recommendations to help you shortlist before searching the live map.
                   </p>
                   <div className="space-y-4">
-                    {(cuisineRecommendations.length > 0 ? cuisineRecommendations : cityRecommendations.slice(0, 3)).map((item) => (
+                    {(cuisineRecommendations.length > 0 ? cuisineRecommendations : cityRecommendations.slice(0, 5)).map((item) => (
                       <article
                         key={`${item.name}-${item.area}`}
-                        className="flex flex-col sm:flex-row gap-4 p-5 border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+                        className="p-5 border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
                       >
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 dark:text-white text-base">{item.name}</h3>
-                          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">{item.cuisine} · {item.area}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{item.whyGo}</p>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white text-base">{item.name}</h3>
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">{item.cuisine} · {item.area}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{item.whyGo}</p>
+                          </div>
+                          <div className="sm:text-right shrink-0">
+                            <span className="inline-block bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-md">
+                              Try: {item.mustTry}
+                            </span>
+                          </div>
                         </div>
-                        <div className="sm:text-right shrink-0">
-                          <span className="inline-block bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-md">
-                            Try: {item.mustTry}
-                          </span>
+                        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center gap-4">
+                          {item.website && (
+                            <a
+                              href={item.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+                            >
+                              Visit Website <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => handleSearch(currentCity.name, item.cuisine)}
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                          >
+                            Find similar <ArrowRight className="w-3 h-3" />
+                          </button>
                         </div>
                       </article>
                     ))}
@@ -409,7 +430,7 @@ const CityGuidePage: React.FC = () => {
                 Curated recommendations across different cuisines to get you started.
               </p>
               <div className="grid sm:grid-cols-3 gap-4">
-                {cityRecommendations.slice(0, 3).map((item, index) => (
+                {cityRecommendations.slice(0, 5).map((item, index) => (
                   <article
                     key={`${item.name}-${item.area}`}
                     className="relative flex flex-col border border-gray-200 dark:border-gray-800 rounded-2xl p-6 bg-white dark:bg-gray-900 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all"
@@ -418,11 +439,31 @@ const CityGuidePage: React.FC = () => {
                     <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-2">{item.cuisine} · {item.area}</p>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">{item.name}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-1">{item.whyGo}</p>
-                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-2">
-                      <Utensils className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">Must try: </span>{item.mustTry}
-                      </p>
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Utensils className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">Must try: </span>{item.mustTry}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        {item.website && (
+                          <a
+                            href={item.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+                          >
+                            Visit Website <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                        <button
+                          onClick={() => handleSearch(currentCity.name, item.cuisine)}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                        >
+                          Find similar <ArrowRight className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   </article>
                 ))}
