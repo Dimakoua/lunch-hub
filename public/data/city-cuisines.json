@@ -1,0 +1,414 @@
+{
+  "cities": [
+    {
+      "id": "toronto",
+      "name": "Toronto",
+      "slug": "toronto",
+      "country": "Canada",
+      "description": "Discover the best lunch spots in Toronto, Canada's most diverse culinary hub.",
+      "longDescription": "Toronto is a multicultural metropolis with over 200 neighborhoods and a world-renowned food scene. From the historic St. Lawrence Market to trendy King West, Toronto offers incredible lunch options that reflect its diverse population of over 2.9 million people. Whether you're in the Financial District looking for a quick power lunch, exploring Kensington Market for street food, or discovering hidden gems in Chinatown, Toronto's restaurant landscape is constantly evolving with innovative chefs and established institutions.",
+      "lunchCulture": "Toronto's lunch scene is fast-paced during weekdays in the downtown core, with professionals seeking quick, quality meals. Weekends are more leisurely, with foodies exploring emerging neighborhoods. The city is known for its food halls, rooftop patios (seasonal), and an impressive number of Michelin-recognized establishments.",
+      "bestAreas": ["Downtown Toronto", "King West", "Kensington Market", "Chinatown", "Little Italy", "Distillery District"],
+      "recommendations": [
+        {
+          "name": "Pai Northern Thai Kitchen",
+          "cuisine": "Thai",
+          "area": "Entertainment District",
+          "whyGo": "Bold northern Thai flavors and consistently strong lunch service.",
+          "mustTry": "Khao Soi"
+        },
+        {
+          "name": "Gusto 101",
+          "cuisine": "Italian",
+          "area": "King West",
+          "whyGo": "Reliable handmade pasta and modern Italian lunch atmosphere.",
+          "mustTry": "Mafalde ai Funghi"
+        },
+        {
+          "name": "Kinka Izakaya",
+          "cuisine": "Japanese",
+          "area": "Downtown Toronto",
+          "whyGo": "Energetic Japanese small plates that work well for group lunches.",
+          "mustTry": "Aburi Salmon Oshi"
+        }
+      ],
+      "cuisines": ["Italian", "Japanese", "Chinese", "Indian", "Korean", "Mexican", "Thai", "Vietnamese"]
+    },
+    {
+      "id": "chicago",
+      "name": "Chicago",
+      "slug": "chicago",
+      "country": "USA",
+      "description": "From deep-dish pizza to michelin-starred gems, explore Chicago's incredible lunch scene.",
+      "longDescription": "Chicago is synonymous with iconic American food culture—from deep-dish pizza to Chicago-style hot dogs, Italian beef sandwiches, and world-class steakhouses. The city's culinary heritage runs deep, with a lunch culture that balances quick, casual bites with upscale dining experiences. Located along Lake Michigan, Chicago boasts neighborhoods like River North, West Loop, and Pilsen, each offering distinct culinary identities and innovative restaurants.",
+      "lunchCulture": "Chicagoans take lunch seriously—it's often a social event, not just a refueling break. The city's lunch crowd appreciates bold flavors, generous portions, and authenticity. The West Loop has emerged as a hotspot for innovative cuisine and James Beard Award-winning chefs.",
+      "bestAreas": ["Downtown Loop", "West Loop", "River North", "Pilsen", "Wicker Park", "Hyde Park"],
+      "recommendations": [
+        {
+          "name": "Au Cheval",
+          "cuisine": "American",
+          "area": "West Loop",
+          "whyGo": "One of Chicago's most talked-about burgers with rich diner-style comfort food.",
+          "mustTry": "Single Cheeseburger"
+        },
+        {
+          "name": "Monteverde",
+          "cuisine": "Italian",
+          "area": "West Loop",
+          "whyGo": "Chef-driven pasta spot with excellent weekday lunch energy.",
+          "mustTry": "Cacio Whey Pepe"
+        },
+        {
+          "name": "HaiSous Vietnamese Kitchen",
+          "cuisine": "Vietnamese",
+          "area": "Pilsen",
+          "whyGo": "Refined Vietnamese cooking in one of Chicago's strongest food neighborhoods.",
+          "mustTry": "Banh Xeo"
+        }
+      ],
+      "cuisines": ["Italian", "American", "Mexican", "Thai", "Vietnamese", "Japanese", "Korean"]
+    },
+    {
+      "id": "new-york",
+      "name": "New York",
+      "slug": "new-york",
+      "country": "USA",
+      "description": "Experience world-class cuisine at your lunch break in the city that never sleeps.",
+      "longDescription": "New York City sets culinary trends for the entire world. With restaurants from every cuisine imaginable, a deeply rooted food culture spanning centuries, and neighborhoods defined by their immigrant communities, NYC's lunch scene is unmatched. From Michelin-starred fine dining to iconic delis, food carts, and hidden gems in basements, the city never stops innovating. Manhattan, Brooklyn, and Queens each offer distinct culinary experiences.",
+      "lunchCulture": "NYC's lunch culture is fast, efficient, yet passionate about quality. Workers grab quick bites from food carts or casual eateries but also appreciate sit-down experiences. The city's competitive restaurant scene means constant innovation and high standards. Lunch in NYC often reflects global trends before they hit other cities.",
+      "bestAreas": ["Midtown Manhattan", "Lower East Side", "Greenwich Village", "East Village", "Chinatown", "Brooklyn Heights", "Astoria Queens"],
+      "recommendations": [
+        {
+          "name": "Rubirosa",
+          "cuisine": "Italian",
+          "area": "Nolita",
+          "whyGo": "Classic red-sauce warmth with one of downtown's best thin-crust pizzas.",
+          "mustTry": "Tie-Dye Pizza"
+        },
+        {
+          "name": "Ippudo",
+          "cuisine": "Japanese",
+          "area": "East Village",
+          "whyGo": "Dependable ramen destination ideal for quick but quality lunches.",
+          "mustTry": "Shiromaru Classic"
+        },
+        {
+          "name": "Xi'an Famous Foods",
+          "cuisine": "Chinese",
+          "area": "Midtown",
+          "whyGo": "Fast casual regional Chinese flavors that stand out in the lunch crowd.",
+          "mustTry": "Spicy Cumin Lamb Hand-Ripped Noodles"
+        }
+      ],
+      "cuisines": ["Italian", "French", "Japanese", "Chinese", "Indian", "Korean", "Thai", "Mexican"]
+    },
+    {
+      "id": "los-angeles",
+      "name": "Los Angeles",
+      "slug": "los-angeles",
+      "country": "USA",
+      "description": "Find your next favorite lunch spot in LA's vibrant and diverse food culture.",
+      "longDescription": "Los Angeles is a sprawling metropolis with over 100 distinct neighborhoods, each with its own culinary identity. The city's food scene is defined by innovation, fusion, and the influence of Mexican, Asian, and Mediterranean cuisines. LA's lunch culture embraces casual, health-conscious dining alongside trendy hotspots. From food trucks in Downtown LA to beachside eateries in Santa Monica, and the Korean BBQ scene in Koreatown, LA offers endless lunch possibilities.",
+      "lunchCulture": "LA's lunch is typically casual and often consumed at outdoor venues or food courts. The culture emphasizes fresh, healthy options, fusion cuisine, and Instagram-worthy presentations. Many LA professionals work flexible hours, so lunch times vary widely. The car-centric culture means many choose restaurants accessible by driving.",
+      "bestAreas": ["Downtown LA", "Koreatown", "Thai Town", "Little Armenia", "Silver Lake", "Koreatown", "West Hollywood"],
+      "recommendations": [
+        {
+          "name": "Guelaguetza",
+          "cuisine": "Mexican",
+          "area": "Koreatown",
+          "whyGo": "Landmark Oaxacan restaurant with deep flavor and lunch-friendly portions.",
+          "mustTry": "Mole Negro"
+        },
+        {
+          "name": "Daikokuya",
+          "cuisine": "Japanese",
+          "area": "Little Tokyo",
+          "whyGo": "Classic LA ramen institution for a fast and satisfying midday meal.",
+          "mustTry": "Daikoku Ramen"
+        },
+        {
+          "name": "Republique",
+          "cuisine": "Asian Fusion",
+          "area": "Mid-City",
+          "whyGo": "Creative menu and polished setting for work lunches and client meetings.",
+          "mustTry": "Tuna Tartine"
+        }
+      ],
+      "cuisines": ["Mexican", "Asian Fusion", "Japanese", "Thai", "Mediterranean", "Vietnamese", "Korean"]
+    },
+    {
+      "id": "miami",
+      "name": "Miami",
+      "slug": "miami",
+      "country": "USA",
+      "description": "Latin-inspired and tropical flavors define Miami's exciting lunch options.",
+      "longDescription": "Miami's food scene pulses with Latin American, Caribbean, and contemporary American influences. The city's geographic location and cultural heritage make it a gateway to Caribbean and Latin American cuisine. Miami is known for its fresh seafood, vibrant Cuban food culture, and an emerging fine dining scene. Neighborhoods like Wynwood, Design District, and Little Havana each offer distinct culinary experiences, while Miami Beach's oceanside venues provide tropical dining ambiance.",
+      "lunchCulture": "Miami's lunch culture is relaxed, colorful, and influences by the tropical climate. Outdoor seating, tropical drinks, and fresh seafood dominate. The city's Cuban heritage means strong coffee (cafecito) culture and hearty, flavorful meals. Miami's international community brings diverse cuisines to the lunch table.",
+      "bestAreas": ["Downtown Miami", "Wynwood", "Design District", "Little Havana", "Coral Gables", "Coconut Grove"],
+      "recommendations": [
+        {
+          "name": "Versailles Restaurant",
+          "cuisine": "Cuban",
+          "area": "Little Havana",
+          "whyGo": "An iconic Miami institution for classic Cuban lunch staples.",
+          "mustTry": "Lechon Asado"
+        },
+        {
+          "name": "Mignonette",
+          "cuisine": "Seafood",
+          "area": "Edgewater",
+          "whyGo": "Strong oyster and seafood program with approachable lunch options.",
+          "mustTry": "Oyster Selection"
+        },
+        {
+          "name": "Mandolin Aegean Bistro",
+          "cuisine": "Mediterranean",
+          "area": "Design District",
+          "whyGo": "Sunny courtyard and fresh Mediterranean plates ideal for long lunches.",
+          "mustTry": "Grilled Octopus"
+        }
+      ],
+      "cuisines": ["Cuban", "Latin American", "Seafood", "Mediterranean", "Thai", "Japanese"]
+    },
+    {
+      "id": "dubai",
+      "name": "Dubai",
+      "slug": "dubai",
+      "country": "UAE",
+      "description": "Explore a melting pot of global cuisines in the heart of the Middle East.",
+      "longDescription": "Dubai is a global culinary crossroads where traditions meet modernity. With a population from 200+ nationalities, the city offers authentic Middle Eastern cuisine alongside world-class international dining. From traditional souks and local Emirati food to Michelin-starred restaurants in luxury hotels, Dubai's lunch scene is incredibly diverse. The city's rapid development has created a sophisticated restaurant culture where innovation and tradition coexist.",
+      "lunchCulture": "Dubai's lunch culture is influenced by Middle Eastern traditions, business-focused professionals, and international business travelers. Many restaurants offer special lunch menus and set prices. The climate encourages indoor dining with air conditioning. Ramadan significantly impacts dining culture, with business lunches shifting to early evening.",
+      "bestAreas": ["Downtown Dubai", "Marina", "Dubai Mall", "Old Town", "DIFC", "Jumeirah"],
+      "recommendations": [
+        {
+          "name": "Al Ustad Special Kebab",
+          "cuisine": "Middle Eastern",
+          "area": "Al Mankhool",
+          "whyGo": "Beloved old-school kebab spot known for value and flavor.",
+          "mustTry": "Mixed Kebab Plate"
+        },
+        {
+          "name": "Il Borro Tuscan Bistro",
+          "cuisine": "Italian",
+          "area": "Jumeirah Al Naseem",
+          "whyGo": "Upscale Italian lunch in a polished waterfront setting.",
+          "mustTry": "Truffle Tagliolini"
+        },
+        {
+          "name": "Bait Maryam",
+          "cuisine": "Lebanese",
+          "area": "JLT",
+          "whyGo": "Warm Levantine home-style cooking with standout mezze.",
+          "mustTry": "Musakhan"
+        }
+      ],
+      "cuisines": ["Middle Eastern", "Indian", "Lebanese", "Italian", "Asian Fusion", "Seafood"]
+    },
+    {
+      "id": "vancouver",
+      "name": "Vancouver",
+      "slug": "vancouver",
+      "country": "Canada",
+      "description": "Discover fresh, innovative lunch experiences in Canada's most dynamic city.",
+      "longDescription": "Vancouver's food scene is defined by freshness, innovation, and multicultural influences. Surrounded by the Pacific Ocean, mountains, and with a large Asian population, Vancouver offers exceptional Asian cuisine and fresh seafood. The city's farm-to-table movement is strong, with many restaurants sourcing from local producers. Neighborhoods like Chinatown, Japantown, and the Granville Island Market showcase Vancouver's commitment to culinary excellence and food culture.",
+      "lunchCulture": "Vancouver's lunch culture values fresh, healthy options and sustainability. The city is known for its coffee culture and food markets. The temperate climate encourages outdoor patios year-round. Vancouver's proximity to Asian markets influences dietary preferences toward fresh, lighter options.",
+      "bestAreas": ["Downtown Vancouver", "Chinatown", "Yaletown", "Kitsilano", "Granville Island", "Mount Pleasant"],
+      "recommendations": [
+        {
+          "name": "Miku",
+          "cuisine": "Japanese",
+          "area": "Coal Harbour",
+          "whyGo": "Well-known for polished service and signature flame-seared sushi.",
+          "mustTry": "Aburi Salmon Oshi"
+        },
+        {
+          "name": "Phnom Penh",
+          "cuisine": "Vietnamese",
+          "area": "Chinatown",
+          "whyGo": "Cult-favorite Southeast Asian lunch with strong local following.",
+          "mustTry": "Chicken Wings and Butter Beef"
+        },
+        {
+          "name": "Nightingale",
+          "cuisine": "Mediterranean",
+          "area": "Downtown Vancouver",
+          "whyGo": "Contemporary room with shareable plates and business lunch appeal.",
+          "mustTry": "Fried Cauliflower"
+        }
+      ],
+      "cuisines": ["Japanese", "Chinese", "Vietnamese", "Thai", "Indian", "Korean", "Mediterranean"]
+    }
+  ],
+  "cuisines": [
+    {
+      "id": "italian",
+      "name": "Italian",
+      "emoji": "🍝",
+      "description": "Authentic pasta, risotto, and Mediterranean classics for your lunch break.",
+      "tips": "Lunch in Italy is traditionally the main meal of the day. Look for 'al dente' pasta and fresh seasonal ingredients. Many Italian restaurants offer lunch specials or 'menu del giorno' at better prices than dinner.",
+      "bestFor": "Business lunches, romantic meals, casual family outings",
+      "priceRange": "$$",
+      "typicalDishes": "Pasta carbonara, risotto, pizza, pappardelle, tiramisu"
+    },
+    {
+      "id": "japanese",
+      "name": "Japanese",
+      "emoji": "🍱",
+      "description": "Sushi, ramen, and traditional dishes that bring authentic Japanese flavors to lunch.",
+      "tips": "Japanese lunch culture (teishoku) emphasizes balanced meals with rice, protein, vegetables, and soup. Lunch sets are typically cheaper than dinner. Ramen shops are perfect for quick, satisfying meals.",
+      "bestFor": "Quick lunches, health-conscious eaters, food enthusiasts",
+      "priceRange": "$-$$",
+      "typicalDishes": "Sushi, ramen, tempura, donburi, bento boxes, miso soup"
+    },
+    {
+      "id": "mexican",
+      "name": "Mexican",
+      "emoji": "🌮",
+      "description": "Tacos, burritos, and fresh Mexican cuisine perfect for lunch.",
+      "tips": "Mexican lunch culture celebrates bold flavors and fresh ingredients. Tacos are often the most affordable option. Many street taquerias offer incredible quality at low prices. Weekday lunch menus often feature comidas corridas (set lunch specials).",
+      "bestFor": "Quick meals, group lunches, budget-friendly options",
+      "priceRange": "$-$$",
+      "typicalDishes": "Tacos, burritos, enchiladas, ceviche, elote, chiles rellenos"
+    },
+    {
+      "id": "thai",
+      "name": "Thai",
+      "emoji": "🍛",
+      "description": "Spicy, aromatic Thai dishes that deliver bold flavors every time.",
+      "tips": "Thai lunch culture values balance of sweet, sour, salty, and spicy. Curry dishes are hearty and satisfying. Rice dishes are staple lunch items. Pad thai and pad see ew are lunch favorites. Communicate spice levels—Thai can be very hot!",
+      "bestFor": "Flavor adventurers, coconut curry lovers, noodle enthusiasts",
+      "priceRange": "$$",
+      "typicalDishes": "Pad Thai, curry (red/green/yellow), Tom Yum, Pad See Ew, spring rolls"
+    },
+    {
+      "id": "indian",
+      "name": "Indian",
+      "emoji": "🍛",
+      "description": "Curries, tandoori, and traditional Indian comfort food for lunch.",
+      "tips": "Indian lunch is often the main meal, featuring abundant spices and gravies. Lunch menus often feature 'thali' (complete meal). Bread varieties—naan, roti, chapati—accompany most meals. Vegetarian options are abundant and flavorful.",
+      "bestFor": "Spice lovers, vegetarians, those seeking comfort food",
+      "priceRange": "$$",
+      "typicalDishes": "Curry, tandoori chicken, dosas, naan, samosas, paneer dishes, biryani"
+    },
+    {
+      "id": "chinese",
+      "name": "Chinese",
+      "emoji": "🥢",
+      "description": "From dim sum to regional specialties, explore authentic Chinese cuisine.",
+      "tips": "Chinese lunch culture centers on regional specialties—Sichuan, Cantonese, Hunan, etc. Dim sum is a lunch tradition in many cities. Noodle and rice dishes are lunch staples. Lunch portions are generous and affordable.",
+      "bestFor": "Dim sum enthusiasts, noodle lovers, those seeking authentic flavors",
+      "priceRange": "$-$$",
+      "typicalDishes": "Dim sum, noodle dishes, fried rice, kung pao chicken, Peking duck, mapo tofu"
+    },
+    {
+      "id": "korean",
+      "name": "Korean",
+      "emoji": "🍜",
+      "description": "Bibimbap, BBQ, and fermented favorites from Korea's vibrant food culture.",
+      "tips": "Korean lunch culture emphasizes 'bap-jjim' (rice bowls) and quick, hearty meals. Bibimbap is a complete meal in one bowl. Korean BBQ is social and interactive. Banchan (side dishes) are complimentary and abundant. Spice levels are high but balanced.",
+      "bestFor": "BBQ lovers, spice enthusiasts, those seeking interactive dining",
+      "priceRange": "$$-$$$",
+      "typicalDishes": "Bibimbap, Korean BBQ, kimchi, kimchi jjigae, kimbap, ttokbokki, bulgogi"
+    },
+    {
+      "id": "vietnamese",
+      "name": "Vietnamese",
+      "emoji": "🍜",
+      "description": "Fresh pho, banh mi, and Vietnamese street food favorites.",
+      "tips": "Vietnamese lunch emphasizes freshness and balance. Pho is a classic lunch choice—flavorful broth and fresh herbs. Banh mi sandwiches offer incredible value. Vietnamese restaurants typically offer lunch specials. Fresh herbs are essential to every meal.",
+      "bestFor": "Fresh food lovers, pho enthusiasts, budget seekers",
+      "priceRange": "$-$$",
+      "typicalDishes": "Pho, banh mi, spring rolls, vermicelli bowls, coffee with condensed milk"
+    },
+    {
+      "id": "american",
+      "name": "American",
+      "emoji": "🍔",
+      "description": "Classic burgers, BBQ, and comfort food that never disappoints.",
+      "tips": "American lunch is straightforward and generous. Burgers and sandwiches are foundational. Regional specialties matter—NYC delis, Chicago deep-dish, Texas BBQ. Casual vibes dominate. Lunch portions are substantial.",
+      "bestFor": "Comfort food lovers, lunch traditionalists, casual settings",
+      "priceRange": "$$",
+      "typicalDishes": "Burgers, hot dogs, BBQ, sandwiches, mac and cheese, Southern comfort food"
+    },
+    {
+      "id": "mediterranean",
+      "name": "Mediterranean",
+      "emoji": "🥗",
+      "description": "Fresh, healthy Mediterranean cuisine with Greek and Turkish influences.",
+      "tips": "Mediterranean lunch emphasizes fresh, seasonal ingredients—olive oil, fresh vegetables, seafood. Greek salads and mezze platters are perfect for sharing. Pita bread accompanies most meals. Lunch is leisurely and social.",
+      "bestFor": "Health-conscious eaters, fresh ingredient lovers, leisurely meals",
+      "priceRange": "$$",
+      "typicalDishes": "Greek salads, mezze, falafel, grilled fish, hummus, tzatziki, kebabs"
+    },
+    {
+      "id": "cuban",
+      "name": "Cuban",
+      "emoji": "🍖",
+      "description": "Hearty roasted meats, rice, and beans—authentic Cuban comfort food.",
+      "tips": "Cuban lunch is hearty, flavorful, and centered on roasted meats. The Cuban sandwich (Cubano) is iconic. Café Cubano (strong coffee) is a cultural essential. Portions are generous and prices very affordable.",
+      "bestFor": "Comfort food lovers, those seeking hearty meals, budget seekers",
+      "priceRange": "$",
+      "typicalDishes": "Ropa vieja, Cubano sandwich, mofongo, congri (rice and beans), lechon asado"
+    },
+    {
+      "id": "asian-fusion",
+      "name": "Asian Fusion",
+      "emoji": "🥘",
+      "description": "Creative blends of Asian cuisines with modern techniques and global influences.",
+      "tips": "Fusion cuisine celebrates innovation while respecting culinary traditions. Expect unexpected flavor combinations. Presentation is often artistic. Portions may be smaller but refined.",
+      "bestFor": "Adventurous eaters, those seeking culinary creativity, special occasions",
+      "priceRange": "$$-$$$",
+      "typicalDishes": "Fusion bowls, creative sushi, elevated noodle dishes, international-Asian mashups"
+    },
+    {
+      "id": "french",
+      "name": "French",
+      "emoji": "🥐",
+      "description": "Refined cuisine emphasizing technique, fresh ingredients, and classical preparations.",
+      "tips": "French lunch culture is leisurely and sophisticated. 'Déjeuner' is the main meal. Classical French emphasizes technique and presentation. Wine pairings are expected. Many French restaurants offer lunch menus at better prices than dinner.",
+      "bestFor": "Fine dining enthusiasts, those celebrating special occasions, French food lovers",
+      "priceRange": "$$$",
+      "typicalDishes": "Coq au vin, beef bourguignon, duck confit, French onion soup, escargot"
+    },
+    {
+      "id": "seafood",
+      "name": "Seafood",
+      "emoji": "🦞",
+      "description": "Fresh fish, oysters, and ocean-inspired dishes highlighting quality seafood.",
+      "tips": "Seafood lunch emphasizes freshness—eat near water for optimal quality. Oyster bars offer casual, affordable options. Grilled or lightly prepared dishes showcase ingredient quality. Ask about the day's catch.",
+      "bestFor": "Seafood lovers, health-conscious eaters, waterfront dining",
+      "priceRange": "$$-$$$",
+      "typicalDishes": "Grilled fish, oysters, shrimp, lobster, ceviche, seafood risotto"
+    },
+    {
+      "id": "latin-american",
+      "name": "Latin American",
+      "emoji": "🌶️",
+      "description": "Diverse cuisines from Central and South America featuring bold spices and indigenous ingredients.",
+      "tips": "Latin American cuisine varies significantly by country—Peruvian, Brazilian, Colombian, Argentine styles all differ. Corn, beans, and peppers are foundational. Ceviches and arepas are popular lunches. Portions are generous.",
+      "bestFor": "Those seeking diverse flavors, spice enthusiasts, cultural food explorers",
+      "priceRange": "$$",
+      "typicalDishes": "Ceviche, arepas, empanadas, feijoada, pupusas, tacos al pastor"
+    },
+    {
+      "id": "lebanese",
+      "name": "Lebanese",
+      "emoji": "🫔",
+      "description": "Mediterranean-influenced Middle Eastern cuisine with mezze, grilled meats, and fresh herbs.",
+      "tips": "Lebanese lunch emphasizes fresh, healthy ingredients and social dining. Mezze platters are perfect for sharing. Manakish (flatbread) is a quick lunch option. Grilled meats and fresh salads balance the meal.",
+      "bestFor": "Those seeking healthy options, meat lovers, shareable platters",
+      "priceRange": "$$",
+      "typicalDishes": "Mezze platters, manakish, grilled meats, tabbouleh, hummus, kibbeh"
+    },
+    {
+      "id": "middle-eastern",
+      "name": "Middle Eastern",
+      "emoji": "🍗",
+      "description": "Aromatic spices, grilled meats, and traditional dishes from the Middle East and North Africa.",
+      "tips": "Middle Eastern lunch features bold spices and social dining. Kebabs and shawarma are lunch staples. Bread is central to every meal. Strong coffee or mint tea complements the meal. Spice levels can be intense.",
+      "bestFor": "Spice lovers, kebab enthusiasts, those seeking traditional flavors",
+      "priceRange": "$$",
+      "typicalDishes": "Kebabs, shawarma, falafel, hummus, tabbouleh, za'atar dishes"
+    }
+  ]
+}

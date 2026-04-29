@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
 import { InstallPWA } from './components/InstallPWA';
@@ -9,6 +9,7 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const RestaurantsPage = lazy(() => import('./pages/RestaurantsPage'));
 const BlogPage = lazy(() => import('./pages/BlogPage'));
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
+const CityGuidePage = lazy(() => import('./pages/CityGuidePage'));
 import { geocodeAddress, getCurrentLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
 import { 
@@ -28,6 +29,7 @@ type Theme = 'light' | 'dark';
 function App() {
   const navigate = useNavigate();
   const pageLocation = useLocation();
+  const lastProcessedLocationRef = useRef<string | null>(null);
   const ONBOARDING_STORAGE_KEY = 'lunch-hub-tour-seen';
   const [showTour, setShowTour] = useState(false);
   const [location, setLocation] = useState<Location | null>(null);
@@ -159,6 +161,54 @@ function App() {
     const title = document.title;
     trackPageView(path, title);
   }, [pageLocation.pathname]);
+
+  // Handle URL query parameters (e.g., /restaurants?location=Dubai&cuisine=Italian)
+  useEffect(() => {
+    if (pageLocation.pathname !== '/restaurants') {
+      return;
+    }
+    
+    const searchParams = new URLSearchParams(pageLocation.search);
+    const locationParam = searchParams.get('location');
+    const cuisineParam = searchParams.get('cuisine');
+
+    // If location param hasn't changed or doesn't exist, do nothing
+    if (!locationParam || locationParam === lastProcessedLocationRef.current) {
+      return;
+    }
+
+    // Location parameter changed, reset state and search
+    lastProcessedLocationRef.current = locationParam;
+    setLocation(null);
+    setRestaurants([]);
+    setError(null);
+    setLoading(true);
+
+    // Geocode the location from URL params
+    (async () => {
+      try {
+        const result = await geocodeAddress(locationParam);
+        if (result) {
+          setLocation(result);
+          // The auto-search effect will trigger once location is set
+          
+          // If cuisine is specified, add it as a filter rule
+          if (cuisineParam) {
+            setTimeout(() => {
+              addFilterRule('cuisine', cuisineParam);
+            }, 500);
+          }
+        } else {
+          setError('Location not found. Please try a different address.');
+          setLoading(false);
+        }
+      } catch (err) {
+        setError('Error finding location. Please try again.');
+        console.error('Geocoding error:', err);
+        setLoading(false);
+      }
+    })();
+  }, [pageLocation.pathname, pageLocation.search]);
 
   const handleCookieAccept = () => {
     setShowCookieConsent(false);
@@ -480,6 +530,9 @@ function App() {
           />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/guide" element={<CityGuidePage />} />
+          <Route path="/guide/:city" element={<CityGuidePage />} />
+          <Route path="/guide/:city/:cuisine" element={<CityGuidePage />} />
         </Routes>
       </Suspense>
       <Footer />

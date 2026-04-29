@@ -28,6 +28,9 @@ export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
         </Link>
       </div>
       <nav className="flex items-center space-x-4">
+        <Link to="/guide" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+          Guides
+        </Link>
         <Link to="/blog" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
           {t('blog')}
         </Link>

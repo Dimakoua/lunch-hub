@@ -155,6 +155,20 @@ const HomePage: React.FC<HomePageProps> = ({
           </div>
         </div>
 
+        <div className="mt-16 mb-12 bg-gradient-to-r from-blue-600 to-emerald-600 rounded-2xl p-8 max-w-2xl shadow-lg">
+          <h2 className="text-2xl font-bold text-white mb-3">Explore by City & Cuisine</h2>
+          <p className="text-blue-50 mb-6">
+            Discover the best restaurant recommendations in your city. Browse our guides for top-rated spots by cuisine type.
+          </p>
+          <Link
+            to="/guide"
+            className="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+          >
+            Browse Guides
+            <MapPin className="w-4 h-4" />
+          </Link>
+        </div>
+
         <SEOContent />
       </div>
     </main>
