@@ -991,6 +991,712 @@
         "Korean",
         "Mediterranean"
       ]
+    },
+    {
+      "id": "london",
+      "name": "London",
+      "slug": "london",
+      "country": "UK",
+      "description": "Experience the global culinary capital where traditional British fare meets cutting-edge international cuisine.",
+      "longDescription": "London's food scene is as diverse as its population. From historic pubs serving Sunday roasts to Michelin-starred dining in Mayfair and vibrant street food markets in East London, the city offers an unparalleled variety of lunch options. Whether you're in the City for a business lunch, exploring the South Bank, or wandering through the colorful streets of Notting Hill, London's restaurants are at the forefront of global culinary trends.",
+      "lunchCulture": "London's lunch culture is diverse. In the City and Canary Wharf, business lunches are common, while in areas like Shoreditch and Camden, casual street food and trendy cafes dominate. The weekend 'Sunday Roast' is a cherished tradition. Many Londoners enjoy 'meal deals' for a quick bite, but the city also excels in leisurely brunch and upscale midday dining.",
+      "bestAreas": [
+        "The City",
+        "Soho",
+        "Shoreditch",
+        "Notting Hill",
+        "Southwark",
+        "Marylebone"
+      ],
+      "recommendations": [
+        {
+          "name": "Dishoom",
+          "cuisine": "Indian",
+          "area": "King's Cross",
+          "whyGo": "Transportive atmosphere and the best bacon naan roll in London.",
+          "mustTry": "Chicken Ruby",
+          "website": "https://www.dishoom.com/",
+          "image": "https://images.unsplash.com/photo-1585932231552-2999958ee6b6?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Inspired by the old Irani cafés of Bombay, Dishoom offers a beautifully nostalgic dining experience. Their lunch menu is packed with flavorful curries, small plates, and their famous house black daal.",
+          "reviews": [
+            {
+              "user": "James L.",
+              "comment": "The black daal is life-changing. Great atmosphere!",
+              "rating": 5
+            },
+            {
+              "user": "Emma W.",
+              "comment": "Always a queue, but worth it for the flavors and the vibe.",
+              "rating": 4.5
+            }
+          ]
+        },
+        {
+          "name": "St. JOHN",
+          "cuisine": "British",
+          "area": "Smithfield",
+          "whyGo": "The pioneer of nose-to-tail dining in a minimalist, whitewashed space.",
+          "mustTry": "Roasted Bone Marrow and Parsley Salad",
+          "website": "https://stjohnrestaurant.com/",
+          "image": "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Fergus Henderson's legendary restaurant is a temple to traditional British ingredients and straightforward cooking. It's an essential stop for anyone wanting to understand the soul of modern London gastronomy.",
+          "reviews": [
+            {
+              "user": "David R.",
+              "comment": "A true classic. The bone marrow is a must-order.",
+              "rating": 5
+            },
+            {
+              "user": "Sophie T.",
+              "comment": "Brilliant in its simplicity. One of my favorite spots in London.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "The Wolseley",
+          "cuisine": "French",
+          "area": "Piccadilly",
+          "whyGo": "Grand café dining at its finest, perfect for a sophisticated business or celebratory lunch.",
+          "mustTry": "Schnitzel Holstein",
+          "website": "https://www.thewolseley.com/",
+          "image": "https://images.unsplash.com/photo-1550966842-3ca59d2800a4?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "Housed in a former car showroom on Piccadilly, The Wolseley is a London icon of European café culture. Its grand interior and impeccable service make it one of the most desirable lunch spots in the West End.",
+          "reviews": [
+            {
+              "user": "Robert B.",
+              "comment": "The best place for a business lunch. Impeccable service.",
+              "rating": 5
+            },
+            {
+              "user": "Alice K.",
+              "comment": "Stunning architecture and solid European classics.",
+              "rating": 4
+            }
+          ]
+        },
+        {
+          "name": "Padella",
+          "cuisine": "Italian",
+          "area": "Borough Market",
+          "whyGo": "Unbeatable value for some of the best handmade pasta in the city.",
+          "mustTry": "Pici Cacio e Pepe",
+          "website": "https://www.padella.co/",
+          "image": "https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Located right at the edge of Borough Market, Padella is famous for its simple, perfectly executed pasta dishes. The counter seating and open kitchen create a lively, bustling atmosphere that's perfect for a quick lunch.",
+          "reviews": [
+            {
+              "user": "Luke S.",
+              "comment": "The pici cacio e pepe is heaven in a bowl. Best pasta in London.",
+              "rating": 5
+            },
+            {
+              "user": "Maria G.",
+              "comment": "Amazing quality for the price. Be prepared to wait in line!",
+              "rating": 4.5
+            }
+          ]
+        },
+        {
+          "name": "Ottolenghi",
+          "cuisine": "Middle Eastern",
+          "area": "Notting Hill",
+          "whyGo": "Vibrant, vegetable-forward dishes that redefined the London lunch plate.",
+          "mustTry": "Roasted Aubergine with Saffron Yogurt",
+          "website": "https://ottolenghi.co.uk/",
+          "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "Yotam Ottolenghi's deli-restaurants are famous for their colorful displays of salads and pastries. The flavors are bold, Middle Eastern-inspired, and always celebrate the freshest seasonal produce.",
+          "reviews": [
+            {
+              "user": "Chloe D.",
+              "comment": "The salads are so creative and flavorful. A true feast for the senses.",
+              "rating": 5
+            },
+            {
+              "user": "Mark P.",
+              "comment": "Excellent food, though the space is quite small. Great for a healthy lunch.",
+              "rating": 4.5
+            }
+          ]
+        }
+      ],
+      "cuisines": [
+        "British",
+        "Indian",
+        "Italian",
+        "Chinese",
+        "French",
+        "Japanese",
+        "Middle Eastern",
+        "Turkish"
+      ]
+    },
+    {
+      "id": "tokyo",
+      "name": "Tokyo",
+      "slug": "tokyo",
+      "country": "Japan",
+      "description": "Discover the world's most Michelin-starred city, where perfection is found in every bowl of ramen and slice of sushi.",
+      "longDescription": "Tokyo is a culinary wonderland with more restaurants than any other city in the world. Its food scene ranges from tiny, specialized counters in train stations to opulent multi-course kaiseki experiences. Precision, seasonality, and respect for ingredients are the hallmarks of Tokyo's cuisine. Each neighborhood, from the neon-lit Shinjuku to the historic Asakusa, offers unique flavors and deep-rooted traditions.",
+      "lunchCulture": "Lunch in Tokyo is often efficient and highly value-oriented. 'Teishoku' (set meals) are ubiquitous, providing a balanced meal of rice, soup, and several small dishes. Salarymen often flock to ramen shops or standing soba stalls for a quick, delicious fix. However, many high-end restaurants also offer significantly more affordable lunch versions of their dinner menus.",
+      "bestAreas": [
+        "Ginza",
+        "Shibuya",
+        "Shinjuku",
+        "Asakusa",
+        "Tsukiji",
+        "Roppongi"
+      ],
+      "recommendations": [
+        {
+          "name": "Ichiran Ramen",
+          "cuisine": "Japanese",
+          "area": "Shibuya",
+          "whyGo": "The ultimate solo dining experience for world-class tonkotsu ramen.",
+          "mustTry": "Classic Tonkotsu Ramen",
+          "website": "https://en.ichiran.com/",
+          "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Ichiran is famous for its 'flavor concentration booths' and its incredible, customizable tonkotsu ramen. It's a must-visit for any ramen lover looking for a quick and deeply satisfying lunch.",
+          "reviews": [
+            {
+              "user": "Kenji S.",
+              "comment": "The best tonkotsu broth. The solo booths are a unique experience.",
+              "rating": 5
+            },
+            {
+              "user": "Sarah L.",
+              "comment": "Quick, delicious, and consistent. One of my favorite spots in Shibuya.",
+              "rating": 4.5
+            }
+          ]
+        },
+        {
+          "name": "Sukiyabashi Jiro",
+          "cuisine": "Japanese",
+          "area": "Ginza",
+          "whyGo": "Experience sushi from a legend in an intimate setting.",
+          "mustTry": "Omakase Course",
+          "website": "https://www.sushi-jiro.jp/",
+          "image": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.9,
+          "description": "While famously difficult to book, Sukiyabashi Jiro represents the pinnacle of Edomae sushi. Jiro Ono's dedication to his craft is legendary, making this one of the world's most coveted dining experiences.",
+          "reviews": [
+            {
+              "user": "Hiroshi T.",
+              "comment": "Life-changing sushi. The precision and quality are unmatched.",
+              "rating": 5
+            },
+            {
+              "user": "Emily J.",
+              "comment": "A truly bucket-list experience. Every piece of sushi is a work of art.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Kanda Matsuya",
+          "cuisine": "Japanese",
+          "area": "Kanda",
+          "whyGo": "Historic soba shop serving handmade noodles in a beautiful traditional building.",
+          "mustTry": "Teuchi Soba",
+          "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Operating since the Meiji era, Kanda Matsuya is one of Tokyo's most beloved soba institutions. The atmosphere is warm and traditional, and the handmade noodles are considered some of the best in the city.",
+          "reviews": [
+            {
+              "user": "Takashi M.",
+              "comment": "Traditional soba at its finest. The building itself is a piece of history.",
+              "rating": 5
+            },
+            {
+              "user": "Linda K.",
+              "comment": "The best soba I've ever had. Simple and perfect.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Tonkatsu Maisen",
+          "cuisine": "Japanese",
+          "area": "Omotesando",
+          "whyGo": "Famous for ultra-tender tonkatsu in a converted former bathhouse.",
+          "mustTry": "Kurobuta Pork Tonkatsu",
+          "website": "https://mai-sen.com/",
+          "image": "https://images.unsplash.com/photo-1591814468923-cafb57c0d724?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Maisen is a Tokyo institution famous for its tonkatsu that is so tender it can be 'cut with a chopstick'. Their flagship Omotesando location is housed in a stunning high-ceilinged room that was once a public bathhouse.",
+          "reviews": [
+            {
+              "user": "Yuki H.",
+              "comment": "The tenderest pork I've ever eaten. The setting is also very unique.",
+              "rating": 5
+            },
+            {
+              "user": "Mark G.",
+              "comment": "Excellent tonkatsu and great service. The lunch sets are a great deal.",
+              "rating": 4.5
+            }
+          ]
+        },
+        {
+          "name": "Rokurinsha",
+          "cuisine": "Japanese",
+          "area": "Tokyo Station",
+          "whyGo": "The masters of tsukemen (dipping noodles) in the heart of Tokyo's 'Ramen Street'.",
+          "mustTry": "Tsukemen",
+          "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "Rokurinsha is legendary for its thick, rich broth and chewy dipping noodles. Located in Tokyo Station's Ramen Street, it consistently draws long lines of dedicated fans looking for the ultimate tsukemen fix.",
+          "reviews": [
+            {
+              "user": "Satoshi N.",
+              "comment": "The thickest and richest tsukemen broth you'll ever find. Incredible flavor.",
+              "rating": 5
+            },
+            {
+              "user": "Alice R.",
+              "comment": "Worth the wait in line. A must-visit at Tokyo Station.",
+              "rating": 4.5
+            }
+          ]
+        }
+      ],
+      "cuisines": [
+        "Japanese",
+        "Chinese",
+        "Italian",
+        "French",
+        "Korean",
+        "Thai",
+        "Indian"
+      ]
+    },
+    {
+      "id": "paris",
+      "name": "Paris",
+      "slug": "paris",
+      "country": "France",
+      "description": "Savor the elegance of the City of Light, from historic bistros to avant-garde patisseries.",
+      "longDescription": "Paris remains the epicenter of classical gastronomy while embracing a vibrant modern bistro culture known as 'bistronomie'. The city's 20 arrondissements are filled with bakeries, cheese shops, and cafes that have defined Western dining for centuries. From a simple jambon-beurre on a park bench to a three-hour lunch in a gilded dining room, Paris treats every meal as an art form.",
+      "lunchCulture": "Lunch in Paris is traditionally a sacred time, often lasting two hours. While fast-casual options are growing, many Parisians still prefer a 'formule' (set menu) at a local bistro, consisting of an entry-plat or plat-dessert. The culture is built around fresh, seasonal ingredients and the ritual of sitting down to enjoy good food and conversation.",
+      "bestAreas": [
+        "Le Marais",
+        "Saint-Germain-des-Prés",
+        "Montmartre",
+        "Canal Saint-Martin",
+        "Latin Quarter",
+        "Champs-Élysées"
+      ],
+      "recommendations": [
+        {
+          "name": "L'As du Fallafel",
+          "cuisine": "Middle Eastern",
+          "area": "Le Marais",
+          "whyGo": "The most famous falafel in Paris, served in the heart of the historic Jewish Quarter.",
+          "mustTry": "Falafel Special",
+          "image": "https://images.unsplash.com/photo-1547000558-a834241d7061?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "A Paris institution, L'As du Fallafel is legendary for its massive, flavor-packed falafel sandwiches. It's a bustling, no-frills spot that consistently draws crowds of locals and tourists alike.",
+          "reviews": [
+            {
+              "user": "Julien M.",
+              "comment": "Best falafel I've ever had. Period. The sauce is incredible.",
+              "rating": 5
+            },
+            {
+              "user": "Sarah B.",
+              "comment": "The queue moves fast and the food is so worth it. A Marais essential.",
+              "rating": 4.5
+            }
+          ]
+        },
+        {
+          "name": "Benoit",
+          "cuisine": "French",
+          "area": "Les Halles",
+          "whyGo": "A classic Alain Ducasse bistro that captures the timeless soul of Parisian dining.",
+          "mustTry": "Escargots en Coquille",
+          "website": "https://www.benoit-paris.com/",
+          "image": "https://images.unsplash.com/photo-1550966842-3ca59d2800a4?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Benoit is the only Parisian bistro to hold a Michelin star. With its velvet banquettes and brass fixtures, it offers a quintessentially Parisian experience and masterfully executed classical French dishes.",
+          "reviews": [
+            {
+              "user": "Pierre L.",
+              "comment": "Authentic, elegant, and delicious. The service is exceptional.",
+              "rating": 5
+            },
+            {
+              "user": "Emma V.",
+              "comment": "A beautiful glimpse into old Paris. The food is perfection.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Septime",
+          "cuisine": "French",
+          "area": "11th Arr.",
+          "whyGo": "Modern, ingredient-focused cooking in a relaxed but incredibly chic setting.",
+          "mustTry": "Tasting Menu",
+          "website": "https://www.septime-charonne.fr/",
+          "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.9,
+          "description": "Septime is at the forefront of the modern Parisian dining scene. Chef Bertrand Grébaut's creative, seasonal cooking has made it one of the most sought-after reservations in the city.",
+          "reviews": [
+            {
+              "user": "Antoine R.",
+              "comment": "Incredible creativity and respect for ingredients. One of the best meals in Paris.",
+              "rating": 5
+            },
+            {
+              "user": "Sophie G.",
+              "comment": "So hard to get a table, but absolutely worth the effort. Simply brilliant.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Café de Flore",
+          "cuisine": "French",
+          "area": "Saint-Germain",
+          "whyGo": "One of the oldest and most prestigious coffeehouses in Paris, perfect for people-watching.",
+          "mustTry": "Omelette de Flore",
+          "website": "https://cafedeflore.fr/",
+          "image": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.5,
+          "description": "A landmark of Saint-Germain-des-Prés, Café de Flore has been the haunt of intellectuals and artists for over a century. It's a place to see and be seen while enjoying classic café fare.",
+          "reviews": [
+            {
+              "user": "Isabelle D.",
+              "comment": "Iconic atmosphere. It's pricey, but the experience is unique to Paris.",
+              "rating": 4.5
+            },
+            {
+              "user": "Mark S.",
+              "comment": "Great for a coffee and an omelette. The people-watching is world-class.",
+              "rating": 4
+            }
+          ]
+        },
+        {
+          "name": "Bouillon Chartier",
+          "cuisine": "French",
+          "area": "Grands Boulevards",
+          "whyGo": "Incredible value for classic French fare in a stunning, historic dining room.",
+          "mustTry": "Confit de Canard",
+          "website": "https://www.bouillon-chartier.com/",
+          "image": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.4,
+          "description": "Since 1896, Chartier has been serving traditional French dishes at remarkably low prices. The grand, Belle Époque dining room and the waiters writing orders on the paper tablecloths are part of its enduring charm.",
+          "reviews": [
+            {
+              "user": "Laurent B.",
+              "comment": "A true Parisian experience. Simple food, great prices, and amazing history.",
+              "rating": 4.5
+            },
+            {
+              "user": "Nathalie P.",
+              "comment": "Very busy but very fun. A great place to eat like a local on a budget.",
+              "rating": 4
+            }
+          ]
+        }
+      ],
+      "cuisines": [
+        "French",
+        "North African",
+        "Italian",
+        "Vietnamese",
+        "Japanese",
+        "Lebanese"
+      ]
+    },
+    {
+      "id": "mexico-city",
+      "name": "Mexico City",
+      "slug": "mexico-city",
+      "country": "Mexico",
+      "description": "Immerse yourself in one of the world's most exciting food destinations, where street tacos meet world-class fine dining.",
+      "longDescription": "Mexico City (CDMX) is a sprawling culinary giant. It offers a dizzying array of flavors, from the smoky depth of Oaxacan moles to the fresh seafood of the coasts. The city's food scene is a blend of pre-Hispanic traditions, colonial influences, and modern innovation. Whether you're eating at a humble street stall in Roma or a globally-ranked restaurant in Polanco, the quality and passion for food are evident everywhere.",
+      "lunchCulture": "In Mexico City, 'la comida' is the main meal of the day, typically eaten between 2 PM and 4 PM. It's a social affair, often starting with a soup and followed by a main course. Street food (antojitos) is available all day and is a vital part of the city's lunch fabric, with taco stands serving as neighborhood hubs.",
+      "bestAreas": [
+        "Roma Norte",
+        "Condesa",
+        "Polanco",
+        "Coyoacán",
+        "Centro Histórico",
+        "Juárez"
+      ],
+      "recommendations": [
+        {
+          "name": "Pujol",
+          "cuisine": "Mexican",
+          "area": "Polanco",
+          "whyGo": "Enrique Olvera's masterpiece, consistently ranked among the world's best restaurants.",
+          "mustTry": "Mole Madre, Mole Nuevo",
+          "website": "https://pujol.com.mx/",
+          "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.9,
+          "description": "Pujol is a temple of modern Mexican gastronomy. The signature Mole Madre, aged for hundreds of days, is a profound expression of Mexican heritage and culinary innovation.",
+          "reviews": [
+            {
+              "user": "Alejandro G.",
+              "comment": "The mole is unlike anything else on earth. A truly transformative meal.",
+              "rating": 5
+            },
+            {
+              "user": "Sofia M.",
+              "comment": "Incredible service and a beautiful space. Every course is a revelation.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Contramar",
+          "cuisine": "Seafood",
+          "area": "Roma Norte",
+          "whyGo": "The ultimate lunch spot for incredibly fresh seafood and a vibrant, buzzy atmosphere.",
+          "mustTry": "Pescado a la Talla",
+          "website": "https://www.contramar.com.mx/",
+          "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Gabriela Cámara's Contramar is a legend for its fresh, coastal-inspired seafood. It's a daytime-only spot that perfectly captures the relaxed yet sophisticated spirit of a long Mexico City lunch.",
+          "reviews": [
+            {
+              "user": "Mariana R.",
+              "comment": "The tuna tostadas are life-changing. Best lunch vibes in the city.",
+              "rating": 5
+            },
+            {
+              "user": "Daniel C.",
+              "comment": "Amazing food and great energy. The pescado a la talla is a must-share.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "El Vilsito",
+          "cuisine": "Mexican",
+          "area": "Narvarte",
+          "whyGo": "An auto repair shop by day that transforms into one of the city's best pastor taco stands.",
+          "mustTry": "Tacos al Pastor",
+          "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "El Vilsito is a legendary spot famous for its 'trompo' (spit) of marinated pork. It's a quintessentially Mexico City experience—fast, bustling, and incredibly delicious.",
+          "reviews": [
+            {
+              "user": "Carlos T.",
+              "comment": "The best pastor in CDMX. Watching the 'taquero' flick the pineapple onto the taco is art.",
+              "rating": 5
+            },
+            {
+              "user": "Elena S.",
+              "comment": "Authentic, cheap, and so good. A true local gem.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Panaderia Rosetta",
+          "cuisine": "Mexican",
+          "area": "Roma",
+          "whyGo": "One of the world's best bakeries, serving incredible pastries and light lunch options.",
+          "mustTry": "Guava Roll",
+          "website": "https://www.rosetta.com.mx/",
+          "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Elena Reygadas' bakery is a Roma neighborhood staple. The space is charming and the pastries, particularly the guava roll, have achieved legendary status among locals and visitors alike.",
+          "reviews": [
+            {
+              "user": "Isabella V.",
+              "comment": "The guava roll is worth every minute of the wait. Stunning bakery.",
+              "rating": 5
+            },
+            {
+              "user": "John D.",
+              "comment": "Excellent coffee and the best pastries in the city. Great for a light lunch.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Azul Histórico",
+          "cuisine": "Mexican",
+          "area": "Centro Histórico",
+          "whyGo": "Traditional Mexican cuisine served in a beautiful, tree-filled courtyard of a 17th-century palace.",
+          "mustTry": "Mole Poblano",
+          "website": "https://azul.rest/",
+          "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Chef Ricardo Muñoz Zurita is a researcher and guardian of traditional Mexican recipes. At Azul Histórico, he presents regional classics in a stunning, open-air setting that feels like an oasis in the city center.",
+          "reviews": [
+            {
+              "user": "Beatriz L.",
+              "comment": "Beautiful setting and the best mole poblano I've ever had. Truly special.",
+              "rating": 5
+            },
+            {
+              "user": "Marco A.",
+              "comment": "Great atmosphere and authentic flavors. Perfect for showing visitors the best of Mexico.",
+              "rating": 4.5
+            }
+          ]
+        }
+      ],
+      "cuisines": [
+        "Mexican",
+        "Seafood",
+        "Spanish",
+        "Italian",
+        "Japanese",
+        "Lebanese"
+      ]
+    },
+    {
+      "id": "barcelona",
+      "name": "Barcelona",
+      "slug": "barcelona",
+      "country": "Spain",
+      "description": "Enjoy the vibrant Mediterranean lifestyle with tapas, seafood, and Catalan masterpieces.",
+      "longDescription": "Barcelona is the jewel of Catalonia, offering a unique culinary identity that blends mountain and sea ('mar i muntanya'). The city's markets, like the world-famous La Boqueria, are at the heart of its food culture. From traditional tapas bars in the Gothic Quarter to cutting-edge molecular gastronomy, Barcelona is a city that lives to eat. Its proximity to the Mediterranean ensures a constant supply of incredible seafood.",
+      "lunchCulture": "Lunch is the most important meal in Barcelona, usually taken between 1:30 PM and 3:30 PM. The 'menú del día' is a staple, offering a three-course meal at a fixed, affordable price. Tapas are also popular for a lighter or more social lunch. On weekends, many locals head to the beach for a leisurely paella lunch.",
+      "bestAreas": [
+        "Eixample",
+        "Gràcia",
+        "El Born",
+        "Gothic Quarter",
+        "Barceloneta",
+        "Poblenou"
+      ],
+      "recommendations": [
+        {
+          "name": "El Xampanyet",
+          "cuisine": "Spanish",
+          "area": "El Born",
+          "whyGo": "A family-run tapas bar since 1929, famous for its house cava and lively atmosphere.",
+          "mustTry": "Anchovies and House Cava",
+          "image": "https://images.unsplash.com/photo-1515467873231-15362f62bd66?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Located near the Picasso Museum, El Xampanyet is one of the most iconic tapas bars in Barcelona. The blue-tiled walls and bustling crowd create a vibrant energy that's perfectly accompanied by their signature sparkling wine.",
+          "reviews": [
+            {
+              "user": "Jordi P.",
+              "comment": "Authentic, lively, and delicious. The best place for tapas and cava in the city.",
+              "rating": 5
+            },
+            {
+              "user": "Marta G.",
+              "comment": "It's always packed but that's part of the charm. Don't skip the anchovies!",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Can Paixano (La Xampanyeria)",
+          "cuisine": "Spanish",
+          "area": "Barceloneta",
+          "whyGo": "An incredibly popular, standing-room-only spot for cheap cava and delicious grilled sandwiches.",
+          "mustTry": "Grilled Chorizo Sandwich",
+          "website": "https://www.canpaixano.com/",
+          "image": "https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "Can Paixano is a Barcelona institution where locals and tourists squeeze in for affordable house cava and hot, greasy, delicious tapas. It's a high-energy, authentic experience that shouldn't be missed.",
+          "reviews": [
+            {
+              "user": "Sergi R.",
+              "comment": "Total chaos in the best way. The cava is great and the sandwiches are amazing.",
+              "rating": 5
+            },
+            {
+              "user": "Elena B.",
+              "comment": "Crowded and loud, but so much fun. A true Barcelona experience.",
+              "rating": 4.5
+            }
+          ]
+        },
+        {
+          "name": "7 Portes",
+          "cuisine": "Spanish",
+          "area": "Barceloneta",
+          "whyGo": "Historic restaurant since 1836, famous for its paella and traditional Catalan cuisine.",
+          "mustTry": "Paella Parellada",
+          "website": "https://7portes.com/",
+          "image": "https://images.unsplash.com/photo-1534080564607-1304546686a1?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "7 Portes is one of the oldest restaurants in Barcelona and a temple to traditional Catalan cooking. Its elegant dining rooms have hosted everyone from Picasso to Dali, and its paella is considered one of the best in the city.",
+          "reviews": [
+            {
+              "user": "Ramon M.",
+              "comment": "The most classic paella in Barcelona. The service is very professional and traditional.",
+              "rating": 5
+            },
+            {
+              "user": "Linda S.",
+              "comment": "Beautiful restaurant with so much history. The paella was fantastic.",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Quimet & Quimet",
+          "cuisine": "Spanish",
+          "area": "Poble-sec",
+          "whyGo": "A tiny, standing-room-only gem famous for its incredible 'montaditos' (small topped breads).",
+          "mustTry": "Salmon, Yogurt, and Truffle Honey Montadito",
+          "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "This family-run bar is floor-to-ceiling lined with wine and canned goods (conservas), which they use to create sophisticated and delicious montaditos. It's a must-visit for any food lover in Barcelona.",
+          "reviews": [
+            {
+              "user": "Oscar V.",
+              "comment": "Tiny place, huge flavors. The combinations are so creative and delicious.",
+              "rating": 5
+            },
+            {
+              "user": "Sonia L.",
+              "comment": "Simply amazing. Every bite is a flavor explosion. Get there early!",
+              "rating": 5
+            }
+          ]
+        },
+        {
+          "name": "Cervecería Catalana",
+          "cuisine": "Spanish",
+          "area": "Eixample",
+          "whyGo": "Consistently excellent tapas and 'montaditos' in a polished, lively setting.",
+          "mustTry": "Huevos Cabreaos",
+          "image": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Cervecería Catalana is a favorite for both locals and visitors for its wide variety of fresh tapas and counter service. The energy is high, and the quality of the ingredients is consistently top-notch.",
+          "reviews": [
+            {
+              "user": "Paula S.",
+              "comment": "One of the best tapas spots in the city. The variety is incredible.",
+              "rating": 5
+            },
+            {
+              "user": "Mark R.",
+              "comment": "Great atmosphere and consistently good food. Be prepared for a wait!",
+              "rating": 4.5
+            }
+          ]
+        }
+      ],
+      "cuisines": [
+        "Spanish",
+        "Catalan",
+        "Mediterranean",
+        "Japanese",
+        "Italian",
+        "Mexican"
+      ]
     }
   ],
   "cuisines": [
@@ -1163,6 +1869,16 @@
       "bestFor": "Spice lovers, kebab enthusiasts, those seeking traditional flavors",
       "priceRange": "$$",
       "typicalDishes": "Kebabs, shawarma, falafel, hummus, tabbouleh, za'atar dishes"
+    },
+    {
+      "id": "spanish",
+      "name": "Spanish",
+      "emoji": "🥘",
+      "description": "Tapas, paella, and regional specialties that celebrate the best of Mediterranean ingredients.",
+      "tips": "Spanish lunch culture revolves around the 'menú del día' and social sharing. Tapas are small plates meant for sharing, while paella is often a centerpiece for weekend family gatherings. Olive oil, garlic, and pimentón are foundational flavors. Don't miss the local wines and sherries.",
+      "bestFor": "Social groups, seafood lovers, those seeking variety, leisurely afternoons",
+      "priceRange": "$-$$$",
+      "typicalDishes": "Paella, Patatas bravas, Tortilla de patatas, Jamón Ibérico, Gazpacho, Churros"
     }
   ]
 }
