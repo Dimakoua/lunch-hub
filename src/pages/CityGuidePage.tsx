@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, ChefHat, ArrowRight, Utensils, Clock, DollarSign, Heart } from 'lucide-react';
+import { MapPin, ChefHat, ArrowRight, Utensils, Clock, DollarSign, Star, Search, Globe } from 'lucide-react';
 
 interface CityData {
   id: string;
@@ -65,10 +65,10 @@ const CityGuidePage: React.FC = () => {
 
   if (loading || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading guide...</p>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-emerald-500"></div>
+          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading guide…</p>
         </div>
       </div>
     );
@@ -123,7 +123,7 @@ const CityGuidePage: React.FC = () => {
   // Show city + cuisine details with unique content
   if (currentCity && currentCuisine) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <main className="min-h-screen bg-white dark:bg-gray-950">
         <Helmet>
           <title>{getTitle()}</title>
           <meta name="description" content={getDescription()} />
@@ -162,172 +162,170 @@ const CityGuidePage: React.FC = () => {
           </script>
         </Helmet>
 
-        <div className="container mx-auto px-4 py-12 pt-24">
-          {/* Breadcrumb */}
-          <nav className="mb-8">
-            <ol className="flex items-center space-x-2 text-sm">
-              <li><Link to="/guide" className="text-blue-600 hover:text-blue-800 dark:text-blue-400">Guides</Link></li>
-              <li className="text-gray-400">/</li>
-              <li><Link to={`/guide/${currentCity.slug}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400">{currentCity.name}</Link></li>
-              <li className="text-gray-400">/</li>
-              <li className="text-gray-600 dark:text-gray-400">{currentCuisine.name}</li>
-            </ol>
-          </nav>
+        {/* Top bar */}
+        <div className="border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+            <nav aria-label="Breadcrumb">
+              <ol className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <li><Link to="/guide" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Guides</Link></li>
+                <li><span className="text-gray-300 dark:text-gray-600">/</span></li>
+                <li><Link to={`/guide/${currentCity.slug}`} className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{currentCity.name}</Link></li>
+                <li><span className="text-gray-300 dark:text-gray-600">/</span></li>
+                <li className="text-gray-900 dark:text-gray-200 font-medium">{currentCuisine.name}</li>
+              </ol>
+            </nav>
+          </div>
+        </div>
 
-          {/* Hero Section */}
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-              {currentCuisine.emoji} Best {currentCuisine.name} Lunch in {currentCity.name}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 pt-10">
+
+          {/* Hero */}
+          <header className="mb-12">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-4xl">{currentCuisine.emoji}</span>
+              <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{currentCity.name}, {currentCity.country}</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+              Best {currentCuisine.name} Restaurants in {currentCity.name}
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-4">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mb-6">
               {currentCuisine.description}
             </p>
             <button
               onClick={() => handleSearch(currentCity.name, currentCuisine.name)}
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors"
             >
-              Find {currentCuisine.name} Restaurants
-              <ArrowRight className="w-4 h-4" />
+              <Search className="w-4 h-4" />
+              Find {currentCuisine.name} Restaurants Near Me
             </button>
-          </div>
+          </header>
 
-          {/* Two-column layout */}
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {/* Left Column: City & Cuisine Info */}
-            <div className="space-y-6">
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-                <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-                  <MapPin className="w-6 h-6 text-blue-600" />
-                  {currentCity.name}'s Lunch Culture
+          {/* Main content grid */}
+          <div className="grid lg:grid-cols-3 gap-8 mb-12">
+            <div className="lg:col-span-2 space-y-8">
+
+              {/* Dining Tips */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Utensils className="w-5 h-5 text-emerald-500" />
+                  Dining Tips
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {currentCity.lunchCulture}
-                </p>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {currentCity.longDescription}
-                </p>
-              </div>
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">{currentCuisine.tips}</p>
+                <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Typical dishes to try:</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{currentCuisine.typicalDishes}</p>
+                </div>
+              </section>
 
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Best Areas for {currentCuisine.name}</h3>
-                <ul className="space-y-2">
-                  {currentCity.bestAreas.slice(0, 5).map(area => (
-                    <li key={area} className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                      <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                      {area}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Right Column: Cuisine Info */}
-            <div className="space-y-6">
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-                <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-                  <ChefHat className="w-6 h-6 text-emerald-600" />
-                  About {currentCuisine.name} Cuisine
+              {/* City lunch culture */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-emerald-500" />
+                  Lunch Culture in {currentCity.name}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {currentCuisine.description}
-                </p>
-              </div>
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">{currentCity.lunchCulture}</p>
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{currentCity.longDescription}</p>
+              </section>
 
-              {/* Info Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="w-4 h-4 text-blue-600" />
-                    <span className="font-semibold text-gray-900 dark:text-white">Price Range</span>
+              {/* Recommendations */}
+              {(cuisineRecommendations.length > 0 || cityRecommendations.length > 0) && (
+                <section>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                    <Star className="w-5 h-5 text-emerald-500" />
+                    Curated Picks
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+                    Editorial recommendations to help you shortlist before searching the live map.
+                  </p>
+                  <div className="space-y-4">
+                    {(cuisineRecommendations.length > 0 ? cuisineRecommendations : cityRecommendations.slice(0, 3)).map((item) => (
+                      <article
+                        key={`${item.name}-${item.area}`}
+                        className="flex flex-col sm:flex-row gap-4 p-5 border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+                      >
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-white text-base">{item.name}</h3>
+                          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">{item.cuisine} · {item.area}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{item.whyGo}</p>
+                        </div>
+                        <div className="sm:text-right shrink-0">
+                          <span className="inline-block bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-md">
+                            Try: {item.mustTry}
+                          </span>
+                        </div>
+                      </article>
+                    ))}
                   </div>
-                  <p className="text-gray-700 dark:text-gray-200">{currentCuisine.priceRange}</p>
-                </div>
-                <div className="bg-gradient-to-br from-blue-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4 text-blue-600" />
-                    <span className="font-semibold text-gray-900 dark:text-white">Best For</span>
+                </section>
+              )}
+            </div>
+
+            {/* Sidebar */}
+            <aside className="space-y-6">
+              {/* Quick facts */}
+              <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-5 bg-white dark:bg-gray-900">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-4 text-sm uppercase tracking-wide">Quick Facts</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <DollarSign className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Price Range</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{currentCuisine.priceRange}</p>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-200">{currentCuisine.bestFor}</p>
+                  <div className="flex items-start gap-3">
+                    <ChefHat className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Best For</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{currentCuisine.bestFor}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Top Areas</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{currentCity.bestAreas.slice(0, 3).join(', ')}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Cuisine Tips Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm mb-12">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-              <Utensils className="w-6 h-6 text-blue-600" />
-              Dining Tips for {currentCuisine.name} in {currentCity.name}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-4 text-lg">
-              {currentCuisine.tips}
-            </p>
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-6">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Typical Dishes to Try:</h3>
-              <p className="text-gray-700 dark:text-gray-300">{currentCuisine.typicalDishes}</p>
-            </div>
-          </div>
-
-          {/* Local Recommendations */}
-          {(cuisineRecommendations.length > 0 || cityRecommendations.length > 0) && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm mb-12">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-                Real Local Picks for {currentCuisine.name} in {currentCity.name}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                These are editorial recommendations to help you shortlist strong options faster. Compare vibe, area, and signature dishes before opening the live map.
-              </p>
-              <div className="grid md:grid-cols-2 gap-4">
-                {(cuisineRecommendations.length > 0 ? cuisineRecommendations : cityRecommendations.slice(0, 3)).map((item) => (
-                  <article key={`${item.name}-${item.area}`} className="rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{item.name}</h3>
-                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">{item.cuisine} · {item.area}</p>
-                    <p className="text-gray-600 dark:text-gray-300 mt-3">{item.whyGo}</p>
-                    <p className="text-sm text-gray-700 dark:text-gray-200 mt-3"><span className="font-semibold">Must try:</span> {item.mustTry}</p>
-                  </article>
-                ))}
+              {/* Other cuisines */}
+              <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-5 bg-white dark:bg-gray-900">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-4 text-sm uppercase tracking-wide">More in {currentCity.name}</h3>
+                <div className="space-y-1">
+                  {currentCity.cuisines
+                    .filter(c => c !== currentCuisine.name)
+                    .map((cuisineName) => {
+                      const cuisineObj = data.cuisines.find(c => c.name === cuisineName);
+                      if (!cuisineObj) return null;
+                      return (
+                        <Link
+                          key={cuisineObj.id}
+                          to={`/guide/${currentCity.slug}/${cuisineObj.id}`}
+                          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                        >
+                          <span className="text-xl">{cuisineObj.emoji}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{cuisineObj.name}</span>
+                          <ArrowRight className="w-3 h-3 ml-auto text-gray-300 group-hover:text-emerald-500 transition-colors" />
+                        </Link>
+                      );
+                    })}
+                </div>
               </div>
-            </div>
-          )}
 
-          {/* Other Cuisines in City */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm mb-12">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-              Explore Other Cuisines in {currentCity.name}
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {currentCity.cuisines
-                .filter(c => c !== currentCuisine.name)
-                .map((cuisineName) => {
-                  const cuisineObj = data.cuisines.find(c => c.name === cuisineName);
-                  if (!cuisineObj) return null;
-                  return (
-                    <Link
-                      key={cuisineObj.id}
-                      to={`/guide/${currentCity.slug}/${cuisineObj.id}`}
-                      className="p-4 bg-gradient-to-br from-blue-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 rounded-lg hover:shadow-lg transition-shadow text-center"
-                    >
-                      <div className="text-3xl mb-2">{cuisineObj.emoji}</div>
-                      <div className="font-semibold text-gray-900 dark:text-white text-sm">{cuisineObj.name}</div>
-                    </Link>
-                  );
-                })}
-            </div>
-          </div>
-
-          {/* CTA Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-emerald-600 rounded-xl p-8 text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">Ready to Try {currentCuisine.name}?</h2>
-            <p className="text-lg mb-6 opacity-90">
-              Find the best {currentCuisine.name.toLowerCase()} restaurants in {currentCity.name} with detailed information and easy navigation.
-            </p>
-            <button
-              onClick={() => handleSearch(currentCity.name, currentCuisine.name)}
-              className="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Search Now
-              <ArrowRight className="w-4 h-4" />
-            </button>
+              {/* Search CTA */}
+              <div className="bg-emerald-600 rounded-xl p-5 text-white">
+                <h3 className="font-semibold mb-2">Ready to eat?</h3>
+                <p className="text-sm text-emerald-100 mb-4">Search live restaurants near you right now.</p>
+                <button
+                  onClick={() => handleSearch(currentCity.name, currentCuisine.name)}
+                  className="w-full bg-white text-emerald-700 hover:bg-emerald-50 text-sm font-semibold py-2 rounded-lg transition-colors"
+                >
+                  Search Restaurants
+                </button>
+              </div>
+            </aside>
           </div>
         </div>
       </main>
@@ -337,7 +335,7 @@ const CityGuidePage: React.FC = () => {
   // Show city details with cuisines
   if (currentCity) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <main className="min-h-screen bg-white dark:bg-gray-950">
         <Helmet>
           <title>{getTitle()}</title>
           <meta name="description" content={getDescription()} />
@@ -362,70 +360,104 @@ const CityGuidePage: React.FC = () => {
           </script>
         </Helmet>
 
-        <div className="container mx-auto px-4 py-12 pt-24">
-          {/* Breadcrumb */}
-          <nav className="mb-8">
-            <ol className="flex items-center space-x-2 text-sm">
-              <li><Link to="/guide" className="text-blue-600 hover:text-blue-800 dark:text-blue-400">Guides</Link></li>
-              <li className="text-gray-400">/</li>
-              <li className="text-gray-600 dark:text-gray-400">{currentCity.name}</li>
-            </ol>
-          </nav>
+        {/* Top bar */}
+        <div className="border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+            <nav aria-label="Breadcrumb">
+              <ol className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <li><Link to="/guide" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Guides</Link></li>
+                <li><span className="text-gray-300 dark:text-gray-600">/</span></li>
+                <li className="text-gray-900 dark:text-gray-200 font-medium">{currentCity.name}</li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
 
           {/* Hero */}
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-              <MapPin className="inline w-10 h-10 mr-3 text-blue-600" />
-              Best Restaurants in {currentCity.name}
+          <header className="mb-10">
+            <div className="flex items-center gap-2 mb-3">
+              <Globe className="w-4 h-4 text-emerald-500" />
+              <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{currentCity.country}</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+              Best Lunch Restaurants in {currentCity.name}
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-4">
-              {currentCity.description}
-            </p>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mb-6 leading-relaxed">
               {currentCity.longDescription}
             </p>
             <button
               onClick={() => handleSearch(currentCity.name)}
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors"
             >
-              Search All Restaurants
-              <ArrowRight className="w-4 h-4" />
+              <Search className="w-4 h-4" />
+              Search All Restaurants in {currentCity.name}
             </button>
-          </div>
+          </header>
 
-          {/* City Info Section */}
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-              <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-                <Clock className="w-6 h-6 text-emerald-600" />
-                Lunch Culture in {currentCity.name}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                {currentCity.lunchCulture}
+          {/* Top Picks - main focus */}
+          {cityRecommendations.length > 0 && (
+            <section className="mb-12">
+              <div className="flex items-center gap-2 mb-1">
+                <Star className="w-5 h-5 text-emerald-500 fill-emerald-500" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Top Picks in {currentCity.name}
+                </h2>
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 ml-7">
+                Curated recommendations across different cuisines to get you started.
               </p>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {cityRecommendations.slice(0, 3).map((item, index) => (
+                  <article
+                    key={`${item.name}-${item.area}`}
+                    className="relative flex flex-col border border-gray-200 dark:border-gray-800 rounded-2xl p-6 bg-white dark:bg-gray-900 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all"
+                  >
+                    <span className="absolute top-4 right-4 text-xs font-bold text-gray-300 dark:text-gray-600">#{index + 1}</span>
+                    <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-2">{item.cuisine} · {item.area}</p>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">{item.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-1">{item.whyGo}</p>
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-2">
+                      <Utensils className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">Must try: </span>{item.mustTry}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Info row */}
+          <div className="grid sm:grid-cols-2 gap-5 mb-12">
+            <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-5 bg-white dark:bg-gray-900">
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-emerald-500" />
+                Lunch Culture
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{currentCity.lunchCulture}</p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-              <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-                <Heart className="w-6 h-6 text-red-600" />
+            <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-5 bg-white dark:bg-gray-900">
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-emerald-500" />
                 Best Areas to Eat
               </h2>
-              <ul className="space-y-2">
+              <div className="flex flex-wrap gap-2">
                 {currentCity.bestAreas.map(area => (
-                  <li key={area} className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                    <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                    {area}
-                  </li>
+                  <span key={area} className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2.5 py-1 rounded-full">{area}</span>
                 ))}
-              </ul>
+              </div>
             </div>
           </div>
 
-          {/* Cuisines Grid */}
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
-              Explore Cuisines in {currentCity.name}
+          {/* Cuisines */}
+          <section className="mb-12">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+              Explore by Cuisine in {currentCity.name}
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {currentCity.cuisines.map((cuisineName) => {
                 const cuisineObj = data.cuisines.find(c => c.name === cuisineName);
                 if (!cuisineObj) return null;
@@ -433,53 +465,32 @@ const CityGuidePage: React.FC = () => {
                   <Link
                     key={cuisineObj.id}
                     to={`/guide/${currentCity.slug}/${cuisineObj.id}`}
-                    className="group p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-center"
+                    className="group flex flex-col items-center gap-2 p-5 border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 hover:border-emerald-400 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all"
                   >
-                    <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">{cuisineObj.emoji}</div>
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">{cuisineObj.name}</h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">View Best Spots</p>
+                    <span className="text-3xl">{cuisineObj.emoji}</span>
+                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors text-center">{cuisineObj.name}</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 group-hover:text-emerald-500 transition-colors flex items-center gap-1">
+                      View spots <ArrowRight className="w-3 h-3" />
+                    </span>
                   </Link>
                 );
               })}
             </div>
-          </div>
+          </section>
 
-          {/* City-Level Recommendations */}
-          {cityRecommendations.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm mb-12">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-                Recommended Lunch Spots in {currentCity.name}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Start with these high-confidence picks across different cuisines. They add useful context before you run a live radius search.
-              </p>
-              <div className="grid md:grid-cols-3 gap-4">
-                {cityRecommendations.slice(0, 3).map((item) => (
-                  <article key={`${item.name}-${item.area}`} className="rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{item.name}</h3>
-                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">{item.cuisine} · {item.area}</p>
-                    <p className="text-gray-600 dark:text-gray-300 mt-3">{item.whyGo}</p>
-                    <p className="text-sm text-gray-700 dark:text-gray-200 mt-3"><span className="font-semibold">Must try:</span> {item.mustTry}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Info Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-              Find Your Perfect Lunch in {currentCity.name}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              {currentCity.name} offers an incredible variety of dining options spanning every major cuisine type. Whether you're searching for authentic {currentCity.cuisines[0]}, adventurous {currentCity.cuisines[1]}, or something entirely different, Lunch Hub helps you discover amazing restaurants based on your location and preferences.
+          {/* Bottom CTA */}
+          <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-8 bg-gray-50 dark:bg-gray-900 text-center">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Find Your Perfect Lunch in {currentCity.name}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 max-w-xl mx-auto">
+              {currentCity.name} offers {currentCity.cuisines.length}+ cuisine styles. Use our live search to filter by distance, cuisine, opening hours, and more.
             </p>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Use our powerful search tool to find restaurants by cuisine, distance, or specific dietary needs. Filter by open now, amenities, or price range. If you're feeling indecisive, try our Spin Wheel or Random Picker for instant inspiration!
-            </p>
-            <p className="text-gray-600 dark:text-gray-300">
-              {currentCity.name}'s diverse neighborhoods each have unique dining personalities. Explore our guides above to find the perfect spot for your lunch break.
-            </p>
+            <button
+              onClick={() => handleSearch(currentCity.name)}
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+            >
+              <Search className="w-4 h-4" />
+              Search Restaurants
+            </button>
           </div>
         </div>
       </main>
@@ -488,7 +499,7 @@ const CityGuidePage: React.FC = () => {
 
   // Show all cities
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <main className="min-h-screen bg-white dark:bg-gray-950">
       <Helmet>
         <title>{getTitle()}</title>
         <meta name="description" content={getDescription()} />
@@ -509,70 +520,94 @@ const CityGuidePage: React.FC = () => {
         </script>
       </Helmet>
 
-      <div className="container mx-auto px-4 py-12 pt-24">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+      {/* Page header */}
+      <div className="border-b border-gray-100 dark:border-gray-800">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+          <div className="flex items-center gap-2 mb-3">
+            <Globe className="w-4 h-4 text-emerald-500" />
+            <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">City Guides</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
             Restaurant Guides by City
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Discover the best lunch spots in major cities around the world. Explore by cuisine type, dining culture, and local favorites. Use Lunch Hub to find exactly what you're craving.
+          <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl">
+            Explore the best lunch spots in major cities around the world. Browse by cuisine, discover local culture, and find your next favourite meal.
           </p>
         </div>
+      </div>
 
-        {/* Cities Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+
+        {/* Cities grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
           {data.cities.map((cityData) => (
             <Link
               key={cityData.id}
               to={`/guide/${cityData.slug}`}
-              className="group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+              className="group flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 hover:border-emerald-400 dark:hover:border-emerald-600 transition-all overflow-hidden"
             >
-              <div className="p-6 h-full flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                  <MapPin className="w-6 h-6 text-blue-600" />
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {cityData.name}
-                  </h2>
+              <div className="p-6 flex-1 flex flex-col">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                      {cityData.name}
+                    </h2>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{cityData.country}</p>
+                  </div>
+                  <MapPin className="w-4 h-4 text-gray-300 dark:text-gray-600 group-hover:text-emerald-500 transition-colors shrink-0 mt-1" />
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{cityData.country}</p>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow line-clamp-3">
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-1 line-clamp-3 mb-4">
                   {cityData.description}
                 </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {cityData.cuisines.slice(0, 3).map((cuisineName) => {
-                    const cuisineObj = data.cuisines.find(c => c.name === cuisineName);
-                    return (
-                      <span key={cuisineName} className="text-2xl">
-                        {cuisineObj?.emoji}
-                      </span>
-                    );
-                  })}
-                  {cityData.cuisines.length > 3 && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400 self-center ml-2">
-                      +{cityData.cuisines.length - 3}
-                    </span>
-                  )}
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1.5">
+                    {cityData.cuisines.slice(0, 4).map((cuisineName) => {
+                      const cuisineObj = data.cuisines.find(c => c.name === cuisineName);
+                      return cuisineObj ? (
+                        <span key={cuisineName} className="text-lg" title={cuisineObj.name}>{cuisineObj.emoji}</span>
+                      ) : null;
+                    })}
+                    {cityData.cuisines.length > 4 && (
+                      <span className="text-xs text-gray-400 dark:text-gray-500 self-center">+{cityData.cuisines.length - 4}</span>
+                    )}
+                  </div>
+                  <span className="ml-auto text-xs font-medium text-emerald-600 dark:text-emerald-400 group-hover:underline flex items-center gap-1">
+                    Explore <ArrowRight className="w-3 h-3" />
+                  </span>
                 </div>
-                <button className="text-blue-600 dark:text-blue-400 font-semibold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Explore <ArrowRight className="w-3 h-3" />
-                </button>
               </div>
             </Link>
           ))}
         </div>
 
-        {/* CTA Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-emerald-600 rounded-xl p-12 text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">Ready to find your perfect lunch?</h2>
-          <p className="text-lg mb-6 opacity-90 max-w-2xl mx-auto">
-            Browse our comprehensive city guides or start searching by location to discover amazing restaurants with detailed information, dining tips, and local insights.
-          </p>
+        {/* All cuisines section */}
+        <section className="mb-14">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Browse All Cuisines</h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+            {data.cuisines.map((cuisineData) => (
+              <div
+                key={cuisineData.id}
+                className="flex flex-col items-center gap-1.5 p-3 border border-gray-100 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-gray-900 text-center"
+              >
+                <span className="text-2xl">{cuisineData.emoji}</span>
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{cuisineData.name}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA */}
+        <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-8 bg-gray-50 dark:bg-gray-900 flex flex-col sm:flex-row items-center gap-6">
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">Ready to find your next lunch?</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Search live restaurants near you filtered by cuisine, distance, and opening hours.</p>
+          </div>
           <Link
             to="/restaurants"
-            className="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-colors"
+            className="shrink-0 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors"
           >
-            Start Searching
-            <ArrowRight className="w-4 h-4" />
+            <Search className="w-4 h-4" />
+            Find Restaurants
           </Link>
         </div>
       </div>
