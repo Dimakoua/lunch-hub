@@ -8,7 +8,14 @@
       "description": "Discover the best lunch spots in Toronto, Canada's most diverse culinary hub.",
       "longDescription": "Toronto is a multicultural metropolis with over 200 neighborhoods and a world-renowned food scene. From the historic St. Lawrence Market to trendy King West, Toronto offers incredible lunch options that reflect its diverse population of over 2.9 million people. Whether you're in the Financial District looking for a quick power lunch, exploring Kensington Market for street food, or discovering hidden gems in Chinatown, Toronto's restaurant landscape is constantly evolving with innovative chefs and established institutions.",
       "lunchCulture": "Toronto's lunch scene is fast-paced during weekdays in the downtown core, with professionals seeking quick, quality meals. Weekends are more leisurely, with foodies exploring emerging neighborhoods. The city is known for its food halls, rooftop patios (seasonal), and an impressive number of Michelin-recognized establishments.",
-      "bestAreas": ["Downtown Toronto", "King West", "Kensington Market", "Chinatown", "Little Italy", "Distillery District"],
+      "bestAreas": [
+        "Downtown Toronto",
+        "King West",
+        "Kensington Market",
+        "Chinatown",
+        "Little Italy",
+        "Distillery District"
+      ],
       "recommendations": [
         {
           "name": "Pai Northern Thai Kitchen",
@@ -16,21 +23,66 @@
           "area": "Entertainment District",
           "whyGo": "Bold northern Thai flavors and consistently strong lunch service.",
           "mustTry": "Khao Soi",
-          "website": "https://www.paitoronto.com/"
+          "website": "https://www.paitoronto.com/",
+          "image": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Chef Nuit Regular's flagship restaurant brings the authentic flavors of Northern Thailand to Toronto. The vibrant, bustling atmosphere perfectly complements the spicy, aromatic dishes that have made it a local legend.",
+          "reviews": [
+            {
+              "user": "Sarah J.",
+              "comment": "Best Khao Soi I've had outside of Chiang Mai! The vibe is amazing.",
+              "rating": 5
+            },
+            {
+              "user": "Mike T.",
+              "comment": "Solid lunch spot, though it gets very busy. Worth the wait for the food.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Gusto 101",
           "cuisine": "Italian",
           "area": "King West",
           "whyGo": "Reliable handmade pasta and modern Italian lunch atmosphere.",
-          "mustTry": "Mafalde ai Funghi"
+          "mustTry": "Mafalde ai Funghi",
+          "image": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.5,
+          "description": "Housed in a repurposed industrial garage, Gusto 101 serves up modern takes on Southern Italian classics. Their rooftop patio is one of the most sought-after spots in King West for a sun-drenched lunch.",
+          "reviews": [
+            {
+              "user": "Emily R.",
+              "comment": "The kale salad and mafalde d'ai funghi are life-changing. Great rooftop vibes!",
+              "rating": 5
+            },
+            {
+              "user": "Jason L.",
+              "comment": "Excellent pasta, but it can be a bit loud during peak lunch hours.",
+              "rating": 4
+            }
+          ]
         },
         {
           "name": "Kinka Izakaya",
           "cuisine": "Japanese",
           "area": "Downtown Toronto",
           "whyGo": "Energetic Japanese small plates that work well for group lunches.",
-          "mustTry": "Aburi Salmon Oshi"
+          "mustTry": "Aburi Salmon Oshi",
+          "image": "https://images.unsplash.com/photo-1581009137042-c552e485697a?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "Formerly known as Guu Izakaya, this high-energy spot is famous for its boisterous staff and authentic Japanese pub fare. It's the perfect place for a lively group lunch featuring small plates and great sake.",
+          "reviews": [
+            {
+              "user": "David K.",
+              "comment": "The energy here is infectious! The salmon oshi sushi is a must-order every single time.",
+              "rating": 5
+            },
+            {
+              "user": "Lisa M.",
+              "comment": "Fun atmosphere and great for sharing. Try the karaage!",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Canoe",
@@ -38,7 +90,22 @@
           "area": "Financial District",
           "whyGo": "Stunning 54th-floor views with refined Canadian ingredients and a power-lunch atmosphere.",
           "mustTry": "Ontario Lamb Loin",
-          "website": "https://www.oliverbonacini.com/restaurants/canoe/"
+          "website": "https://www.oliverbonacini.com/restaurants/canoe/",
+          "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.9,
+          "description": "Perched atop the TD Bank Tower, Canoe offers a breathtaking view of the city and Lake Ontario. The menu is a celebration of Canadian ingredients, prepared with world-class technique and artistic flair.",
+          "reviews": [
+            {
+              "user": "Robert H.",
+              "comment": "The best views in the city combined with impeccable service and food. Perfect for a business lunch.",
+              "rating": 5
+            },
+            {
+              "user": "Amanda C.",
+              "comment": "Expensive but worth every penny for the experience and the quality of ingredients.",
+              "rating": 5
+            }
+          ]
         },
         {
           "name": "Byblos Toronto",
@@ -46,10 +113,34 @@
           "area": "King West",
           "whyGo": "Eastern Mediterranean flavors in a chic setting, great for groups or business lunches.",
           "mustTry": "Lamb Flatbread",
-          "website": "https://www.byblosrestaurant.com/"
+          "website": "https://www.byblosrestaurant.com/",
+          "image": "https://images.unsplash.com/photo-1544124499-58912cbddaad?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Byblos brings the sophisticated flavors of the Eastern Mediterranean to a chic, multi-story space in the Entertainment District. The menu features a beautiful blend of traditional techniques and modern presentation.",
+          "reviews": [
+            {
+              "user": "Chloe S.",
+              "comment": "The lamb flatbread and the fried eggplant are incredible. Such a beautiful space too.",
+              "rating": 5
+            },
+            {
+              "user": "Mark V.",
+              "comment": "Sophisticated flavors and great service. The lunch menu is excellent value for the quality.",
+              "rating": 4.5
+            }
+          ]
         }
       ],
-      "cuisines": ["Italian", "Japanese", "Chinese", "Indian", "Korean", "Mexican", "Thai", "Vietnamese"]
+      "cuisines": [
+        "Italian",
+        "Japanese",
+        "Chinese",
+        "Indian",
+        "Korean",
+        "Mexican",
+        "Thai",
+        "Vietnamese"
+      ]
     },
     {
       "id": "chicago",
@@ -59,14 +150,36 @@
       "description": "From deep-dish pizza to michelin-starred gems, explore Chicago's incredible lunch scene.",
       "longDescription": "Chicago is synonymous with iconic American food culture—from deep-dish pizza to Chicago-style hot dogs, Italian beef sandwiches, and world-class steakhouses. The city's culinary heritage runs deep, with a lunch culture that balances quick, casual bites with upscale dining experiences. Located along Lake Michigan, Chicago boasts neighborhoods like River North, West Loop, and Pilsen, each offering distinct culinary identities and innovative restaurants.",
       "lunchCulture": "Chicagoans take lunch seriously—it's often a social event, not just a refueling break. The city's lunch crowd appreciates bold flavors, generous portions, and authenticity. The West Loop has emerged as a hotspot for innovative cuisine and James Beard Award-winning chefs.",
-      "bestAreas": ["Downtown Loop", "West Loop", "River North", "Pilsen", "Wicker Park", "Hyde Park"],
+      "bestAreas": [
+        "Downtown Loop",
+        "West Loop",
+        "River North",
+        "Pilsen",
+        "Wicker Park",
+        "Hyde Park"
+      ],
       "recommendations": [
         {
           "name": "Au Cheval",
           "cuisine": "American",
           "area": "West Loop",
           "whyGo": "One of Chicago's most talked-about burgers with rich diner-style comfort food.",
-          "mustTry": "Single Cheeseburger"
+          "mustTry": "Single Cheeseburger",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Often cited as having the best burger in the country, Au Cheval is a high-end diner that masters the classics. Expect a long wait, but the reward is a burger that lives up to every bit of the hype.",
+          "reviews": [
+            {
+              "user": "Kevin P.",
+              "comment": "The burger is legendary for a reason. Don't skip the thick-cut bacon!",
+              "rating": 5
+            },
+            {
+              "user": "Jessica B.",
+              "comment": "Wait times are crazy, but that first bite makes you forget everything else.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Monteverde",
@@ -74,14 +187,44 @@
           "area": "West Loop",
           "whyGo": "Chef-driven pasta spot with excellent weekday lunch energy.",
           "mustTry": "Cacio Whey Pepe",
-          "website": "https://monteverderestaurant.com/"
+          "website": "https://monteverderestaurant.com/",
+          "image": "https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Chef Sarah Grueneberg combines her heritage with Italian traditions at this West Loop hotspot. The open kitchen and pasta-making station provide a captivating backdrop to an exceptional meal.",
+          "reviews": [
+            {
+              "user": "Laura G.",
+              "comment": "Watching the pasta being made by hand is so cool. The Cacio Whey Pepe is genius.",
+              "rating": 5
+            },
+            {
+              "user": "Brian W.",
+              "comment": "Fabulous atmosphere and even better food. One of my favorite spots in the West Loop.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "HaiSous Vietnamese Kitchen",
           "cuisine": "Vietnamese",
           "area": "Pilsen",
           "whyGo": "Refined Vietnamese cooking in one of Chicago's strongest food neighborhoods.",
-          "mustTry": "Banh Xeo"
+          "mustTry": "Banh Xeo",
+          "image": "https://images.unsplash.com/photo-1503764320738-cb35aed01ca0?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "Located in the vibrant Pilsen neighborhood, HaiSous offers a refined take on Vietnamese street food. The wood-grilled flavors and fresh herbs create a bright, aromatic dining experience that's truly unique.",
+          "reviews": [
+            {
+              "user": "Tina N.",
+              "comment": "Authentic flavors with a modern twist. The wings are a must-try!",
+              "rating": 5
+            },
+            {
+              "user": "Chris R.",
+              "comment": "Beautifully designed space and the food is consistently delicious. Great for a weekend lunch.",
+              "rating": 4
+            }
+          ]
         },
         {
           "name": "Girl & the Goat",
@@ -89,7 +232,22 @@
           "area": "West Loop",
           "whyGo": "James Beard Award-winning Stephanie Izard's flagship—bold vegetable-forward dishes and unforgettable shared plates.",
           "mustTry": "Wood Roasted Pig Face",
-          "website": "https://www.girlandthegoat.com/"
+          "website": "https://www.girlandthegoat.com/",
+          "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.9,
+          "description": "Stephanie Izard's flagship restaurant continues to be a cornerstone of Chicago's dining scene. The menu is bold and adventurous, focusing on global flavors and unexpected ingredient combinations.",
+          "reviews": [
+            {
+              "user": "Sophia L.",
+              "comment": "Every dish is an explosion of flavor. The roasted pig face is surprisingly amazing!",
+              "rating": 5
+            },
+            {
+              "user": "Daniel K.",
+              "comment": "Always a great experience. The menu changes frequently so there's always something new to try.",
+              "rating": 5
+            }
+          ]
         },
         {
           "name": "Lou Malnati's Pizzeria",
@@ -97,10 +255,33 @@
           "area": "River North",
           "whyGo": "Chicago's most iconic deep-dish pizza institution—a must for any first-time visitor or local craving comfort.",
           "mustTry": "Lou's Deep Dish with Sausage",
-          "website": "https://www.loumalnatis.com/"
+          "website": "https://www.loumalnatis.com/",
+          "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "A Chicago institution since 1971, Lou Malnati's is famous for its buttery, flaky 'Buttercrust' and secret recipe sausage. It's the quintessential Chicago deep-dish experience.",
+          "reviews": [
+            {
+              "user": "Tom S.",
+              "comment": "The gold standard for deep dish. That crust is unlike anything else.",
+              "rating": 5
+            },
+            {
+              "user": "Maria E.",
+              "comment": "Classic Chicago. It's heavy, so come hungry!",
+              "rating": 4.5
+            }
+          ]
         }
       ],
-      "cuisines": ["Italian", "American", "Mexican", "Thai", "Vietnamese", "Japanese", "Korean"]
+      "cuisines": [
+        "Italian",
+        "American",
+        "Mexican",
+        "Thai",
+        "Vietnamese",
+        "Japanese",
+        "Korean"
+      ]
     },
     {
       "id": "new-york",
@@ -110,14 +291,37 @@
       "description": "Experience world-class cuisine at your lunch break in the city that never sleeps.",
       "longDescription": "New York City sets culinary trends for the entire world. With restaurants from every cuisine imaginable, a deeply rooted food culture spanning centuries, and neighborhoods defined by their immigrant communities, NYC's lunch scene is unmatched. From Michelin-starred fine dining to iconic delis, food carts, and hidden gems in basements, the city never stops innovating. Manhattan, Brooklyn, and Queens each offer distinct culinary experiences.",
       "lunchCulture": "NYC's lunch culture is fast, efficient, yet passionate about quality. Workers grab quick bites from food carts or casual eateries but also appreciate sit-down experiences. The city's competitive restaurant scene means constant innovation and high standards. Lunch in NYC often reflects global trends before they hit other cities.",
-      "bestAreas": ["Midtown Manhattan", "Lower East Side", "Greenwich Village", "East Village", "Chinatown", "Brooklyn Heights", "Astoria Queens"],
+      "bestAreas": [
+        "Midtown Manhattan",
+        "Lower East Side",
+        "Greenwich Village",
+        "East Village",
+        "Chinatown",
+        "Brooklyn Heights",
+        "Astoria Queens"
+      ],
       "recommendations": [
         {
           "name": "Rubirosa",
           "cuisine": "Italian",
           "area": "Nolita",
           "whyGo": "Classic red-sauce warmth with one of downtown's best thin-crust pizzas.",
-          "mustTry": "Tie-Dye Pizza"
+          "mustTry": "Tie-Dye Pizza",
+          "image": "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "This family-run Nolita favorite is famous for its thin-crust pizza and old-school Italian-American charm. The Tie-Dye pizza, with its swirls of pesto and vodka sauce, is an Instagram icon that tastes even better than it looks.",
+          "reviews": [
+            {
+              "user": "James F.",
+              "comment": "The Tie-Dye pizza is legendary. Thin, crispy, and so flavorful.",
+              "rating": 5
+            },
+            {
+              "user": "Rachel G.",
+              "comment": "Cozy spot with great vibes. The pasta is also surprisingly good!",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Ippudo",
@@ -125,7 +329,22 @@
           "area": "East Village",
           "whyGo": "Dependable ramen destination ideal for quick but quality lunches.",
           "mustTry": "Shiromaru Classic",
-          "website": "https://ippudony.com/"
+          "website": "https://ippudony.com/",
+          "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "A global leader in ramen, Ippudo's East Village location offers a sleek, modern setting for soul-warming bowls of tonkotsu broth. Their signature pork buns are a non-negotiable addition to any order.",
+          "reviews": [
+            {
+              "user": "Kenji Y.",
+              "comment": "The best tonkotsu broth in the city. And those pork buns... I could eat ten of them.",
+              "rating": 5
+            },
+            {
+              "user": "Sarah W.",
+              "comment": "Always a wait, but always worth it. The Shiromaru is my go-to.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Xi'an Famous Foods",
@@ -133,7 +352,22 @@
           "area": "Midtown",
           "whyGo": "Fast casual regional Chinese flavors that stand out in the lunch crowd.",
           "mustTry": "Spicy Cumin Lamb Hand-Ripped Noodles",
-          "website": "https://www.xianfoods.com/"
+          "website": "https://www.xianfoods.com/",
+          "image": "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.5,
+          "description": "What started as a small stall in Flushing has grown into a city-wide phenomenon, bringing the spicy, tingly flavors of Xi'an to the masses. The hand-ripped noodles are chewy, irregular, and perfectly coated in chili oil.",
+          "reviews": [
+            {
+              "user": "Ben T.",
+              "comment": "The spicy cumin lamb noodles are addictive. Incredible flavor for the price.",
+              "rating": 5
+            },
+            {
+              "user": "Linda P.",
+              "comment": "Fast, cheap, and delicious. Just be careful with the spice levels!",
+              "rating": 4
+            }
+          ]
         },
         {
           "name": "Katz's Delicatessen",
@@ -141,7 +375,22 @@
           "area": "Lower East Side",
           "whyGo": "NYC's most legendary deli since 1888—towering pastrami sandwiches and a slice of living history.",
           "mustTry": "Pastrami on Rye",
-          "website": "https://katzsdelicatessen.com/"
+          "website": "https://katzsdelicatessen.com/",
+          "image": "https://images.unsplash.com/photo-1534422298391-e4f8c170db06?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.9,
+          "description": "Established in 1888, Katz's is a living piece of New York history. Walking in feels like stepping back in time, and the pastrami, hand-carved to order, is arguably the best in the world.",
+          "reviews": [
+            {
+              "user": "George B.",
+              "comment": "A true NY experience. The pastrami sandwich is huge and absolutely delicious.",
+              "rating": 5
+            },
+            {
+              "user": "Nicole R.",
+              "comment": "It's a tourist trap that's actually worth it. The ticket system is part of the fun!",
+              "rating": 5
+            }
+          ]
         },
         {
           "name": "Superiority Burger",
@@ -149,10 +398,34 @@
           "area": "East Village",
           "whyGo": "Cult vegetarian spot proving that meatless lunch can be utterly craveable and deeply satisfying.",
           "mustTry": "Superiority Burger",
-          "website": "https://superiorityburger.com/"
+          "website": "https://superiorityburger.com/",
+          "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "This tiny East Village spot has achieved cult status by making vegetarian food that even the most dedicated meat-eaters crave. The menu is creative, seasonal, and always surprising.",
+          "reviews": [
+            {
+              "user": "Alex D.",
+              "comment": "The best veggie burger I've ever had. Period.",
+              "rating": 5
+            },
+            {
+              "user": "Mia K.",
+              "comment": "Even the sides are incredible. Don't skip the burnt broccoli!",
+              "rating": 4.5
+            }
+          ]
         }
       ],
-      "cuisines": ["Italian", "French", "Japanese", "Chinese", "Indian", "Korean", "Thai", "Mexican"]
+      "cuisines": [
+        "Italian",
+        "French",
+        "Japanese",
+        "Chinese",
+        "Indian",
+        "Korean",
+        "Thai",
+        "Mexican"
+      ]
     },
     {
       "id": "los-angeles",
@@ -162,7 +435,15 @@
       "description": "Find your next favorite lunch spot in LA's vibrant and diverse food culture.",
       "longDescription": "Los Angeles is a sprawling metropolis with over 100 distinct neighborhoods, each with its own culinary identity. The city's food scene is defined by innovation, fusion, and the influence of Mexican, Asian, and Mediterranean cuisines. LA's lunch culture embraces casual, health-conscious dining alongside trendy hotspots. From food trucks in Downtown LA to beachside eateries in Santa Monica, and the Korean BBQ scene in Koreatown, LA offers endless lunch possibilities.",
       "lunchCulture": "LA's lunch is typically casual and often consumed at outdoor venues or food courts. The culture emphasizes fresh, healthy options, fusion cuisine, and Instagram-worthy presentations. Many LA professionals work flexible hours, so lunch times vary widely. The car-centric culture means many choose restaurants accessible by driving.",
-      "bestAreas": ["Downtown LA", "Koreatown", "Thai Town", "Little Armenia", "Silver Lake", "Koreatown", "West Hollywood"],
+      "bestAreas": [
+        "Downtown LA",
+        "Koreatown",
+        "Thai Town",
+        "Little Armenia",
+        "Silver Lake",
+        "Koreatown",
+        "West Hollywood"
+      ],
       "recommendations": [
         {
           "name": "Guelaguetza",
@@ -170,14 +451,44 @@
           "area": "Koreatown",
           "whyGo": "Landmark Oaxacan restaurant with deep flavor and lunch-friendly portions.",
           "mustTry": "Mole Negro",
-          "website": "https://www.ilovemole.com/"
+          "website": "https://www.ilovemole.com/",
+          "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "A temple of Oaxacan cuisine in the heart of Koreatown, Guelaguetza is famous for its complex moles and mezcal selection. The large, family-friendly space is filled with music and vibrant colors.",
+          "reviews": [
+            {
+              "user": "Carlos M.",
+              "comment": "The Mole Negro is a masterpiece. Deep, complex, and perfectly balanced.",
+              "rating": 5
+            },
+            {
+              "user": "Elena S.",
+              "comment": "Love the live music and the authentic atmosphere. The tlayudas are also great!",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Daikokuya",
           "cuisine": "Japanese",
           "area": "Little Tokyo",
           "whyGo": "Classic LA ramen institution for a fast and satisfying midday meal.",
-          "mustTry": "Daikoku Ramen"
+          "mustTry": "Daikoku Ramen",
+          "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Walking into Daikokuya in Little Tokyo feels like being transported to a mid-century Japanese ramen shop. The Daikoku Ramen, with its creamy tonkotsu broth and secret kuro-dare sauce, is a local legend.",
+          "reviews": [
+            {
+              "user": "Yuki T.",
+              "comment": "Classic LA ramen. The broth is so rich and the pork belly just melts in your mouth.",
+              "rating": 5
+            },
+            {
+              "user": "Mark G.",
+              "comment": "There's always a line, but it moves relatively fast. Get the combination set!",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Republique",
@@ -185,7 +496,22 @@
           "area": "Mid-City",
           "whyGo": "Creative menu and polished setting for work lunches and client meetings.",
           "mustTry": "Tuna Tartine",
-          "website": "https://republiquela.com/"
+          "website": "https://republiquela.com/",
+          "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Housed in a historic building built by Charlie Chaplin, Republique is a stunning space that serves a creative, modern menu. The bakery case is legendary, and the brunch/lunch offerings are some of the best in the city.",
+          "reviews": [
+            {
+              "user": "Olivia W.",
+              "comment": "The architecture is stunning and the food is even better. The pastries are out of this world.",
+              "rating": 5
+            },
+            {
+              "user": "John D.",
+              "comment": "One of the most beautiful restaurants in LA. Everything on the menu is expertly prepared.",
+              "rating": 5
+            }
+          ]
         },
         {
           "name": "Bestia",
@@ -193,7 +519,22 @@
           "area": "Arts District",
           "whyGo": "Outstanding house-made pastas and charcuterie in a stunning industrial warehouse setting.",
           "mustTry": "Rigatoni con la Pajata",
-          "website": "https://www.bestiala.com/"
+          "website": "https://www.bestiala.com/",
+          "image": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.9,
+          "description": "Located in the industrial Arts District, Bestia is a powerhouse of modern Italian cooking. The menu focuses on house-made pastas, charcuterie, and wood-fired pizzas, all served in a high-energy, industrial-chic setting.",
+          "reviews": [
+            {
+              "user": "Sophie B.",
+              "comment": "The bone marrow gnocchi is a religious experience. Hard to get a table but so worth it.",
+              "rating": 5
+            },
+            {
+              "user": "Michael C.",
+              "comment": "Incredible energy and even better food. The pasta is some of the best I've ever had.",
+              "rating": 5
+            }
+          ]
         },
         {
           "name": "Howlin' Ray's",
@@ -201,10 +542,33 @@
           "area": "Chinatown",
           "whyGo": "LA's best Nashville hot chicken—expect a line but it's worth every minute.",
           "mustTry": "Hot Chicken Sandwich",
-          "website": "https://www.howlinrays.com/"
+          "website": "https://www.howlinrays.com/",
+          "image": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Johnny Zone and his team brought Nashville hot chicken to LA and started a revolution. The chicken is incredibly juicy, the spice levels are serious, and the staff's energy is unmatched.",
+          "reviews": [
+            {
+              "user": "Derek H.",
+              "comment": "The best hot chicken I've ever had. The 'Howlin' level is no joke—be careful!",
+              "rating": 5
+            },
+            {
+              "user": "Vanessa L.",
+              "comment": "The wait is long, but the sandwich is worth every second. The staff is so friendly too.",
+              "rating": 5
+            }
+          ]
         }
       ],
-      "cuisines": ["Mexican", "Asian Fusion", "Japanese", "Thai", "Mediterranean", "Vietnamese", "Korean"]
+      "cuisines": [
+        "Mexican",
+        "Asian Fusion",
+        "Japanese",
+        "Thai",
+        "Mediterranean",
+        "Vietnamese",
+        "Korean"
+      ]
     },
     {
       "id": "miami",
@@ -214,7 +578,14 @@
       "description": "Latin-inspired and tropical flavors define Miami's exciting lunch options.",
       "longDescription": "Miami's food scene pulses with Latin American, Caribbean, and contemporary American influences. The city's geographic location and cultural heritage make it a gateway to Caribbean and Latin American cuisine. Miami is known for its fresh seafood, vibrant Cuban food culture, and an emerging fine dining scene. Neighborhoods like Wynwood, Design District, and Little Havana each offer distinct culinary experiences, while Miami Beach's oceanside venues provide tropical dining ambiance.",
       "lunchCulture": "Miami's lunch culture is relaxed, colorful, and influences by the tropical climate. Outdoor seating, tropical drinks, and fresh seafood dominate. The city's Cuban heritage means strong coffee (cafecito) culture and hearty, flavorful meals. Miami's international community brings diverse cuisines to the lunch table.",
-      "bestAreas": ["Downtown Miami", "Wynwood", "Design District", "Little Havana", "Coral Gables", "Coconut Grove"],
+      "bestAreas": [
+        "Downtown Miami",
+        "Wynwood",
+        "Design District",
+        "Little Havana",
+        "Coral Gables",
+        "Coconut Grove"
+      ],
       "recommendations": [
         {
           "name": "Versailles Restaurant",
@@ -222,14 +593,44 @@
           "area": "Little Havana",
           "whyGo": "An iconic Miami institution for classic Cuban lunch staples.",
           "mustTry": "Lechon Asado",
-          "website": "https://www.versaillescuba.com/"
+          "website": "https://www.versaillescuba.com/",
+          "image": "https://images.unsplash.com/photo-1589113103503-49667405b51b?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "The world's most famous Cuban restaurant, Versailles has been a gathering place for Miami's Cuban community since 1971. It's the best place to experience authentic Cuban cuisine and culture in a grand, mirrored setting.",
+          "reviews": [
+            {
+              "user": "Ricardo G.",
+              "comment": "The heart of Little Havana. Great coffee at the ventanita and the best Cubano in town.",
+              "rating": 5
+            },
+            {
+              "user": "Isabella M.",
+              "comment": "A must-visit for anyone in Miami. Huge portions and very reasonable prices.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Mignonette",
           "cuisine": "Seafood",
           "area": "Edgewater",
           "whyGo": "Strong oyster and seafood program with approachable lunch options.",
-          "mustTry": "Oyster Selection"
+          "mustTry": "Oyster Selection",
+          "image": "https://images.unsplash.com/photo-1510130387422-82cb3e1e009c?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "This upscale oyster bar and seafood spot is housed in a converted 1930s gas station. It manages to be both sophisticated and approachable, offering some of the freshest seafood in the city.",
+          "reviews": [
+            {
+              "user": "Sam T.",
+              "comment": "Great oyster selection and the lobster roll is fantastic. Perfect for a nice lunch.",
+              "rating": 5
+            },
+            {
+              "user": "Julie B.",
+              "comment": "Charming spot with excellent service. The seafood is incredibly fresh.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Mandolin Aegean Bistro",
@@ -237,7 +638,22 @@
           "area": "Design District",
           "whyGo": "Sunny courtyard and fresh Mediterranean plates ideal for long lunches.",
           "mustTry": "Grilled Octopus",
-          "website": "https://www.mandolinmiami.com/"
+          "website": "https://www.mandolinmiami.com/",
+          "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.9,
+          "description": "Mandolin transports you to the Greek islands with its blue-and-white courtyard and simple, honest Mediterranean fare. It's one of the most beautiful and beloved dining spots in Miami's Design District.",
+          "reviews": [
+            {
+              "user": "Elena P.",
+              "comment": "You'll feel like you're in Greece. The grilled octopus and the dips are amazing.",
+              "rating": 5
+            },
+            {
+              "user": "Marcus S.",
+              "comment": "The most beautiful patio in Miami. Perfect for a long, breezy lunch with friends.",
+              "rating": 5
+            }
+          ]
         },
         {
           "name": "KYU",
@@ -245,7 +661,22 @@
           "area": "Wynwood",
           "whyGo": "Wood-fired Asian BBQ in Wynwood's creative hub—inventive, shareable plates with serious depth.",
           "mustTry": "Crispy Cauliflower",
-          "website": "https://kyurestaurants.com/miami/"
+          "website": "https://kyurestaurants.com/miami/",
+          "image": "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "KYU is a wood-fired Asian grill that has taken Wynwood by storm. The menu is a celebration of diverse Asian flavors, with a focus on sustainable ingredients and bold, smoky preparations.",
+          "reviews": [
+            {
+              "user": "Adrian L.",
+              "comment": "The crispy cauliflower and the short rib are legendary. Such a cool vibe in Wynwood.",
+              "rating": 5
+            },
+            {
+              "user": "Sasha K.",
+              "comment": "Innovative flavors and great cocktails. One of my favorite spots in the city.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Zuma Miami",
@@ -253,10 +684,32 @@
           "area": "Downtown Miami",
           "whyGo": "Contemporary Japanese izakaya on the waterfront—sleek setting and exceptional quality for a special lunch.",
           "mustTry": "Spicy Beef Tenderloin",
-          "website": "https://zumarestaurant.com/locations/miami/"
+          "website": "https://zumarestaurant.com/locations/miami/",
+          "image": "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Located in the heart of Downtown, Zuma offers a sophisticated take on the traditional Japanese izakaya. The waterfront setting and exceptional quality make it a prime spot for a high-powered business lunch.",
+          "reviews": [
+            {
+              "user": "Paul R.",
+              "comment": "Top-notch sushi and a great atmosphere. The business lunch menu is an excellent deal.",
+              "rating": 5
+            },
+            {
+              "user": "Victoria C.",
+              "comment": "Elegant setting with impeccable service. The spicy beef tenderloin is a must.",
+              "rating": 4.5
+            }
+          ]
         }
       ],
-      "cuisines": ["Cuban", "Latin American", "Seafood", "Mediterranean", "Thai", "Japanese"]
+      "cuisines": [
+        "Cuban",
+        "Latin American",
+        "Seafood",
+        "Mediterranean",
+        "Thai",
+        "Japanese"
+      ]
     },
     {
       "id": "dubai",
@@ -266,21 +719,58 @@
       "description": "Explore a melting pot of global cuisines in the heart of the Middle East.",
       "longDescription": "Dubai is a global culinary crossroads where traditions meet modernity. With a population from 200+ nationalities, the city offers authentic Middle Eastern cuisine alongside world-class international dining. From traditional souks and local Emirati food to Michelin-starred restaurants in luxury hotels, Dubai's lunch scene is incredibly diverse. The city's rapid development has created a sophisticated restaurant culture where innovation and tradition coexist.",
       "lunchCulture": "Dubai's lunch culture is influenced by Middle Eastern traditions, business-focused professionals, and international business travelers. Many restaurants offer special lunch menus and set prices. The climate encourages indoor dining with air conditioning. Ramadan significantly impacts dining culture, with business lunches shifting to early evening.",
-      "bestAreas": ["Downtown Dubai", "Marina", "Dubai Mall", "Old Town", "DIFC", "Jumeirah"],
+      "bestAreas": [
+        "Downtown Dubai",
+        "Marina",
+        "Dubai Mall",
+        "Old Town",
+        "DIFC",
+        "Jumeirah"
+      ],
       "recommendations": [
         {
           "name": "Al Ustad Special Kebab",
           "cuisine": "Middle Eastern",
           "area": "Al Mankhool",
           "whyGo": "Beloved old-school kebab spot known for value and flavor.",
-          "mustTry": "Mixed Kebab Plate"
+          "mustTry": "Mixed Kebab Plate",
+          "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "This legendary spot in Old Dubai has been serving its famous yogurt-marinated kebabs for decades. The walls are covered in photos of famous guests, and the atmosphere is wonderfully unpretentious.",
+          "reviews": [
+            {
+              "user": "Ahmed Z.",
+              "comment": "The best kebabs in Dubai, hands down. A true local institution with so much history.",
+              "rating": 5
+            },
+            {
+              "user": "Sarah M.",
+              "comment": "Don't expect fancy decor, just incredible food and friendly service. The yogurt chicken is amazing.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Il Borro Tuscan Bistro",
           "cuisine": "Italian",
           "area": "Jumeirah Al Naseem",
           "whyGo": "Upscale Italian lunch in a polished waterfront setting.",
-          "mustTry": "Truffle Tagliolini"
+          "mustTry": "Truffle Tagliolini",
+          "image": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Located at the beautiful Jumeirah Al Naseem, Il Borro brings the authentic flavors of Tuscany to Dubai. The focus is on high-quality ingredients, many of which are sourced directly from the Il Borro estate in Italy.",
+          "reviews": [
+            {
+              "user": "Giovanni L.",
+              "comment": "Authentic Tuscan flavors in a beautiful setting. The truffle pasta is exceptional.",
+              "rating": 5
+            },
+            {
+              "user": "Emily J.",
+              "comment": "A perfect spot for a sophisticated lunch by the water. The service is impeccable.",
+              "rating": 5
+            }
+          ]
         },
         {
           "name": "Bait Maryam",
@@ -288,14 +778,44 @@
           "area": "JLT",
           "whyGo": "Warm Levantine home-style cooking with standout mezze.",
           "mustTry": "Musakhan",
-          "website": "https://www.bait-maryam.com/"
+          "website": "https://www.bait-maryam.com/",
+          "image": "https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.9,
+          "description": "Chef Salam Dakkak's Bait Maryam is a tribute to home-style Levantine cooking. The restaurant feels like a cozy home, and every dish is prepared with love and tradition.",
+          "reviews": [
+            {
+              "user": "Hala S.",
+              "comment": "The food here tastes like it was made by my grandmother. Everything is so fresh and flavorful.",
+              "rating": 5
+            },
+            {
+              "user": "Omar K.",
+              "comment": "A hidden gem in JLT. The Musakhan is the best I've ever had.",
+              "rating": 5
+            }
+          ]
         },
         {
           "name": "Bu Qtair",
           "cuisine": "Seafood",
           "area": "Jumeirah",
           "whyGo": "Legendary no-frills Dubai institution serving the freshest fried fish and prawns—a true local secret.",
-          "mustTry": "Fried Hammour with Masala Sauce"
+          "mustTry": "Fried Hammour with Masala Sauce",
+          "image": "https://images.unsplash.com/photo-1559739996-249123c767fa?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "What started as a humble shack on the beach has become a Dubai legend. There's no menu—you just choose your fish or prawns, which are then marinated in a secret masala and fried to perfection.",
+          "reviews": [
+            {
+              "user": "Jason D.",
+              "comment": "A unique experience. Simple, fresh, and incredibly tasty fried fish. Worth the wait!",
+              "rating": 4.5
+            },
+            {
+              "user": "Laila A.",
+              "comment": "The best prawns in the city. It's rustic and honest—I love it.",
+              "rating": 5
+            }
+          ]
         },
         {
           "name": "Logma",
@@ -303,10 +823,32 @@
           "area": "Wasl Square",
           "whyGo": "Contemporary Emirati café bringing traditional Khaleeji flavours into a warm, modern casual setting.",
           "mustTry": "Balaleet (Sweet Vermicelli)",
-          "website": "https://www.logma.ae/"
+          "website": "https://www.logma.ae/",
+          "image": "https://images.unsplash.com/photo-1544124499-58912cbddaad?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.5,
+          "description": "Logma offers a modern take on traditional Emirati and Khaleeji cuisine. It's a great place to try local flavors like Balaleet or Chebab in a contemporary, stylish setting.",
+          "reviews": [
+            {
+              "user": "Fatima R.",
+              "comment": "A great introduction to Emirati food. The fries with Logma seasoning are addictive!",
+              "rating": 4.5
+            },
+            {
+              "user": "Zaid H.",
+              "comment": "Beautifully designed restaurant with very tasty food. The chicken machboos is great.",
+              "rating": 4
+            }
+          ]
         }
       ],
-      "cuisines": ["Middle Eastern", "Indian", "Lebanese", "Italian", "Asian Fusion", "Seafood"]
+      "cuisines": [
+        "Middle Eastern",
+        "Indian",
+        "Lebanese",
+        "Italian",
+        "Asian Fusion",
+        "Seafood"
+      ]
     },
     {
       "id": "vancouver",
@@ -316,7 +858,14 @@
       "description": "Discover fresh, innovative lunch experiences in Canada's most dynamic city.",
       "longDescription": "Vancouver's food scene is defined by freshness, innovation, and multicultural influences. Surrounded by the Pacific Ocean, mountains, and with a large Asian population, Vancouver offers exceptional Asian cuisine and fresh seafood. The city's farm-to-table movement is strong, with many restaurants sourcing from local producers. Neighborhoods like Chinatown, Japantown, and the Granville Island Market showcase Vancouver's commitment to culinary excellence and food culture.",
       "lunchCulture": "Vancouver's lunch culture values fresh, healthy options and sustainability. The city is known for its coffee culture and food markets. The temperate climate encourages outdoor patios year-round. Vancouver's proximity to Asian markets influences dietary preferences toward fresh, lighter options.",
-      "bestAreas": ["Downtown Vancouver", "Chinatown", "Yaletown", "Kitsilano", "Granville Island", "Mount Pleasant"],
+      "bestAreas": [
+        "Downtown Vancouver",
+        "Chinatown",
+        "Yaletown",
+        "Kitsilano",
+        "Granville Island",
+        "Mount Pleasant"
+      ],
       "recommendations": [
         {
           "name": "Miku",
@@ -324,14 +873,44 @@
           "area": "Coal Harbour",
           "whyGo": "Well-known for polished service and signature flame-seared sushi.",
           "mustTry": "Aburi Salmon Oshi",
-          "website": "https://mikurestaurant.com/"
+          "website": "https://mikurestaurant.com/",
+          "image": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "Famous for its Aburi (flame-seared) sushi, Miku offers a sophisticated dining experience with stunning views of Vancouver's Coal Harbour. The service is as refined as the beautifully presented dishes.",
+          "reviews": [
+            {
+              "user": "Hiroshi S.",
+              "comment": "The salmon oshi sushi is the best in the city. The view from the patio is incredible.",
+              "rating": 5
+            },
+            {
+              "user": "Lisa V.",
+              "comment": "Perfect for a special lunch. The quality of the fish is outstanding.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Phnom Penh",
           "cuisine": "Vietnamese",
           "area": "Chinatown",
           "whyGo": "Cult-favorite Southeast Asian lunch with strong local following.",
-          "mustTry": "Chicken Wings and Butter Beef"
+          "mustTry": "Chicken Wings and Butter Beef",
+          "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "A legendary Chinatown institution, Phnom Penh is famous for its Cambodian and Vietnamese dishes. Expect a line, but the signature chicken wings and butter beef are more than worth the wait.",
+          "reviews": [
+            {
+              "user": "Kevin M.",
+              "comment": "The chicken wings are life-changing. I crave them once a week!",
+              "rating": 5
+            },
+            {
+              "user": "Sandra L.",
+              "comment": "Classic spot. Everything on the menu is great, but the butter beef is a must.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Nightingale",
@@ -339,7 +918,22 @@
           "area": "Downtown Vancouver",
           "whyGo": "Contemporary room with shareable plates and business lunch appeal.",
           "mustTry": "Fried Cauliflower",
-          "website": "https://www.nightingalerestaurant.ca/"
+          "website": "https://www.nightingalerestaurant.ca/",
+          "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.6,
+          "description": "Housed in a beautifully restored historic building, Nightingale serves modern Canadian cuisine with a focus on seasonal, local ingredients. The space is airy and social, perfect for a business lunch or a casual get-together.",
+          "reviews": [
+            {
+              "user": "Mark P.",
+              "comment": "Beautiful restaurant with great energy. The fried cauliflower is a standout.",
+              "rating": 5
+            },
+            {
+              "user": "Emma D.",
+              "comment": "Wide variety of small plates, all very well executed. Great for groups.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Bao Bei Chinese Brasserie",
@@ -347,7 +941,22 @@
           "area": "Chinatown",
           "whyGo": "Modern Taiwanese-Chinese small plates in a buzzy room—one of Vancouver's most celebrated lunch destinations.",
           "mustTry": "Mapo Tofu",
-          "website": "https://www.bao-bei.ca/"
+          "website": "https://www.bao-bei.ca/",
+          "image": "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.7,
+          "description": "Bao Bei combines traditional Chinese flavors with a modern, stylish brasserie atmosphere. The menu is designed for sharing, featuring small plates that highlight the best of Sichuan and Taiwanese cuisine.",
+          "reviews": [
+            {
+              "user": "Jason K.",
+              "comment": "Love the vibe here. The dumplings are fantastic and the cocktails are creative.",
+              "rating": 5
+            },
+            {
+              "user": "Michelle W.",
+              "comment": "A fresh take on Chinese food. The mapo tofu is spicy and delicious.",
+              "rating": 4.5
+            }
+          ]
         },
         {
           "name": "Ask for Luigi",
@@ -355,10 +964,33 @@
           "area": "Railtown",
           "whyGo": "Beloved neighbourhood Italian with silky handmade pasta and convivial lunch-hour energy.",
           "mustTry": "Crab Tagliolini",
-          "website": "https://www.askforluigi.com/"
+          "website": "https://www.askforluigi.com/",
+          "image": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800",
+          "rating": 4.8,
+          "description": "This cozy, intimate Italian spot in Railtown is famous for its fresh, handmade pasta. It's a small space with a big heart, offering a warm and welcoming atmosphere that makes every meal feel special.",
+          "reviews": [
+            {
+              "user": "Tony B.",
+              "comment": "The best pasta in Vancouver. It's a small place, so get there early!",
+              "rating": 5
+            },
+            {
+              "user": "Sarah C.",
+              "comment": "Charming atmosphere and incredible food. The crab tagliolini is a dream.",
+              "rating": 5
+            }
+          ]
         }
       ],
-      "cuisines": ["Japanese", "Chinese", "Vietnamese", "Thai", "Indian", "Korean", "Mediterranean"]
+      "cuisines": [
+        "Japanese",
+        "Chinese",
+        "Vietnamese",
+        "Thai",
+        "Indian",
+        "Korean",
+        "Mediterranean"
+      ]
     }
   ],
   "cuisines": [

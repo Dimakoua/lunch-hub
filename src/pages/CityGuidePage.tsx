@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, ChefHat, ArrowRight, Utensils, Clock, DollarSign, Star, Search, Globe, ExternalLink } from 'lucide-react';
+import { MapPin, ChefHat, ArrowRight, Utensils, Clock, DollarSign, Star, Search, Globe, ExternalLink, Quote } from 'lucide-react';
+import { CuratedRestaurant } from '../types/restaurant';
 
 interface CityData {
   id: string;
@@ -12,17 +13,8 @@ interface CityData {
   longDescription: string;
   lunchCulture: string;
   bestAreas: string[];
-  recommendations?: Recommendation[];
+  recommendations?: CuratedRestaurant[];
   cuisines: string[];
-}
-
-interface Recommendation {
-  name: string;
-  cuisine: string;
-  area: string;
-  whyGo: string;
-  mustTry: string;
-  website?: string;
 }
 
 interface CuisineData {
@@ -242,37 +234,70 @@ const CityGuidePage: React.FC = () => {
                     {(cuisineRecommendations.length > 0 ? cuisineRecommendations : cityRecommendations.slice(0, 5)).map((item) => (
                       <article
                         key={`${item.name}-${item.area}`}
-                        className="p-5 border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+                        className="overflow-hidden border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
                       >
-                        <div className="flex flex-col sm:flex-row gap-4">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-gray-900 dark:text-white text-base">{item.name}</h3>
-                            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">{item.cuisine} · {item.area}</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{item.whyGo}</p>
+                        {item.image && (
+                          <div className="h-48 w-full overflow-hidden">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            />
                           </div>
-                          <div className="sm:text-right shrink-0">
-                            <span className="inline-block bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-md">
-                              Try: {item.mustTry}
-                            </span>
+                        )}
+                        <div className="p-5">
+                          <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white text-base">{item.name}</h3>
+                                {item.rating && (
+                                  <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded text-emerald-700 dark:text-emerald-400 text-xs font-bold">
+                                    <Star className="w-3 h-3 fill-emerald-500" />
+                                    {item.rating}
+                                  </div>
+                                )}
+                              </div>
+                              <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">{item.cuisine} · {item.area}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{item.description || item.whyGo}</p>
+                              
+                              {item.reviews && item.reviews.length > 0 && (
+                                <div className="mt-4 space-y-3 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
+                                  {item.reviews.slice(0, 1).map((review, i) => (
+                                    <div key={i} className="relative">
+                                      <Quote className="w-4 h-4 text-emerald-200 dark:text-emerald-900 absolute -top-1 -left-1" />
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 italic pl-4">
+                                        "{review.comment}"
+                                      </p>
+                                      <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 pl-4 font-medium">— {review.user}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <div className="sm:text-right shrink-0">
+                              <span className="inline-block bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-md">
+                                Try: {item.mustTry}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center gap-4">
-                          {item.website && (
-                            <a
-                              href={item.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+                          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center gap-4">
+                            {item.website && (
+                              <a
+                                href={item.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+                              >
+                                Visit Website <ExternalLink className="w-3 h-3" />
+                              </a>
+                            )}
+                            <button
+                              onClick={() => handleSearch(currentCity.name, item.cuisine)}
+                              className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                             >
-                              Visit Website <ExternalLink className="w-3 h-3" />
-                            </a>
-                          )}
-                          <button
-                            onClick={() => handleSearch(currentCity.name, item.cuisine)}
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                          >
-                            Find similar <ArrowRight className="w-3 h-3" />
-                          </button>
+                              Find similar <ArrowRight className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
                       </article>
                     ))}
@@ -433,36 +458,55 @@ const CityGuidePage: React.FC = () => {
                 {cityRecommendations.slice(0, 5).map((item, index) => (
                   <article
                     key={`${item.name}-${item.area}`}
-                    className="relative flex flex-col border border-gray-200 dark:border-gray-800 rounded-2xl p-6 bg-white dark:bg-gray-900 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all"
+                    className="relative flex flex-col border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all group overflow-hidden"
                   >
-                    <span className="absolute top-4 right-4 text-xs font-bold text-gray-300 dark:text-gray-600">#{index + 1}</span>
-                    <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-2">{item.cuisine} · {item.area}</p>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">{item.name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-1">{item.whyGo}</p>
-                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Utensils className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          <span className="font-semibold text-gray-700 dark:text-gray-300">Must try: </span>{item.mustTry}
-                        </p>
+                    {item.image && (
+                      <div className="h-40 w-full overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
                       </div>
-                      <div className="flex items-center gap-4">
-                        {item.website && (
-                          <a
-                            href={item.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
-                          >
-                            Visit Website <ExternalLink className="w-3 h-3" />
-                          </a>
+                    )}
+                    <div className="p-6 flex-1 flex flex-col">
+                      <span className="absolute top-4 right-4 text-xs font-bold text-gray-300 dark:text-gray-600 group-hover:text-emerald-500/50">#{index + 1}</span>
+                      <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-2">{item.cuisine} · {item.area}</p>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">{item.name}</h3>
+                        {item.rating && (
+                          <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                            <Star className="w-3 h-3 fill-emerald-500" />
+                            {item.rating}
+                          </div>
                         )}
-                        <button
-                          onClick={() => handleSearch(currentCity.name, item.cuisine)}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                        >
-                          Find similar <ArrowRight className="w-3 h-3" />
-                        </button>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-1 line-clamp-3 mb-4">{item.description || item.whyGo}</p>
+                      <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Utensils className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">Must try: </span>{item.mustTry}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          {item.website && (
+                            <a
+                              href={item.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+                            >
+                              Visit Website <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => handleSearch(currentCity.name, item.cuisine)}
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                          >
+                            Find similar <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </article>
