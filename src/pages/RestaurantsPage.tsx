@@ -136,7 +136,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   setFilterByOpenNow,
   onRetry
 }) => {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.lunchhub.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://thelunchub.com';
   const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
   const [routeDuration, setRouteDuration] = useState<number | null>(null);
@@ -469,10 +469,101 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       <Helmet>
         <title>Lunch Hub - Restaurants Near You</title>
         <meta name="description" content={`Found ${restaurants.length} restaurants near you. Explore on map, browse list, or use our fun selection tools!`} />
+        <meta name="keywords" content="restaurants near me, lunch map, restaurant list, find food, nearby eateries" />
         <link rel="canonical" href={`${origin}${window.location.pathname}`} />
       </Helmet>
       
-      {/* Header removed for a cleaner, consistent mobile/PWA/web experience. The bottom island now manages view switching. */}
+      {/* Header - Hidden in PWA mode for a more native feel */}
+      {!isPWA ? (
+        <header className="bg-white dark:bg-dark-card shadow-sm border-b border-gray-200 dark:border-dark-border">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-r from-blue-600 to-emerald-600 dark:from-dark-primary dark:to-orange-500 rounded-xl p-2">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <Link to="/">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 dark:from-dark-primary dark:to-orange-500 bg-clip-text text-transparent cursor-pointer">
+                    Lunch Hub
+                  </div>
+                </Link>
+              </div>
+              
+              <div className="flex flex-col items-end md:flex-row md:items-center gap-2 md:gap-4">
+                <div className="text-right md:text-left">
+                  <p className="text-sm text-gray-600 dark:text-dark-text-secondary font-medium">
+                    Showing {restaurants.length} restaurants
+                    {hiddenByHistoryCount + hiddenByFiltersCount > 0 && (
+                      <span className="text-xs opacity-60 ml-1">
+                        ({hiddenByHistoryCount + hiddenByFiltersCount} hidden)
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
+                    within {radius}m radius
+                  </p>
+                </div>
+
+                <button
+                  onClick={onOpenTour}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                  title="Show onboarding tour"
+                >
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <span className="sr-only">Open onboarding tour</span>
+                </button>
+
+                <button
+                  data-tour-target="settings-button"
+                  onClick={() => setShowSettings(!showSettings)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                >
+                  <Settings className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary" />
+                </button>
+
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 theme-toggle-button"
+                >
+                  {theme === 'light' ? (
+                    <Moon className="w-5 h-5 text-gray-600" />
+                  ) : (
+                    <Sun className="w-5 h-5 text-yellow-400" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {viewMode !== 'map' && showSettings && settingsPanel}
+            {viewModeTabs}
+          </div>
+        </header>
+      ) : (
+        <div className="sticky top-0 z-[2000] bg-white dark:bg-dark-card border-b border-gray-100 dark:border-dark-border">
+          <div className="px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-blue-600 dark:text-orange-500" />
+              <span className="font-bold text-gray-900 dark:text-white">Lunch Hub</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button 
+                data-tour-target="settings-button"
+                onClick={() => setShowSettings(!showSettings)} 
+                className="p-1.5 text-gray-600 dark:text-gray-400"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+              <button onClick={toggleTheme} className="p-1.5 text-gray-600 dark:text-gray-400">
+                {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
+              </button>
+            </div>
+          </div>
+          <div className="px-4 pb-3">
+            {viewMode !== 'map' && showSettings && settingsPanel}
+            {viewModeTabs}
+          </div>
+        </div>
+      )}
 
       {/* Selected restaurant banner removed — sharing now available in the map popup. */}
 

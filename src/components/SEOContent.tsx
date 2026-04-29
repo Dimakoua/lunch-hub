@@ -3,9 +3,9 @@ import React from 'react';
 export const SEOContent: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-16 prose dark:prose-invert">
-      <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-dark-text mb-8">
+      <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-dark-text mb-8">
         Lunch Hub - The Ultimate Lunch Picker for Every Craving
-      </h1>
+      </h2>
 
       <div className="bg-white dark:bg-dark-card rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-dark-border mb-12">
         <h2 className="text-xl font-bold mb-4">Table of Contents</h2>

@@ -36,7 +36,7 @@ interface CityGuideData {
 const CityGuidePage: React.FC = () => {
   const { city, cuisine } = useParams<{ city?: string; cuisine?: string }>();
   const navigate = useNavigate();
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.lunchhub.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://thelunchub.com';
   const [data, setData] = useState<CityGuideData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -113,13 +113,13 @@ const CityGuidePage: React.FC = () => {
     }
   };
 
-  // Show city + cuisine details with unique content
   if (currentCity && currentCuisine) {
     return (
       <main className="min-h-screen bg-white dark:bg-gray-950">
         <Helmet>
           <title>{getTitle()}</title>
           <meta name="description" content={getDescription()} />
+          <meta name="keywords" content={`best ${currentCuisine.name.toLowerCase()} restaurants ${currentCity.name}, ${currentCity.name} lunch spots, ${currentCuisine.name} food ${currentCity.name}, lunch hub guide`} />
           <link rel="canonical" href={getCanonical()} />
           <meta property="og:title" content={getTitle()} />
           <meta property="og:description" content={getDescription()} />
@@ -378,13 +378,13 @@ const CityGuidePage: React.FC = () => {
     );
   }
 
-  // Show city details with cuisines
   if (currentCity) {
     return (
       <main className="min-h-screen bg-white dark:bg-gray-950">
         <Helmet>
           <title>{getTitle()}</title>
           <meta name="description" content={getDescription()} />
+          <meta name="keywords" content={`best restaurants in ${currentCity.name}, ${currentCity.name} lunch guide, where to eat in ${currentCity.name}, ${currentCity.name} food culture`} />
           <link rel="canonical" href={getCanonical()} />
           <meta property="og:title" content={getTitle()} />
           <meta property="og:description" content={getDescription()} />

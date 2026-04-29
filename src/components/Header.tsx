@@ -22,9 +22,9 @@ export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
           <MapPin className="w-6 h-6 text-white" />
         </div>
         <Link to="/">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 dark:from-dark-primary dark:to-orange-500 bg-clip-text text-transparent cursor-pointer">
+          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 dark:from-dark-primary dark:to-orange-500 bg-clip-text text-transparent cursor-pointer">
             {t('app_title')}
-          </h1>
+          </div>
         </Link>
       </div>
       <nav className="flex items-center space-x-4">

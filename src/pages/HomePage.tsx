@@ -57,9 +57,12 @@ const HomePage: React.FC<HomePageProps> = ({
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Helmet>
-        <title>Lunch Hub - Discover Restaurants Near You</title>
-        <meta name="description" content="Discover amazing restaurants near you. Search by location or let us find your next favorite meal!" />
+        <title>Lunch Hub - Discover Best Restaurants Near You for Lunch</title>
+        <meta name="description" content="Discover amazing lunch restaurants near you. Use our random picker, spin wheel, or map to find your next favorite meal in seconds!" />
+        <meta name="keywords" content="lunch picker, find restaurants near me, random restaurant generator, lunch hub, where to eat, restaurant map" />
         <link rel="canonical" href={`${origin}/`} />
+        <meta property="og:title" content="Lunch Hub - Discover Best Restaurants Near You" />
+        <meta property="og:description" content="Take the stress out of lunch. Discover nearby eateries with our interactive map and fun decision tools." />
         <meta property="og:url" content={`${origin}/`} />
         <script type="application/ld+json">
           {renderSchema(localBusinessSchema)}

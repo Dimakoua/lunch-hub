@@ -5,7 +5,7 @@ import { parseBlogPost, BlogPost } from '../services/blog';
 import { Breadcrumb } from '../components/Breadcrumb';
 
 const BlogPage: React.FC = () => {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.lunchhub.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://thelunchub.com';
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 9; // Use 9 for a 3-column grid
@@ -58,6 +58,7 @@ const BlogPage: React.FC = () => {
       <Helmet>
         <title>Lunch Hub Blog — Tips, Reviews & Meal Inspiration</title>
         <meta name="description" content="Get lunch ideas, restaurant picks, and meal planning tips from the Lunch Hub team. Explore our latest posts and discover new places to eat." />
+        <meta name="keywords" content="lunch blog, restaurant reviews, food tips, meal inspiration, lunch hub blog" />
         <link rel="canonical" href={`${origin}/blog`} />
         <meta property="og:title" content="Lunch Hub Blog — Tips, Reviews & Meal Inspiration" />
         <meta property="og:description" content="Get lunch ideas, restaurant picks, and meal planning tips from the Lunch Hub team. Explore our latest posts and discover new places to eat." />
