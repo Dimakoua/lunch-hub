@@ -125,7 +125,8 @@ function App() {
 
   const handleTourStepChange = (stepIndex: number) => {
     // Step 6 is "Track Your History" — inject demo entry so the tab isn't empty
-    if (stepIndex === 6) {
+    // Step 7 is "Restore a Restaurant" — also in history, keep demo visible
+    if (stepIndex === 6 || stepIndex === 7) {
       setVisitedRestaurants((prev) =>
         prev.some((r) => r.id === TOUR_DEMO_ID) ? prev : [...prev, TOUR_DEMO_RESTAURANT]
       );

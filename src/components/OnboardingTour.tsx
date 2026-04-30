@@ -82,6 +82,13 @@ const steps: TourStep[] = [
     selector: '[data-tour-target="history-tab"]',
   },
   {
+    title: 'Restore a Restaurant',
+    description:
+      'Tap "Restore to results" on any history card to bring that spot back into your Map and List views — great when you want to revisit a favourite.',
+    icon: <History className="w-12 h-12 text-blue-500" />,
+    selector: '[data-tour-target="restore-btn"]',
+  },
+  {
     title: "Can't Decide? Random or Wheel!",
     description:
       'Hit the button in Random view for a quick lucky pick, or switch to Wheel for a fun group spin. Let fate decide your lunch.',
@@ -230,7 +237,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
   return (
     <div className="fixed inset-0 z-[10001]">
       <div
-        className="absolute inset-0 bg-slate-900/80"
+        className="absolute inset-0 bg-slate-900/50"
         aria-hidden="true"
         onClick={handleSkip}
       />

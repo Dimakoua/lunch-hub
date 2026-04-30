@@ -101,6 +101,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ restaurant, userLat, userLon,
         <p className="text-xs text-gray-500 dark:text-dark-text-secondary line-clamp-2 pl-12">{restaurant.address}</p>
       )}
       <button
+        data-tour-target="restore-btn"
         onClick={() => onRemove(restaurant.id)}
         className="mt-1 inline-flex items-center justify-center w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-dark-primary bg-blue-50 dark:bg-dark-primary/10 hover:bg-blue-100 dark:hover:bg-dark-primary/20 rounded-lg transition-colors duration-200"
       >
@@ -239,9 +240,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         setViewMode('list');
         break;
       case 6: // "Track Your History" — history tab
+      case 7: // "Restore to Results" — still in history, highlight restore button
         setViewMode('history');
         break;
-      case 7: // "Random or Wheel!" — show the random picker in action
+      case 8: // "Random or Wheel!" — show the random picker in action
         setViewMode('random');
         break;
       default: // Final "All Set" step — end on list view
