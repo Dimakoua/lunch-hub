@@ -618,46 +618,27 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             {settingsPanel}
           </div>
         )}
-        {loading ? (
-          <LoadingSpinner message="Finding restaurants..." />
-        ) : error ? (
-          <div className="bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 rounded-xl p-8 text-center flex flex-col items-center gap-4">
-            <p className="text-red-700 dark:text-red-200 text-lg font-medium">{error}</p>
-            <button
-              onClick={onRetry}
-              disabled={loading}
-              className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-bold shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:scale-100 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <RotateCcw className="w-5 h-5" />
-              )}
-              {loading ? 'Retrying...' : 'Retry Search'}
-            </button>
-          </div>
-        ) : (
-          <>
-            {viewMode === 'map' && (
-              <div
-                data-tour-target="map-container"
-                className="fixed inset-0 z-40"
-              >
-                {/* Full-screen map */}
-                <div className="absolute inset-0">
-                  <MapView 
-                    center={[location.lat, location.lon]}
-                    restaurants={restaurants}
-                    selectedRestaurant={selectedRestaurant}
-                    onRestaurantSelected={onRestaurantSelected}
-                    onMarkVisited={onMarkRestaurantVisited}
-                    onCenterDrag={onCenterDrag}
-                    routeGeometry={routeGeometry}
-                    routeDistance={routeDistance}
-                    routeDuration={routeDuration}
-                    radius={radius}
-                    breadcrumbItems={breadcrumbItems}
-                  />
+        {/* Map view renders unconditionally so it stays visible during radius/unit reloads */}
+        {viewMode === 'map' && (
+          <div
+            data-tour-target="map-container"
+            className="fixed inset-0 z-40"
+          >
+            {/* Full-screen map */}
+            <div className="absolute inset-0">
+              <MapView 
+                center={[location.lat, location.lon]}
+                restaurants={restaurants}
+                selectedRestaurant={selectedRestaurant}
+                onRestaurantSelected={onRestaurantSelected}
+                onMarkVisited={onMarkRestaurantVisited}
+                onCenterDrag={onCenterDrag}
+                routeGeometry={routeGeometry}
+                routeDistance={routeDistance}
+                routeDuration={routeDuration}
+                radius={radius}
+                breadcrumbItems={breadcrumbItems}
+              />
                 </div>
 
                 {/* Left Floating Sidebar HUD */}
@@ -773,11 +754,39 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   )}
                 </div>
 
+                {/* Loading overlay pill — shown on top of map during radius/unit refresh */}
+                {loading && (
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[10000] flex items-center gap-2 bg-white/95 dark:bg-dark-card/95 backdrop-blur-sm text-sm font-medium text-gray-700 dark:text-dark-text px-4 py-2 rounded-full shadow-lg border border-gray-200/70 dark:border-dark-border/70">
+                    <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-dark-primary" />
+                    Updating results…
+                  </div>
+                )}
+
               </div>
             )}
 
-            {viewMode === 'list' && (
+            {viewMode !== 'map' && (loading ? (
+              <LoadingSpinner message="Finding restaurants..." />
+            ) : error ? (
+              <div className="bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 rounded-xl p-8 text-center flex flex-col items-center gap-4">
+                <p className="text-red-700 dark:text-red-200 text-lg font-medium">{error}</p>
+                <button
+                  onClick={onRetry}
+                  disabled={loading}
+                  className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-bold shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:scale-100 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <RotateCcw className="w-5 h-5" />
+                  )}
+                  {loading ? 'Retrying...' : 'Retry Search'}
+                </button>
+              </div>
+            ) : (
               <>
+              {viewMode === 'list' && (
+                <>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">
                     Nearby restaurants
@@ -892,8 +901,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 )}
               </>
             )}
-          </>
-        )}
+          </> ))}
       </main>
 
       {viewModeTabs}
