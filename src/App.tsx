@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, lazy, Suspense, useMemo, useCallback, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
 import { InstallPWA } from './components/InstallPWA';
@@ -30,6 +30,7 @@ function App() {
   const navigate = useNavigate();
   const pageLocation = useLocation();
   const lastProcessedLocationRef = useRef<string | null>(null);
+  const skipNextAutoSearchRef = useRef(false);
   const ONBOARDING_STORAGE_KEY = 'lunch-hub-tour-seen';
   const [showTour, setShowTour] = useState(false);
   const [location, setLocation] = useState<Location | null>(null);
@@ -162,54 +163,6 @@ function App() {
     trackPageView(path, title);
   }, [pageLocation.pathname]);
 
-  // Handle URL query parameters (e.g., /restaurants?location=Dubai&cuisine=Italian)
-  useEffect(() => {
-    if (pageLocation.pathname !== '/restaurants') {
-      return;
-    }
-    
-    const searchParams = new URLSearchParams(pageLocation.search);
-    const locationParam = searchParams.get('location');
-    const cuisineParam = searchParams.get('cuisine');
-
-    // If location param hasn't changed or doesn't exist, do nothing
-    if (!locationParam || locationParam === lastProcessedLocationRef.current) {
-      return;
-    }
-
-    // Location parameter changed, reset state and search
-    lastProcessedLocationRef.current = locationParam;
-    setLocation(null);
-    setRestaurants([]);
-    setError(null);
-    setLoading(true);
-
-    // Geocode the location from URL params
-    (async () => {
-      try {
-        const result = await geocodeAddress(locationParam);
-        if (result) {
-          setLocation(result);
-          // The auto-search effect will trigger once location is set
-          
-          // If cuisine is specified, add it as a filter rule
-          if (cuisineParam) {
-            setTimeout(() => {
-              addFilterRule('cuisine', cuisineParam);
-            }, 500);
-          }
-        } else {
-          setError('Location not found. Please try a different address.');
-          setLoading(false);
-        }
-      } catch (err) {
-        setError('Error finding location. Please try again.');
-        console.error('Geocoding error:', err);
-        setLoading(false);
-      }
-    })();
-  }, [pageLocation.pathname, pageLocation.search]);
-
   const handleCookieAccept = () => {
     setShowCookieConsent(false);
     grantConsent();
@@ -293,6 +246,51 @@ function App() {
     }
   }, [radius, applyAvailabilityFilters, filterRules.length]);
 
+  useEffect(() => {
+    if (pageLocation.pathname !== '/restaurants') {
+      return;
+    }
+    
+    const searchParams = new URLSearchParams(pageLocation.search);
+    const locationParam = searchParams.get('location');
+    const cuisineParam = searchParams.get('cuisine');
+
+    if (!locationParam || locationParam === lastProcessedLocationRef.current) {
+      return;
+    }
+
+    lastProcessedLocationRef.current = locationParam;
+    setLocation(null);
+    setRestaurants([]);
+    setError(null);
+    setLoading(true);
+
+    (async () => {
+      try {
+        const result = await geocodeAddress(locationParam);
+        if (result) {
+          skipNextAutoSearchRef.current = true;
+          setLocation(result);
+          const availableCount = await searchRestaurants(result.lat, result.lon);
+          trackRestaurantSearch(locationParam, availableCount);
+
+          if (cuisineParam) {
+            setTimeout(() => {
+              addFilterRule('cuisine', cuisineParam);
+            }, 500);
+          }
+        } else {
+          setError('Location not found. Please try a different address.');
+        }
+      } catch (err) {
+        setError('Error finding location. Please try again.');
+        console.error('Geocoding error:', err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [pageLocation.pathname, pageLocation.search, searchRestaurants]);
+
   const handleSearch = async (query: string, searchRadius?: number, openNow?: boolean) => {
     setLoading(true);
     setError(null);
@@ -302,6 +300,7 @@ function App() {
     try {
       const result = await geocodeAddress(query);
       if (result) {
+        skipNextAutoSearchRef.current = true;
         setLocation(result);
         const availableCount = await searchRestaurants(
           result.lat, 
@@ -330,6 +329,7 @@ function App() {
     try {
       const position = await getCurrentLocation();
       const newLocation = { lat: position.lat, lon: position.lon };
+      skipNextAutoSearchRef.current = true;
       setLocation(newLocation);
       const availableCount = await searchRestaurants(
         position.lat,
@@ -362,9 +362,30 @@ function App() {
 
   // Auto-search when radius changes
   useEffect(() => {
-    if (location) {
-      searchRestaurants(location.lat, location.lon);
+    if (!location) {
+      return;
     }
+    if (skipNextAutoSearchRef.current) {
+      skipNextAutoSearchRef.current = false;
+      return;
+    }
+
+    let isCancelled = false;
+
+    (async () => {
+      try {
+        setLoading(true);
+        await searchRestaurants(location.lat, location.lon);
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [radius, location, searchRestaurants]);
 
   const availableRestaurants = useMemo(
