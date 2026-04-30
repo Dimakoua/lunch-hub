@@ -7,5 +7,9 @@
   "home": "Home",
   "restaurants": "Restaurants",
   "loading": "Loading...",
-  "app_title": "Lunch Hub"
+  "app_title": "Lunch Hub",
+  "search_radius": "Search radius",
+  "walk_time": "walk",
+  "visible": "visible",
+  "hidden": "hidden"
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Loader2, X, SlidersHorizontal } from 'lucide-react';
 import { searchLocationSuggestions } from '../services/geocoding';
+import { getRadiusOptionsInMeters } from '../utils/distanceFormatter';
 
 interface SearchBarProps {
   onSearch: (query: string, radius: number, openNow: boolean) => void;
@@ -201,10 +202,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 onChange={(e) => setRadius(Number(e.target.value))}
                 className="px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg text-sm bg-white dark:bg-dark-background dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary"
               >
-                <option value={500}>500m</option>
-                <option value={1000}>1km</option>
-                <option value={2000}>2km</option>
-                <option value={5000}>5km</option>
+                {getRadiusOptionsInMeters().map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
               </select>
             </div>
             

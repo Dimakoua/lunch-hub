@@ -7,5 +7,9 @@
   "home": "Inicio",
   "restaurants": "Restaurantes",
   "loading": "Cargando...",
-  "app_title": "Lunch Hub"
+  "app_title": "Lunch Hub",
+  "search_radius": "Radio de búsqueda",
+  "walk_time": "caminar",
+  "visible": "visible",
+  "hidden": "oculto"
 }

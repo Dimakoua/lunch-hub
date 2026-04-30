@@ -4,6 +4,7 @@ import L from 'leaflet';
 import { Restaurant } from '../types/restaurant';
 import { shareRestaurant } from '../utils/share';
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
+import { formatDistance } from '../utils/distanceFormatter';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers
@@ -131,11 +132,8 @@ export const MapView: React.FC<MapViewProps> = ({
     return `${minutes} ${minutes === 1 ? 'min' : 'mins'}`;
   };
 
-  const formatDistance = (meters: number | null | undefined) => {
-    if (meters === null || meters === undefined) return 'N/A';
-    if (meters < 1000) return `${Math.round(meters)} m`;
-    return `${(meters / 1000).toFixed(1)} km`;
-  };
+  // Note: formatDistance is imported from distanceFormatter utility
+  // which provides locale-aware distance formatting (km/m or miles/feet)
 
   return (
     <div className="relative w-full h-full">

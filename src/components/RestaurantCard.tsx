@@ -141,6 +141,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border space-y-2">
           {onMarkVisited && (
             <button
+              data-tour-target="mark-as-visited-btn"
               onClick={() => onMarkVisited(restaurant)}
               className="w-full bg-white dark:bg-dark-card text-blue-600 dark:text-dark-primary border border-blue-100 dark:border-dark-border hover:bg-blue-50 dark:hover:bg-gray-700 py-2.5 px-4 rounded-lg font-medium transition-all duration-200"
             >

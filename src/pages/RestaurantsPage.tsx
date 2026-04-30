@@ -14,6 +14,7 @@ import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../service
 import { fetchRoute } from '../services/routing'; // Import fetchRoute
 import { OnboardingTour } from '../components/OnboardingTour';
 import { shareRestaurant } from '../utils/share'; // Added shareRestaurant
+import { formatDistance, formatWalkingTime, getRadiusOptionsInMeters } from '../utils/distanceFormatter';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
@@ -64,8 +65,8 @@ function calcDist(lat1: number, lon1: number, lat2: number, lon2: number): numbe
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function fmtDist(m: number) { return m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`; }
-function fmtWalk(m: number) { const mins = Math.max(1, Math.round(m / 80)); return `${mins} min`; }
+const fmtDist = (m: number) => formatDistance(m);
+const fmtWalk = (m: number) => formatWalkingTime(m);
 
 interface HistoryCardProps {
   restaurant: Restaurant;
@@ -265,19 +266,18 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             }}
             className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary bg-white dark:bg-dark-card dark:text-dark-text"
           >
-            <option value={500}>500m</option>
-            <option value={1000}>1km</option>
-            <option value={2000}>2km</option>
-            <option value={5000}>5km</option>
+            {getRadiusOptionsInMeters().map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
           </select>
         </div>
       </div>
 
-      <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
-        <div className="flex items-center justify-between">
-          <label htmlFor="open-now-filter" className="flex items-center cursor-pointer">
-            <span className="text-sm font-medium text-gray-700 dark:text-dark-text mr-3">
-              Open now only
+          <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
+            <div data-tour-target="open-now-toggle" className="flex items-center justify-between">
+              <label htmlFor="open-now-filter" className="flex items-center cursor-pointer">
+                <span className="text-sm font-medium text-gray-700 dark:text-dark-text mr-3">
+                  Open now only
             </span>
             <div className="relative">
               <input
@@ -423,7 +423,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
   const viewModeTabs = (
     <div className="fixed left-3 right-3 bottom-20 z-[9999] flex justify-center lg:left-1/2 lg:right-auto lg:-translate-x-1/2 lg:transform lg:bottom-8">
-      <div className="max-w-[calc(100vw-1.5rem)] lg:w-auto lg:max-w-xl flex items-center justify-center gap-0.5 bg-white/95 dark:bg-dark-card/95 backdrop-blur-md rounded-full shadow-xl px-1.5 py-1 border border-gray-200/70 dark:border-dark-border/70 overflow-hidden">
+      <div data-tour-target="view-mode-tabs" className="max-w-[calc(100vw-1.5rem)] lg:w-auto lg:max-w-xl flex items-center justify-center gap-0.5 bg-white/95 dark:bg-dark-card/95 backdrop-blur-md rounded-full shadow-xl px-1.5 py-1 border border-gray-200/70 dark:border-dark-border/70 overflow-hidden">
       <button
         onClick={() => setViewMode('map')}
         className={`${tabBase} ${
@@ -637,7 +637,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
                     {/* Settings / Filters Panel - Expands inside sidebar */}
                     {settingsPanel && (
-                      <div className={`p-4 overflow-y-auto ${isPWA ? 'max-h-[calc(100dvh-18rem)]' : 'max-h-[calc(100dvh-12rem)]'}`}>
+                      <div data-tour-target="filters-panel-map" className={`p-4 overflow-y-auto ${isPWA ? 'max-h-[calc(100dvh-18rem)]' : 'max-h-[calc(100dvh-12rem)]'}`}>
                         {settingsPanel}
                       </div>
                     )}

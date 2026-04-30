@@ -1,6 +1,17 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { MapPin, List, Shuffle, History, Sparkles, Settings } from 'lucide-react';
 
+const pulseKeyframes = `
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7), 0 0 30px rgba(15, 23, 42, 0.55); }
+    50% { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0), 0 0 40px rgba(15, 23, 42, 0.75); }
+  }
+  @keyframes highlight-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+`;
+
 interface TourStep {
   title: string;
   description: string;
@@ -23,16 +34,16 @@ const steps: TourStep[] = [
     selector: '[data-tour-target="map-container"]'
   },
   {
-    title: 'Filters & Radius',
+    title: 'Filters & Radius in Map View',
     description:
-      'Open Settings to tweak the search radius and add filters so you only see restaurants that fit your preferences.',
+      'When on map view, open the floating panel to tweak the search radius and add filters so you only see restaurants that fit your preferences. Hide restaurants by cuisine, rating, or other criteria.',
     icon: <Settings className="w-12 h-12 text-emerald-600" />,
-    selector: '[data-tour-target="settings-button"]'
+    selector: '[data-tour-target="filters-panel-map"]'
   },
   {
     title: 'Map, List, or Fun Picks',
     description:
-      'Switch between Map, List, Random, and Wheel to explore restaurants in the way that suits your team.',
+      'Switch between Map, List, Random, and Wheel to explore restaurants in the way that suits your team. Map shows all options at once, List for details, Random for a quick pick, and Wheel for group decisions.',
     icon: (
       <div className="flex items-center gap-2">
         <List className="w-10 h-10 text-purple-600" />
@@ -42,11 +53,37 @@ const steps: TourStep[] = [
     selector: '[data-tour-target="view-mode-tabs"]'
   },
   {
-    title: 'Filters & History',
+    title: 'Track Visited Restaurants',
     description:
-      'Create custom filters to exclude places you have tried. Review your visited history anytime to bring favorites back.',
+      'Keep track of places you\'ve visited. Mark restaurants as visited, and they\'ll be hidden from future searches. This helps you discover new options instead of seeing the same places again.',
     icon: <History className="w-12 h-12 text-orange-500" />,
     selector: '[data-tour-target="history-tab"]'
+  },
+  {
+    title: 'Tip: Mark as Visited',
+    description:
+      'Click the "Mark as visited" button on any restaurant card to hide it from future searches. You can view all visited places in the History tab and remove them if you want to see them again.',
+    icon: <Sparkles className="w-12 h-12 text-amber-500" />,
+    selector: '[data-tour-target="mark-as-visited-btn"]'
+  },
+  {
+    title: 'Create Custom Filters',
+    description:
+      'Don\'t like certain cuisines or need specific features? Open the Settings and create filters to automatically hide restaurants that don\'t match your preferences. Combine multiple filters for more precise results.',
+    icon: <Settings className="w-12 h-12 text-indigo-600" />
+  },
+  {
+    title: 'Open Now Filter',
+    description:
+      'Use the "Open now only" toggle to see only restaurants that are currently accepting customers. Perfect for finding lunch right away without checking hours.',
+    icon: <MapPin className="w-12 h-12 text-red-600" />,
+    selector: '[data-tour-target="open-now-toggle"]'
+  },
+  {
+    title: 'You\'re All Set!',
+    description:
+      'You now know how to search for restaurants, filter results, track visited places, and use different views. Happy lunch hunting! 🍽️',
+    icon: <Sparkles className="w-12 h-12 text-amber-500" />
   }
 ];
 
@@ -54,6 +91,23 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
   const [stepIndex, setStepIndex] = useState(0);
   const [highlightRect, setHighlightRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
   const wasOpenRef = useRef(false);
+  const styleRef = useRef<HTMLStyleElement | null>(null);
+
+  // Inject pulse animation styles
+  useEffect(() => {
+    if (isOpen && !styleRef.current) {
+      const style = document.createElement('style');
+      style.textContent = pulseKeyframes;
+      document.head.appendChild(style);
+      styleRef.current = style;
+    }
+    return () => {
+      if (styleRef.current && !isOpen) {
+        document.head.removeChild(styleRef.current);
+        styleRef.current = null;
+      }
+    };
+  }, [isOpen]);
 
   // Reset step only when transition from closed to open
   useEffect(() => {
@@ -139,7 +193,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
   }
 
   return (
-    <div className="fixed inset-0 z-[1100] flex items-center justify-center px-4 py-6">
+    <div className="fixed inset-0 z-[10001] flex items-center justify-center px-4 py-6">
       <div
         className="absolute inset-0 bg-slate-900/80"
         aria-hidden="true"
@@ -147,14 +201,18 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
       />
       {highlightRect && (
         <div
-          className="pointer-events-none absolute rounded-2xl border-2 border-white/70 shadow-[0_0_30px_rgba(15,23,42,0.55)] bg-white/10 backdrop-saturate-150 backdrop-brightness-125 transition-all duration-300"
+          className="pointer-events-none absolute rounded-2xl border-2 border-white transition-all duration-300"
           style={{
-            top: highlightRect.top - 8,
-            left: highlightRect.left - 8,
-            width: highlightRect.width + 16,
-            height: highlightRect.height + 16,
-            zIndex: 1101,
-            boxShadow: '0 0 30px rgba(15, 23, 42, 0.55)'
+            top: highlightRect.top - 12,
+            left: highlightRect.left - 12,
+            width: highlightRect.width + 24,
+            height: highlightRect.height + 24,
+            zIndex: 10002,
+            borderColor: 'rgba(255, 255, 255, 0.9)',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'saturate(1.8) brightness(1.2)',
+            animation: 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            boxShadow: '0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1)'
           }}
         />
       )}
