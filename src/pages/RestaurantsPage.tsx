@@ -52,6 +52,7 @@ interface RestaurantsPageProps {
   onOpenTour: () => void;
   tourOpen: boolean;
   onTourClose: () => void;
+  onTourStepChange?: (stepIndex: number) => void;
   onRetry: () => void;
 }
 
@@ -139,6 +140,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   onClearFilterRules,
   tourOpen,
   onTourClose,
+  onTourStepChange,
   filterByOpenNow,
   setFilterByOpenNow,
   onRetry
@@ -222,14 +224,32 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   };
 
   const handleTourStepChange = useCallback((stepIndex: number) => {
-    // Step 0 is map-container, so force map view
-    if (stepIndex === 0) {
-      setViewMode('map');
-    } else {
-      // Other steps are header-based, better to be in list view to ensure header is visible and stable
-      setViewMode('list');
+    // Drive the app into the right view for each tour step so the user
+    // sees the element being described in its natural context.
+    switch (stepIndex) {
+      case 0: // "Explore the Map" — show the live map with pins
+      case 1: // "Drag the Pin" — still on map, center pin is the hero
+      case 2: // "Radius & Filters" — open sidebar so panel is visible
+        setViewMode('map');
+        setShowSettings(true);  // ensure panel is expanded for highlighting
+        break;
+      case 3: // "Switch Views" — switch to list so the tabs aren't obscured by full-screen map
+      case 4: // "Browse the List" — list view with restaurant cards
+      case 5: // "Mark as Visited" — mark-as-visited button lives on list cards
+        setViewMode('list');
+        break;
+      case 6: // "Track Your History" — history tab
+        setViewMode('history');
+        break;
+      case 7: // "Random or Wheel!" — show the random picker in action
+        setViewMode('random');
+        break;
+      default: // Final "All Set" step — end on list view
+        setViewMode('list');
+        break;
     }
-  }, [setViewMode]);
+    onTourStepChange?.(stepIndex);
+  }, [setViewMode, setShowSettings, onTourStepChange]);
 
   const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
 
@@ -436,6 +456,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         <span className="hidden sm:inline">Map</span>
       </button>
       <button
+        data-tour-target="list-tab"
         onClick={() => setViewMode('list')}
         className={`${tabBase} ${
           viewMode === 'list'
@@ -446,6 +467,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         <List className="w-4 h-4" />
         <span className="hidden sm:inline">List</span>
       </button>
+      <span data-tour-target="fun-picks-tabs" className="contents">
       <button
         onClick={() => setViewMode('random')}
         className={`${tabBase} ${
@@ -468,6 +490,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         <RotateCcw className="w-4 h-4" />
         <span className="hidden sm:inline">Wheel</span>
       </button>
+      </span>
       <button
         onClick={() => setViewMode('history')}
         className={`${tabBase} ${
@@ -564,7 +587,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 </div>
 
                 {/* Left Floating Sidebar HUD */}
-                <div className={`absolute inset-x-3 sm:inset-x-4 z-[9999] max-w-sm sm:w-72 md:w-80 flex flex-col gap-3 top-3 sm:top-4`}>
+                <div data-tour-target="map-sidebar" className={`absolute inset-x-3 sm:inset-x-4 z-[9999] max-w-sm sm:w-72 md:w-80 flex flex-col gap-3 top-3 sm:top-4`}>
                   <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/60 dark:border-dark-border/60 flex flex-col overflow-hidden">
                     {/* HUD Header */}
                     <div className="px-2 py-2 sm:px-4 sm:py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">

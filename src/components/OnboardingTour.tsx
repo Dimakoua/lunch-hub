@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { MapPin, List, Shuffle, History, Sparkles, Settings } from 'lucide-react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { MapPin, List, Shuffle, History, Sparkles, Settings, RotateCcw } from 'lucide-react';
 
 const pulseKeyframes = `
   @keyframes pulse-glow {
@@ -27,64 +27,78 @@ interface OnboardingTourProps {
 
 const steps: TourStep[] = [
   {
-    title: 'Search and Center',
+    title: 'Welcome to Lunch Hub! 👋',
     description:
-      'Zoom the map to find the area you care about, then use the radius selector to keep suggestions nearby.',
+      'All nearby restaurants appear as pins on the map. Tap any pin to open its details — name, cuisine, hours, and a walking-directions button.',
     icon: <MapPin className="w-12 h-12 text-blue-600" />,
-    selector: '[data-tour-target="map-container"]'
   },
   {
-    title: 'Filters & Radius in Map View',
+    title: 'Drag the Blue Pin',
     description:
-      'When on map view, open the floating panel to tweak the search radius and add filters so you only see restaurants that fit your preferences. Hide restaurants by cuisine, rating, or other criteria.',
+      'See the blue pin in the centre of the map? That\'s your search anchor. Drag it anywhere to update your location and instantly refresh nearby results.',
+    icon: <MapPin className="w-12 h-12 text-indigo-500" />,
+    selector: '.tour-user-pin',
+  },
+  {
+    title: 'Radius & Filters',
+    description:
+      'This panel controls how far out to search and lets you filter by cuisine, name, or open hours. Tap the ⚙ gear icon to expand or collapse it any time.',
     icon: <Settings className="w-12 h-12 text-emerald-600" />,
-    selector: '[data-tour-target="filters-panel-map"]'
+    selector: '[data-tour-target="map-sidebar"]',
   },
   {
-    title: 'Map, List, or Fun Picks',
+    title: 'Switch Views',
     description:
-      'Switch between Map, List, Random, and Wheel to explore restaurants in the way that suits your team. Map shows all options at once, List for details, Random for a quick pick, and Wheel for group decisions.',
+      'Use the tabs at the bottom to jump between Map, List, Random, and Spin Wheel. Each view gives you a completely different way to explore.',
     icon: (
       <div className="flex items-center gap-2">
-        <List className="w-10 h-10 text-purple-600" />
-        <Shuffle className="w-10 h-10 text-amber-500" />
+        <MapPin className="w-8 h-8 text-blue-600" />
+        <List className="w-8 h-8 text-purple-600" />
+        <Shuffle className="w-8 h-8 text-amber-500" />
+        <RotateCcw className="w-8 h-8 text-emerald-600" />
       </div>
     ),
-    selector: '[data-tour-target="view-mode-tabs"]'
+    selector: '[data-tour-target="view-mode-tabs"]',
   },
   {
-    title: 'Track Visited Restaurants',
+    title: 'Browse the List',
     description:
-      'Keep track of places you\'ve visited. Mark restaurants as visited, and they\'ll be hidden from future searches. This helps you discover new options instead of seeing the same places again.',
+      'Every card shows cuisine, distance, rating, and hours. Tap "View on Map" to pin a restaurant, or share it directly with your team.',
+    icon: <List className="w-12 h-12 text-blue-500" />,
+    selector: '[data-tour-target="list-tab"]',
+  },
+  {
+    title: 'Mark as Visited',
+    description:
+      'Hit "Mark as visited" on any card to hide that spot from future searches — so you always discover somewhere new.',
     icon: <History className="w-12 h-12 text-orange-500" />,
-    selector: '[data-tour-target="history-tab"]'
+    selector: '[data-tour-target="mark-as-visited-btn"]',
   },
   {
-    title: 'Tip: Mark as Visited',
+    title: 'Track Your History',
     description:
-      'Click the "Mark as visited" button on any restaurant card to hide it from future searches. You can view all visited places in the History tab and remove them if you want to see them again.',
+      'All visited restaurants land in the History tab. Restore any of them at any time to bring them back into your search results.',
+    icon: <History className="w-12 h-12 text-amber-500" />,
+    selector: '[data-tour-target="history-tab"]',
+  },
+  {
+    title: "Can't Decide? Random or Wheel!",
+    description:
+      'Hit the button in Random view for a quick lucky pick, or switch to Wheel for a fun group spin. Let fate decide your lunch.',
+    icon: (
+      <div className="flex items-center gap-3">
+        <Shuffle className="w-10 h-10 text-purple-600" />
+        <RotateCcw className="w-10 h-10 text-emerald-600" />
+      </div>
+    ),
+    selector: '[data-tour-target="fun-picks-tabs"]',
+  },
+  {
+    title: "You're All Set! 🍽️",
+    description:
+      "You know everything you need. Happy lunch hunting — may every meal be delicious!",
     icon: <Sparkles className="w-12 h-12 text-amber-500" />,
-    selector: '[data-tour-target="mark-as-visited-btn"]'
   },
-  {
-    title: 'Create Custom Filters',
-    description:
-      'Don\'t like certain cuisines or need specific features? Open the Settings and create filters to automatically hide restaurants that don\'t match your preferences. Combine multiple filters for more precise results.',
-    icon: <Settings className="w-12 h-12 text-indigo-600" />
-  },
-  {
-    title: 'Open Now Filter',
-    description:
-      'Use the "Open now only" toggle to see only restaurants that are currently accepting customers. Perfect for finding lunch right away without checking hours.',
-    icon: <MapPin className="w-12 h-12 text-red-600" />,
-    selector: '[data-tour-target="open-now-toggle"]'
-  },
-  {
-    title: 'You\'re All Set!',
-    description:
-      'You now know how to search for restaurants, filter results, track visited places, and use different views. Happy lunch hunting! 🍽️',
-    icon: <Sparkles className="w-12 h-12 text-amber-500" />
-  }
 ];
 
 export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose, onStepChange }) => {
@@ -118,6 +132,15 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
     wasOpenRef.current = isOpen;
   }, [isOpen, onStepChange]);
 
+  const captureRect = useCallback((el: HTMLElement) => {
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      setHighlightRect(null);
+      return;
+    }
+    setHighlightRect({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
+  }, []);
+
   const updateHighlightRect = useCallback(() => {
     if (!isOpen) {
       setHighlightRect(null);
@@ -128,32 +151,30 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
       setHighlightRect(null);
       return;
     }
-    
-    // Use a small timeout to allow for any transitions/rendering to complete
+
+    // Give React time to finish rendering the new view before querying DOM
     const timer = setTimeout(() => {
       const found = document.querySelector<HTMLElement>(selector);
       if (!found) {
         setHighlightRect(null);
         return;
       }
+
       const rect = found.getBoundingClientRect();
-      
-      // If the element is hidden (0 width/height), don't highlight
-      if (rect.width === 0 || rect.height === 0) {
-        setHighlightRect(null);
-        return;
+      const isOffScreen = rect.top < 0 || rect.bottom > window.innerHeight || rect.left < 0 || rect.right > window.innerWidth;
+
+      if (isOffScreen) {
+        // Scroll into view then re-measure after animation settles
+        found.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+        const scrollTimer = setTimeout(() => captureRect(found), 400);
+        return () => clearTimeout(scrollTimer);
       }
 
-      setHighlightRect({
-        top: rect.top,
-        left: rect.left,
-        width: rect.width,
-        height: rect.height
-      });
-    }, 150); // Increased slightly for stability
+      captureRect(found);
+    }, 250); // Enough time for view transitions + potential double re-render (map→list + showSettings change)
 
     return () => clearTimeout(timer);
-  }, [isOpen, stepIndex]);
+  }, [isOpen, stepIndex, captureRect]);
 
   useEffect(() => {
     updateHighlightRect();
@@ -162,8 +183,22 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
   }, [updateHighlightRect]);
 
   const currentStep = steps[stepIndex];
-
   const isLastStep = stepIndex === steps.length - 1;
+
+  // Position the popup card so it never sits on top of the highlight.
+  // If the highlight is in the lower half of the viewport → anchor card to top.
+  // If the highlight is in the upper half → anchor card to bottom.
+  // No highlight → center vertically.
+  const cardStyle = useMemo((): React.CSSProperties => {
+    if (!highlightRect) {
+      return { top: '50%', transform: 'translateY(-50%)' };
+    }
+    const highlightCenterY = highlightRect.top + highlightRect.height / 2;
+    if (highlightCenterY > window.innerHeight / 2) {
+      return { top: 16 };
+    }
+    return { bottom: 16 };
+  }, [highlightRect]);
 
   const handleNext = () => {
     if (isLastStep) {
@@ -193,7 +228,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
   }
 
   return (
-    <div className="fixed inset-0 z-[10001] flex items-center justify-center px-4 py-6">
+    <div className="fixed inset-0 z-[10001]">
       <div
         className="absolute inset-0 bg-slate-900/80"
         aria-hidden="true"
@@ -216,7 +251,10 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
           }}
         />
       )}
-      <div className="relative z-10 max-w-2xl w-full bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-3xl shadow-2xl p-6 text-slate-900 dark:text-dark-text animate-slide-up">
+      <div
+        className="absolute left-4 right-4 mx-auto max-w-2xl z-[10003] bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-3xl shadow-2xl p-6 text-slate-900 dark:text-dark-text animate-slide-up"
+        style={cardStyle}
+      >
         <div className="flex items-center gap-3 mb-6">
           <Sparkles className="w-6 h-6 text-amber-500" />
           <div>

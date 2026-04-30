@@ -32,6 +32,16 @@ function App() {
   const lastProcessedQueryRef = useRef<string | null>(null);
   const skipNextAutoSearchRef = useRef(false);
   const ONBOARDING_STORAGE_KEY = 'lunch-hub-tour-seen';
+  const TOUR_DEMO_ID = '__tour_demo__';
+  const TOUR_DEMO_RESTAURANT: Restaurant = {
+    id: TOUR_DEMO_ID,
+    name: 'The Lunch Spot (demo)',
+    lat: 0,
+    lon: 0,
+    cuisine: 'Italian',
+    address: '123 Example Street',
+    amenity: 'restaurant',
+  };
   const [showTour, setShowTour] = useState(false);
   const [location, setLocation] = useState<Location | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -109,7 +119,19 @@ function App() {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
     }
+    setVisitedRestaurants((prev) => prev.filter((r) => r.id !== TOUR_DEMO_ID));
     setShowTour(false);
+  };
+
+  const handleTourStepChange = (stepIndex: number) => {
+    // Step 6 is "Track Your History" — inject demo entry so the tab isn't empty
+    if (stepIndex === 6) {
+      setVisitedRestaurants((prev) =>
+        prev.some((r) => r.id === TOUR_DEMO_ID) ? prev : [...prev, TOUR_DEMO_RESTAURANT]
+      );
+    } else {
+      setVisitedRestaurants((prev) => prev.filter((r) => r.id !== TOUR_DEMO_ID));
+    }
   };
 
   const openTour = () => {
@@ -583,6 +605,7 @@ function App() {
                   onOpenTour={openTour}
                   tourOpen={showTour}
                   onTourClose={handleTourClose}
+                  onTourStepChange={handleTourStepChange}
                   onRetry={handleRetry}
                 />
               ) : (
