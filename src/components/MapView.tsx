@@ -31,6 +31,7 @@ interface MapViewProps {
   selectedRestaurant?: Restaurant | null;
   onRestaurantSelected?: (restaurant: Restaurant | null) => void;
   onMarkVisited?: (restaurant: Restaurant) => void;
+  onCenterDrag?: (lat: number, lon: number) => void;
   zoom?: number;
   routeGeometry?: [number, number][] | null;
   routeDistance: number | null;
@@ -64,7 +65,6 @@ const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: R
     const onFitRoute = (ev: Event) => {
       try {
         // Event detail may provide geometry; fall back to routeGeometry prop
-        // @ts-expect-error detail is not standard on Event
         const detail = (ev as CustomEvent<[number, number][] | undefined>)?.detail;
         const geom = detail || routeGeometry;
         if (!geom || geom.length === 0) return;
@@ -93,6 +93,7 @@ export const MapView: React.FC<MapViewProps> = ({
   selectedRestaurant,
   onRestaurantSelected,
   onMarkVisited,
+  onCenterDrag,
   zoom = 13,
   radius,
   routeGeometry,
@@ -136,16 +137,6 @@ export const MapView: React.FC<MapViewProps> = ({
     return `${(meters / 1000).toFixed(1)} km`;
   };
 
-  const formatETA = (seconds: number | null | undefined) => {
-    if (seconds === null || seconds === undefined) return null;
-    try {
-      const eta = new Date(Date.now() + seconds * 1000);
-      return eta.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    } catch {
-      return null;
-    }
-  };
-
   return (
     <div className="relative w-full h-full">
       <MapContainer 
@@ -172,13 +163,28 @@ export const MapView: React.FC<MapViewProps> = ({
       )}
 
       {/* User location marker */}
-      <Marker position={center} icon={userIcon}>
+      <Marker
+        position={center}
+        icon={userIcon}
+        draggable={true}
+        eventHandlers={{
+          dragend: (event: any) => {
+            if (!onCenterDrag) {
+              return;
+            }
+            const marker = event.target;
+            const { lat, lng } = marker.getLatLng();
+            onCenterDrag(lat, lng);
+          },
+        }}
+      >
         <Tooltip permanent>
-          Your Location
+          Drag to move your pin
         </Tooltip>
         <Popup autoPan={false} closeOnClick={false}>
           <div className="text-center p-1">
-            <strong className="text-sm">Your Location</strong>
+            <strong className="text-sm">Drag this pin</strong>
+            <p className="text-xs text-gray-500">Move to update nearby results</p>
           </div>
         </Popup>
       </Marker>

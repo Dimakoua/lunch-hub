@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Share2, Loader2, ChevronLeft, Navigation, Route } from 'lucide-react';
 import { RestaurantCard } from '../components/RestaurantCard';
@@ -33,6 +34,8 @@ interface RestaurantsPageProps {
   toggleTheme: () => void;
   onViewOnMap: (restaurant: Restaurant) => void;
   onRestaurantSelected: (restaurant: Restaurant | null) => void;
+  onCenterDrag?: (lat: number, lon: number) => void;
+  locationUpdating: boolean;
   filterRules: FilterRule[];
   visitedRestaurants: Restaurant[];
   hiddenByHistoryCount: number;
@@ -121,6 +124,8 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   toggleTheme,
   onViewOnMap,
   onRestaurantSelected,
+  onCenterDrag,
+  locationUpdating,
   filterRules,
   visitedRestaurants,
   hiddenByHistoryCount,
@@ -137,6 +142,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   setFilterByOpenNow,
   onRetry
 }) => {
+  const pageLocation = useLocation();
+  const navigate = useNavigate();
+  const cuisineQuery = new URLSearchParams(pageLocation.search).get('cuisine')?.trim() ?? '';
+
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://thelunchub.com';
   const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
@@ -145,6 +154,14 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   const [newFilterValue, setNewFilterValue] = useState('');
   const [showFilterSuggestions, setShowFilterSuggestions] = useState(false);
   const canAddFilter = newFilterValue.trim().length > 0;
+
+  const handleClearCuisineFilter = () => {
+    if (!cuisineQuery) return;
+    const nextSearch = new URLSearchParams(pageLocation.search);
+    nextSearch.delete('cuisine');
+    const nextPath = pageLocation.pathname + (nextSearch.toString() ? `?${nextSearch.toString()}` : '');
+    navigate(nextPath, { replace: true });
+  };
 
   // Compute suggestions based on current restaurants and selected category
   const filterSuggestions = useMemo(() => {
@@ -481,6 +498,22 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         {viewMode !== 'map' && (
           <div className="mb-6">
             <Breadcrumb items={breadcrumbItems} className="mb-4" />
+            {cuisineQuery && (
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-dark-text-secondary">
+                  Active filter
+                </span>
+                <button
+                  type="button"
+                  onClick={handleClearCuisineFilter}
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/40 px-3 py-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition"
+                >
+                  <span className="font-semibold">Cuisine:</span>
+                  <span>{cuisineQuery}</span>
+                  <span className="text-xs font-black">×</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
         {viewMode !== 'map' && showSettings && (
@@ -521,6 +554,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     selectedRestaurant={selectedRestaurant}
                     onRestaurantSelected={onRestaurantSelected}
                     onMarkVisited={onMarkRestaurantVisited}
+                    onCenterDrag={onCenterDrag}
                     routeGeometry={routeGeometry}
                     routeDistance={routeDistance}
                     routeDuration={routeDuration}
@@ -578,6 +612,28 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                       </div>
                       <span>{radius}m radius</span>
                     </div>
+                    {locationUpdating && (
+                      <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-200 text-xs border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-2">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Updating location and nearby results...
+                      </div>
+                    )}
+                    {cuisineQuery && (
+                      <div className="px-4 py-2 bg-white dark:bg-dark-card border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-2 text-sm">
+                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-dark-text-secondary">
+                          Active filter
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleClearCuisineFilter}
+                          className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/40 px-3 py-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition"
+                        >
+                          <span className="font-semibold">Cuisine:</span>
+                          <span>{cuisineQuery}</span>
+                          <span className="text-xs font-black">×</span>
+                        </button>
+                      </div>
+                    )}
 
                     {/* Settings / Filters Panel - Expands inside sidebar */}
                     {settingsPanel && (

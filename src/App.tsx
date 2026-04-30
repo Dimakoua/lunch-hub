@@ -42,6 +42,7 @@ function App() {
   const [radius, setRadius] = useState(1000); // 1km default
   const [showSettings, setShowSettings] = useState(true);
   const [filterByOpenNow, setFilterByOpenNow] = useState(false); // NEW STATE
+  const [locationUpdating, setLocationUpdating] = useState(false);
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem('theme') as Theme;
     return savedTheme || 'light';
@@ -366,6 +367,33 @@ function App() {
     }
   };
 
+  const handleLocationDrag = async (lat: number, lon: number) => {
+    setLocationUpdating(true);
+    setError(null);
+    setSelectedRestaurant(null);
+    setViewMode('map');
+    skipNextAutoSearchRef.current = true;
+    const newLocation = { lat, lon };
+    setLocation(newLocation);
+
+    try {
+      const cuisineParam = new URLSearchParams(pageLocation.search).get('cuisine');
+      const availableCount = await searchRestaurants(
+        lat,
+        lon,
+        undefined,
+        undefined,
+        false,
+        cuisineParam ? cuisineParam.trim() : undefined
+      );
+      trackRestaurantSearch('dragged_pin', availableCount);
+    } catch {
+      setError('Error updating restaurants after moving the marker.');
+    } finally {
+      setLocationUpdating(false);
+    }
+  };
+
   const handleViewOnMap = (restaurant: Restaurant) => {
     setSelectedRestaurant(restaurant);
     setViewMode('map');
@@ -548,6 +576,8 @@ function App() {
                   onAddFilterRule={addFilterRule}
                   onRemoveFilterRule={removeFilterRule}
                   onClearFilterRules={clearFilterRules}
+                  onCenterDrag={handleLocationDrag}
+                  locationUpdating={locationUpdating}
                   filterByOpenNow={filterByOpenNow} // NEW PROP
                   setFilterByOpenNow={setFilterByOpenNow} // NEW PROP
                   onOpenTour={openTour}
