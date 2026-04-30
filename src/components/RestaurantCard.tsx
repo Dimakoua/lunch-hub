@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Globe, Clock, Utensils, PersonStanding } from 'lucide-react';
+import { MapPin, Phone, Globe, Clock, Utensils, PersonStanding, EyeOff } from 'lucide-react';
 import { Restaurant } from '../types/restaurant';
 import { formatDistance, formatWalkingTime } from '../utils/distanceFormatter';
 
@@ -7,6 +7,7 @@ interface RestaurantCardProps {
   restaurant: Restaurant;
   onViewOnMap: (restaurant: Restaurant) => void;
   onMarkVisited?: (restaurant: Restaurant) => void;
+  onHide?: (restaurant: Restaurant) => void;
   userLat?: number;
   userLon?: number;
   useImperial?: boolean; // triggers re-render when units change
@@ -35,6 +36,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
   restaurant, 
   onViewOnMap,
   onMarkVisited,
+  onHide,
   userLat,
   userLon,
   useImperial: _useImperial, // consumed only to trigger re-render
@@ -147,6 +149,15 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
               className="w-full bg-white dark:bg-dark-card text-blue-600 dark:text-dark-primary border border-blue-100 dark:border-dark-border hover:bg-blue-50 dark:hover:bg-gray-700 py-2.5 px-4 rounded-lg font-medium transition-all duration-200"
             >
               Mark as visited
+            </button>
+          )}
+          {onHide && (
+            <button
+              onClick={() => onHide(restaurant)}
+              className="w-full flex items-center justify-center gap-2 bg-white dark:bg-dark-card text-gray-500 dark:text-dark-text-secondary border border-gray-200 dark:border-dark-border hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 py-2.5 px-4 rounded-lg font-medium transition-all duration-200"
+            >
+              <EyeOff className="w-4 h-4" />
+              Not interested
             </button>
           )}
           <button

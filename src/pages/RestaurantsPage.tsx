@@ -39,11 +39,16 @@ interface RestaurantsPageProps {
   locationUpdating: boolean;
   filterRules: FilterRule[];
   visitedRestaurants: Restaurant[];
+  hiddenRestaurants: Restaurant[];
   hiddenByHistoryCount: number;
   hiddenByFiltersCount: number;
+  hiddenByUserCount: number;
   onMarkRestaurantVisited: (restaurant: Restaurant) => void;
   onRemoveVisitedRestaurant: (restaurantId: string) => void;
   onClearVisitedRestaurants: () => void;
+  onHideRestaurant: (restaurant: Restaurant) => void;
+  onUnhideRestaurant: (restaurantId: string) => void;
+  onClearHiddenRestaurants: () => void;
   onAddFilterRule: (field: FilterField, value: string) => void;
   onRemoveFilterRule: (ruleId: string) => void;
   onClearFilterRules: () => void;
@@ -133,11 +138,16 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   locationUpdating,
   filterRules,
   visitedRestaurants,
+  hiddenRestaurants,
   hiddenByHistoryCount,
   hiddenByFiltersCount,
+  hiddenByUserCount,
   onMarkRestaurantVisited,
   onRemoveVisitedRestaurant,
   onClearVisitedRestaurants,
+  onHideRestaurant,
+  onUnhideRestaurant,
+  onClearHiddenRestaurants,
   onAddFilterRule,
   onRemoveFilterRule,
   onClearFilterRules,
@@ -463,6 +473,42 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
           )}
         </div>
       </div>
+
+      {hiddenRestaurants.length > 0 && (
+        <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-dark-text-secondary">
+                Hidden by you ({hiddenByUserCount})
+              </h3>
+              <button
+                onClick={onClearHiddenRestaurants}
+                className="text-[10px] font-bold text-red-500 hover:underline"
+              >
+                Unhide all
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {hiddenRestaurants.map((r) => (
+                <span
+                  key={r.id}
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] rounded-md bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-700 dark:text-dark-text shadow-sm"
+                >
+                  <span className="truncate max-w-[100px]">{r.name}</span>
+                  <button
+                    onClick={() => onUnhideRestaurant(r.id)}
+                    className="text-gray-400 hover:text-emerald-500 transition-colors ml-0.5"
+                    aria-label={`Unhide ${r.name}`}
+                    title="Unhide"
+                  >
+                    ↩
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -655,9 +701,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-900 dark:text-dark-text font-bold">{restaurants.length}</span>
                         <span>visible</span>
-                        {hiddenByHistoryCount + hiddenByFiltersCount > 0 && (
+                        {hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount > 0 && (
                           <span className="opacity-60">
-                            ({hiddenByHistoryCount + hiddenByFiltersCount} hidden)
+                            ({hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount} hidden)
                           </span>
                         )}
                       </div>
@@ -737,7 +783,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     Nearby restaurants
                     <span className="ml-2 text-sm font-normal text-gray-400 dark:text-dark-text-secondary">
                       {restaurants.length} visible
-                      {hiddenByHistoryCount + hiddenByFiltersCount > 0 && ` (${hiddenByHistoryCount + hiddenByFiltersCount} hidden)`}
+                      {hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount > 0 && ` (${hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount} hidden)`}
                     </span>
                   </h2>
                 </div>
@@ -759,6 +805,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                           onViewOnMap(restaurantToView);
                         }}
                         onMarkVisited={onMarkRestaurantVisited}
+                        onHide={onHideRestaurant}
                         useImperial={useImperial}
                       />
                     ))}

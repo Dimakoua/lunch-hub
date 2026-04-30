@@ -67,24 +67,23 @@ function App() {
   });
   const [showCookieConsent, setShowCookieConsent] = useState(false);
   const VISITED_STORAGE_KEY = 'lunch-hub-visited-restaurants';
+  const HIDDEN_STORAGE_KEY = 'lunch-hub-hidden-restaurants';
   const FILTER_STORAGE_KEY = 'lunch-hub-filter-rules';
   const HISTORY_EMPTY_MESSAGE = 'All nearby restaurants are already in your visited history. Remove saved places to see them again.';
   const FILTER_EMPTY_MESSAGE = 'All nearby restaurants were filtered out by your preferences. Adjust filters to see more options.';
   const [visitedRestaurants, setVisitedRestaurants] = useState<Restaurant[]>(() => {
-    if (typeof window === 'undefined') {
-      return [];
-    }
+    if (typeof window === 'undefined') return [];
     const stored = window.localStorage.getItem(VISITED_STORAGE_KEY);
-    if (!stored) {
-      return [];
-    }
-    try {
-      const parsed: Restaurant[] = JSON.parse(stored);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (err) {
-      console.warn('Failed to parse visited restaurants from storage', err);
-      return [];
-    }
+    if (!stored) return [];
+    try { const p: Restaurant[] = JSON.parse(stored); return Array.isArray(p) ? p : []; }
+    catch { return []; }
+  });
+  const [hiddenRestaurants, setHiddenRestaurants] = useState<Restaurant[]>(() => {
+    if (typeof window === 'undefined') return [];
+    const stored = window.localStorage.getItem(HIDDEN_STORAGE_KEY);
+    if (!stored) return [];
+    try { const p: Restaurant[] = JSON.parse(stored); return Array.isArray(p) ? p : []; }
+    catch { return []; }
   });
   const [filterRules, setFilterRules] = useState<FilterRule[]>(() => {
     if (typeof window === 'undefined') {
@@ -193,6 +192,15 @@ function App() {
     }
   }, [filterRules]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(HIDDEN_STORAGE_KEY, JSON.stringify(hiddenRestaurants));
+    } catch (err) {
+      console.warn('Failed to persist hidden restaurants to storage', err);
+    }
+  }, [hiddenRestaurants]);
+
   // Check cookie consent on app load
   useEffect(() => {
     const consent = localStorage.getItem('cookie-consent');
@@ -251,6 +259,10 @@ function App() {
       (restaurantItem) => !visitedRestaurants.some((visited) => visited.id === restaurantItem.id)
     );
 
+    filtered = filtered.filter(
+      (restaurantItem) => !hiddenRestaurants.some((h) => h.id === restaurantItem.id)
+    );
+
     if (filterRules.length > 0) {
       filtered = filtered.filter(
         (restaurantItem) => !filterRules.some((rule) => shouldExcludeByFilter(restaurantItem, rule))
@@ -263,7 +275,7 @@ function App() {
     }
 
     return filtered;
-  }, [visitedRestaurants, filterRules, shouldExcludeByFilter, filterByOpenNow]);
+  }, [visitedRestaurants, hiddenRestaurants, filterRules, shouldExcludeByFilter, filterByOpenNow]);
 
   const searchRestaurants = useCallback(async (lat: number, lon: number, searchRadius?: number, openNow?: boolean, forceRefresh: boolean = false, includeCuisine?: string) => {
     try {
@@ -484,8 +496,13 @@ function App() {
   );
 
   const hiddenByHistoryCount = useMemo(
-    () => restaurants.filter((restaurantItem) => visitedRestaurants.some((visited) => visited.id === restaurantItem.id)).length,
+    () => restaurants.filter((r) => visitedRestaurants.some((v) => v.id === r.id)).length,
     [restaurants, visitedRestaurants]
+  );
+
+  const hiddenByUserCount = useMemo(
+    () => restaurants.filter((r) => hiddenRestaurants.some((h) => h.id === r.id)).length,
+    [restaurants, hiddenRestaurants]
   );
 
   const hiddenByFiltersCount = useMemo(
@@ -517,12 +534,23 @@ function App() {
 
   const markRestaurantVisited = (restaurant: Restaurant) => {
     setVisitedRestaurants((prev) => {
-      if (prev.some((item) => item.id === restaurant.id)) {
-        return prev;
-      }
+      if (prev.some((item) => item.id === restaurant.id)) return prev;
       return [...prev, restaurant];
     });
   };
+
+  const hideRestaurant = (restaurant: Restaurant) => {
+    setHiddenRestaurants((prev) => {
+      if (prev.some((item) => item.id === restaurant.id)) return prev;
+      return [...prev, restaurant];
+    });
+  };
+
+  const unhideRestaurant = (restaurantId: string) => {
+    setHiddenRestaurants((prev) => prev.filter((r) => r.id !== restaurantId));
+  };
+
+  const clearHiddenRestaurants = () => setHiddenRestaurants([]);
 
   const removeVisitedRestaurant = (restaurantId: string) => {
     setVisitedRestaurants((prev) => prev.filter((restaurantItem) => restaurantItem.id !== restaurantId));
@@ -611,12 +639,17 @@ function App() {
                   onRestaurantSelected={handleRestaurantSelected}
                   restaurants={availableRestaurants}
                   visitedRestaurants={visitedRestaurants}
+                  hiddenRestaurants={hiddenRestaurants}
                   filterRules={filterRules}
                   hiddenByHistoryCount={hiddenByHistoryCount}
                   hiddenByFiltersCount={hiddenByFiltersCount}
+                  hiddenByUserCount={hiddenByUserCount}
                   onMarkRestaurantVisited={markRestaurantVisited}
                   onRemoveVisitedRestaurant={removeVisitedRestaurant}
                   onClearVisitedRestaurants={clearVisitedRestaurants}
+                  onHideRestaurant={hideRestaurant}
+                  onUnhideRestaurant={unhideRestaurant}
+                  onClearHiddenRestaurants={clearHiddenRestaurants}
                   onAddFilterRule={addFilterRule}
                   onRemoveFilterRule={removeFilterRule}
                   onClearFilterRules={clearFilterRules}
