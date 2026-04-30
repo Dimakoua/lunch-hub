@@ -685,7 +685,7 @@ function App() {
         </Routes>
       </Suspense>
       <Footer />
-      <InstallPWA />
+      <InstallPWA currentPath={pageLocation.pathname} />
       <BottomNav />
     </div>
   );
