@@ -23,7 +23,7 @@ function haversineM(lat1: number, lon1: number, lat2: number, lon2: number): num
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
-const fmtM = (m: number) => m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`;
+const fmtM = (m: number) => formatDistance(m);
 const fmtWalk = (m: number) => { const mins = Math.max(1, Math.round(m / 80)); return `${mins} min`; };
 
 interface MapViewProps {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapPin, Phone, Globe, Clock, Utensils, PersonStanding } from 'lucide-react';
 import { Restaurant } from '../types/restaurant';
+import { formatDistance, formatWalkingTime } from '../utils/distanceFormatter';
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -8,6 +9,7 @@ interface RestaurantCardProps {
   onMarkVisited?: (restaurant: Restaurant) => void;
   userLat?: number;
   userLon?: number;
+  useImperial?: boolean; // triggers re-render when units change
 }
 
 function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -22,13 +24,11 @@ function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number)
 }
 
 function formatDist(m: number): string {
-  return m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`;
+  return formatDistance(m);
 }
 
 function formatWalk(m: number): string {
-  // ~80 m/min walking pace
-  const mins = Math.max(1, Math.round(m / 80));
-  return `${mins} min`;
+  return formatWalkingTime(m);
 }
 
 export const RestaurantCard: React.FC<RestaurantCardProps> = ({ 
@@ -37,6 +37,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
   onMarkVisited,
   userLat,
   userLon,
+  useImperial: _useImperial, // consumed only to trigger re-render
 }) => {
   const distMeters =
     userLat !== undefined && userLon !== undefined

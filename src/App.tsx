@@ -22,6 +22,7 @@ import {
 import { Restaurant, Location } from './types/restaurant';
 import { FilterRule, FilterField } from './types/filter';
 import { isRestaurantOpen } from './utils/openingHours'; // NEW IMPORT
+import { setImperialUnitsOverride, useImperialUnits } from './utils/distanceFormatter';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
@@ -50,6 +51,13 @@ function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [radius, setRadius] = useState(1000); // 1km default
+  const UNITS_STORAGE_KEY = 'lunch-hub-units';
+  const [useImperial, setUseImperial] = useState<boolean>(() => {
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('lunch-hub-units') : null;
+    const val = stored !== null ? stored === 'imperial' : useImperialUnits();
+    setImperialUnitsOverride(val);
+    return val;
+  });
   const [showSettings, setShowSettings] = useState(true);
   const [filterByOpenNow, setFilterByOpenNow] = useState(false); // NEW STATE
   const [locationUpdating, setLocationUpdating] = useState(false);
@@ -133,6 +141,19 @@ function App() {
     } else {
       setVisitedRestaurants((prev) => prev.filter((r) => r.id !== TOUR_DEMO_ID));
     }
+  };
+
+  const handleToggleUnits = (imperial: boolean) => {
+    setImperialUnitsOverride(imperial);
+    setUseImperial(imperial);
+    localStorage.setItem(UNITS_STORAGE_KEY, imperial ? 'imperial' : 'metric');
+    // Snap radius to closest option in the new unit system
+    const opts = imperial
+      ? [1609, 3219, 8047]
+      : [1000, 2000, 5000];
+    setRadius((prev) => opts.reduce((closest, v) =>
+      Math.abs(v - prev) < Math.abs(closest - prev) ? v : closest
+    ));
   };
 
   const openTour = () => {
@@ -607,6 +628,8 @@ function App() {
                   tourOpen={showTour}
                   onTourClose={handleTourClose}
                   onTourStepChange={handleTourStepChange}
+                  useImperial={useImperial}
+                  onToggleUnits={handleToggleUnits}
                   onRetry={handleRetry}
                 />
               ) : (

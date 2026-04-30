@@ -3,10 +3,22 @@ import i18n from '../i18n';
 // Locales that use imperial units (miles/feet)
 const IMPERIAL_LOCALES = ['en-US', 'en', 'en-GB'];
 
+// Module-level override — set by the user's unit preference toggle
+let _imperialOverride: boolean | null = null;
+
+/**
+ * Override the locale-based unit detection with an explicit user preference.
+ * Pass null to fall back to locale detection.
+ */
+export const setImperialUnitsOverride = (v: boolean): void => {
+  _imperialOverride = v;
+};
+
 /**
  * Detects if the current locale uses imperial units (miles/feet) or metric (km/m)
  */
 export const useImperialUnits = (): boolean => {
+  if (_imperialOverride !== null) return _imperialOverride;
   const language = i18n.language || 'en';
   // Check if current language is in imperial list or if locale starts with imperial prefix
   return IMPERIAL_LOCALES.some(locale => language.toLowerCase().startsWith(locale.toLowerCase())) 

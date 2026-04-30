@@ -53,6 +53,8 @@ interface RestaurantsPageProps {
   tourOpen: boolean;
   onTourClose: () => void;
   onTourStepChange?: (stepIndex: number) => void;
+  useImperial: boolean;
+  onToggleUnits: (imperial: boolean) => void;
   onRetry: () => void;
 }
 
@@ -142,6 +144,8 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   tourOpen,
   onTourClose,
   onTourStepChange,
+  useImperial,
+  onToggleUnits,
   filterByOpenNow,
   setFilterByOpenNow,
   onRetry
@@ -277,9 +281,31 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     <div className="space-y-4">
       <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-dark-text-secondary">
-            Search radius
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-dark-text-secondary">
+              Search radius
+            </label>
+            <div className="flex items-center rounded-full border border-gray-200 dark:border-dark-border overflow-hidden text-[10px] font-bold">
+              <button
+                type="button"
+                onClick={() => onToggleUnits(false)}
+                className={`px-2.5 py-1 transition-colors ${
+                  !useImperial
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-500 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+              >km</button>
+              <button
+                type="button"
+                onClick={() => onToggleUnits(true)}
+                className={`px-2.5 py-1 transition-colors ${
+                  useImperial
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-500 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+              >mi</button>
+            </div>
+          </div>
           <select
             value={radius}
             onChange={(event) => {
@@ -635,7 +661,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                           </span>
                         )}
                       </div>
-                      <span>{radius}m radius</span>
+                      <span>{useImperial ? `${(radius / 1609.34).toFixed(1)} mi` : `${(radius / 1000).toFixed(1)} km`} radius</span>
                     </div>
                     {locationUpdating && (
                       <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-200 text-xs border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-2">
@@ -733,6 +759,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                           onViewOnMap(restaurantToView);
                         }}
                         onMarkVisited={onMarkRestaurantVisited}
+                        useImperial={useImperial}
                       />
                     ))}
                   </div>
