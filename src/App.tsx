@@ -29,7 +29,7 @@ type Theme = 'light' | 'dark';
 function App() {
   const navigate = useNavigate();
   const pageLocation = useLocation();
-  const lastProcessedLocationRef = useRef<string | null>(null);
+  const lastProcessedQueryRef = useRef<string | null>(null);
   const skipNextAutoSearchRef = useRef(false);
   const ONBOARDING_STORAGE_KEY = 'lunch-hub-tour-seen';
   const [showTour, setShowTour] = useState(false);
@@ -220,16 +220,29 @@ function App() {
     return filtered;
   }, [visitedRestaurants, filterRules, shouldExcludeByFilter, filterByOpenNow]);
 
-  const searchRestaurants = useCallback(async (lat: number, lon: number, searchRadius?: number, openNow?: boolean, forceRefresh: boolean = false) => {
+  const searchRestaurants = useCallback(async (lat: number, lon: number, searchRadius?: number, openNow?: boolean, forceRefresh: boolean = false, includeCuisine?: string) => {
     try {
       const currentRadius = searchRadius !== undefined ? searchRadius : radius;
       const foundRestaurants = await fetchRestaurants(lat, lon, currentRadius, forceRefresh);
-      setRestaurants(foundRestaurants);
-      if (foundRestaurants.length === 0) {
-        setError('No restaurants found in this area. Try increasing the search radius.');
+      const restaurantsToFilter = includeCuisine
+        ? foundRestaurants.filter((restaurant) => {
+            if (!restaurant.cuisine) {
+              return false;
+            }
+            return restaurant.cuisine.toLowerCase().split(';').some((c) => c.trim().includes(includeCuisine.toLowerCase()));
+          })
+        : foundRestaurants;
+
+      setRestaurants(restaurantsToFilter);
+      if (restaurantsToFilter.length === 0) {
+        if (includeCuisine) {
+          setError('No restaurants found for that cuisine in this area. Try a different cuisine or increase the search radius.');
+        } else {
+          setError('No restaurants found in this area. Try increasing the search radius.');
+        }
         return 0;
       }
-      const availableAfterFilters = applyAvailabilityFilters(foundRestaurants, openNow);
+      const availableAfterFilters = applyAvailabilityFilters(restaurantsToFilter, openNow);
       if (availableAfterFilters.length === 0) {
         if (filterRules.length > 0) {
           setError(FILTER_EMPTY_MESSAGE);
@@ -254,12 +267,16 @@ function App() {
     const searchParams = new URLSearchParams(pageLocation.search);
     const locationParam = searchParams.get('location');
     const cuisineParam = searchParams.get('cuisine');
-
-    if (!locationParam || locationParam === lastProcessedLocationRef.current) {
+    if (!locationParam) {
       return;
     }
 
-    lastProcessedLocationRef.current = locationParam;
+    const queryKey = `${locationParam}|${cuisineParam ?? ''}`;
+    if (queryKey === lastProcessedQueryRef.current) {
+      return;
+    }
+
+    lastProcessedQueryRef.current = queryKey;
     setLocation(null);
     setRestaurants([]);
     setError(null);
@@ -271,14 +288,15 @@ function App() {
         if (result) {
           skipNextAutoSearchRef.current = true;
           setLocation(result);
-          const availableCount = await searchRestaurants(result.lat, result.lon);
+          const availableCount = await searchRestaurants(
+            result.lat,
+            result.lon,
+            undefined,
+            undefined,
+            false,
+            cuisineParam ? cuisineParam.trim() : undefined
+          );
           trackRestaurantSearch(locationParam, availableCount);
-
-          if (cuisineParam) {
-            setTimeout(() => {
-              addFilterRule('cuisine', cuisineParam);
-            }, 500);
-          }
         } else {
           setError('Location not found. Please try a different address.');
         }

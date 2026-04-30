@@ -45,6 +45,7 @@ interface RestaurantsPageProps {
   onClearFilterRules: () => void;
   filterByOpenNow: boolean;
   setFilterByOpenNow: (value: boolean) => void;
+  onOpenTour: () => void;
   tourOpen: boolean;
   onTourClose: () => void;
   onRetry: () => void;
