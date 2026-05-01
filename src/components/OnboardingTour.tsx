@@ -282,7 +282,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
         </>
       )}
       <div
-        className="absolute left-4 right-4 mx-auto max-w-2xl z-[10003] bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-3xl shadow-2xl p-6 text-slate-900 dark:text-dark-text"
+        className="absolute left-2 right-2 sm:left-4 sm:right-4 mx-auto max-w-lg sm:max-w-xl z-[10003] bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-3xl shadow-2xl p-4 sm:p-5 text-slate-900 dark:text-dark-text"
         style={cardStyle}
       >
         <div className="flex items-center gap-3 mb-6">
@@ -295,9 +295,11 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
           </div>
         </div>
 
-        <div className="flex flex-col gap-6 lg:flex-row">
-          <div className="flex items-center justify-center min-w-[80px]">{currentStep.icon}</div>
-          <p className="text-base text-slate-500 dark:text-dark-text-secondary leading-relaxed">
+        <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+          <div className="flex items-center justify-center min-w-[60px] sm:min-w-[80px]">
+            {currentStep.icon}
+          </div>
+          <p className="text-sm lg:text-base text-slate-500 dark:text-dark-text-secondary leading-relaxed">
             {currentStep.description}
           </p>
         </div>
