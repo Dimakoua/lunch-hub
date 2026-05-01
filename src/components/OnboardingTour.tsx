@@ -204,12 +204,15 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
     if (!highlightRect) {
       return { top: '50%', transform: 'translateY(-50%)', maxHeight: 'calc(100vh - 120px)' };
     }
+    if (stepIndex === 1) {
+      return { top: safeTop, maxHeight: 'calc(100vh - 120px)' };
+    }
     const highlightCenterY = highlightRect.top + highlightRect.height / 2;
     if (highlightCenterY > window.innerHeight / 2) {
       return { top: safeTop, maxHeight: 'calc(100vh - 120px)' };
     }
     return { bottom: safeBottom, maxHeight: 'calc(100vh - 120px)' };
-  }, [highlightRect]);
+  }, [highlightRect, stepIndex]);
 
   const handleNext = () => {
     if (isLastStep) {
