@@ -197,6 +197,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
   // If the highlight is in the upper half → anchor card to bottom.
   // No highlight → center vertically.
   const cardStyle = useMemo((): React.CSSProperties => {
+    const safeBottom = 'calc(16px + env(safe-area-inset-bottom, 0px))';
     if (!highlightRect) {
       return { top: '50%', transform: 'translateY(-50%)' };
     }
@@ -204,7 +205,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
     if (highlightCenterY > window.innerHeight / 2) {
       return { top: 16 };
     }
-    return { bottom: 16 };
+    return { bottom: safeBottom };
   }, [highlightRect]);
 
   const handleNext = () => {

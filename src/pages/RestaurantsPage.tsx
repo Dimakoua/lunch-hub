@@ -244,9 +244,12 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     switch (stepIndex) {
       case 0: // "Explore the Map" — show the live map with pins
       case 1: // "Drag the Pin" — still on map, center pin is the hero
+        setViewMode('map');
+        setShowSettings(false);
+        break;
       case 2: // "Radius & Filters" — open sidebar so panel is visible
         setViewMode('map');
-        setShowSettings(true);  // ensure panel is expanded for highlighting
+        setShowSettings(true);
         break;
       case 3: // "Switch Views" — switch to list so the tabs aren't obscured by full-screen map
       case 4: // "Browse the List" — list view with restaurant cards
@@ -284,7 +287,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   ];
 
   React.useEffect(() => {
-    setShowSettings(viewMode === 'map');
+    if (viewMode !== 'map') {
+      setShowSettings(false);
+    }
   }, [viewMode, setShowSettings]);
 
   const settingsPanel = showSettings && (
