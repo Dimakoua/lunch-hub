@@ -191,21 +191,24 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
 
   const currentStep = steps[stepIndex];
   const isLastStep = stepIndex === steps.length - 1;
+  const highlightPadding = stepIndex === 1 ? 18 : 12;
+  const highlightBorderRadius = stepIndex === 1 ? '9999px' : '16px';
 
   // Position the popup card so it never sits on top of the highlight.
   // If the highlight is in the lower half of the viewport → anchor card to top.
   // If the highlight is in the upper half → anchor card to bottom.
   // No highlight → center vertically.
   const cardStyle = useMemo((): React.CSSProperties => {
-    const safeBottom = 'calc(16px + env(safe-area-inset-bottom, 0px))';
+    const safeTop = 'calc(16px + env(safe-area-inset-top, 0px))';
+    const safeBottom = 'calc(74px + env(safe-area-inset-bottom, 0px))';
     if (!highlightRect) {
-      return { top: '50%', transform: 'translateY(-50%)' };
+      return { top: '50%', transform: 'translateY(-50%)', maxHeight: 'calc(100vh - 120px)' };
     }
     const highlightCenterY = highlightRect.top + highlightRect.height / 2;
     if (highlightCenterY > window.innerHeight / 2) {
-      return { top: 16 };
+      return { top: safeTop, maxHeight: 'calc(100vh - 120px)' };
     }
-    return { bottom: safeBottom };
+    return { bottom: safeBottom, maxHeight: 'calc(100vh - 120px)' };
   }, [highlightRect]);
 
   const handleNext = () => {
@@ -243,24 +246,43 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose,
         onClick={handleSkip}
       />
       {highlightRect && (
-        <div
-          className="pointer-events-none absolute rounded-2xl border-2 border-white transition-all duration-300"
-          style={{
-            top: highlightRect.top - 12,
-            left: highlightRect.left - 12,
-            width: highlightRect.width + 24,
-            height: highlightRect.height + 24,
-            zIndex: 10002,
-            borderColor: 'rgba(255, 255, 255, 0.9)',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            backdropFilter: 'saturate(1.8) brightness(1.2)',
-            animation: 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            boxShadow: '0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1)'
-          }}
-        />
+        <>
+          <div
+            className="pointer-events-none absolute transition-all duration-300"
+            style={{
+              top: highlightRect.top - highlightPadding,
+              left: highlightRect.left - highlightPadding,
+              width: highlightRect.width + highlightPadding * 2,
+              height: highlightRect.height + highlightPadding * 2,
+              zIndex: 10002,
+              borderRadius: highlightBorderRadius,
+              border: stepIndex === 1 ? '2px solid rgba(59, 130, 246, 0.95)' : '2px solid rgba(255, 255, 255, 0.9)',
+              backgroundColor: stepIndex === 1 ? 'rgba(59, 130, 246, 0.12)' : 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'saturate(1.8) brightness(1.2)',
+              animation: 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              boxShadow: stepIndex === 1
+                ? '0 0 30px rgba(59, 130, 246, 0.45), inset 0 0 25px rgba(59, 130, 246, 0.15)'
+                : '0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1)'
+            }}
+          />
+          {stepIndex === 1 && (
+            <div
+              className="pointer-events-none absolute z-[10003] inline-flex items-center gap-2 rounded-full bg-blue-600/95 px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-white shadow-xl shadow-blue-500/30"
+              style={{
+                top: Math.max(10, highlightRect.top - 42),
+                left: Math.max(10, highlightRect.left + highlightRect.width / 2 - 72),
+                minWidth: 130,
+                height: 34,
+              }}
+            >
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+              Drag the pin
+            </div>
+          )}
+        </>
       )}
       <div
-        className="absolute left-4 right-4 mx-auto max-w-2xl z-[10003] bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-3xl shadow-2xl p-6 text-slate-900 dark:text-dark-text animate-slide-up"
+        className="absolute left-4 right-4 mx-auto max-w-2xl z-[10003] bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-3xl shadow-2xl p-6 text-slate-900 dark:text-dark-text"
         style={cardStyle}
       >
         <div className="flex items-center gap-3 mb-6">

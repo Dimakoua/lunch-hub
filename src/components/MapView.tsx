@@ -165,6 +165,7 @@ export const MapView: React.FC<MapViewProps> = ({
         position={center}
         icon={userIcon}
         draggable={true}
+        zIndexOffset={1000}
         eventHandlers={{
           dragend: (event: any) => {
             if (!onCenterDrag) {
