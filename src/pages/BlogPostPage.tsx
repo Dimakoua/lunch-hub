@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Helmet } from 'react-helmet-async';
 import remarkGfm from 'remark-gfm';
+import { Calendar, Clock, User, Share2, ArrowLeft, ArrowRight, MessageSquare } from 'lucide-react';
 import { parseBlogPost, BlogPost } from '../services/blog';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { Breadcrumb } from '../components/Breadcrumb';
@@ -16,8 +17,8 @@ const ReadingTime: React.FC<{ text: string }> = ({ text }) => {
   }, [text]);
 
   return (
-    <span className="flex items-center gap-1">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span className="flex items-center gap-1.5">
+      <Clock className="w-4 h-4 text-emerald-500" />
       {stats} min read
     </span>
   );
@@ -32,11 +33,11 @@ const LinkRenderer: React.FC<LinkRendererProps> = ({ href, children }) => {
   const isInternal = href && !href.startsWith('http') && !href.startsWith('https') && !href.startsWith('//');
   
   if (isInternal) {
-    return <Link to={`/blog/${href}`} className="text-emerald-600 dark:text-emerald-400 hover:underline">{children}</Link>;
+    return <Link to={`/blog/${href}`} className="text-blue-600 dark:text-dark-primary font-bold hover:underline decoration-2 underline-offset-4">{children}</Link>;
   }
   
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="text-emerald-600 dark:text-emerald-400 hover:underline">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-dark-primary font-bold hover:underline decoration-2 underline-offset-4">
       {children}
     </a>
   );
@@ -132,22 +133,35 @@ const BlogPostPage: React.FC = () => {
   }, [post, posts]);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen"><LoadingSpinner /></div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-dark-background">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-slate-100 border-t-blue-600 dark:border-dark-border dark:border-t-dark-primary"></div>
+          <p className="mt-4 text-sm font-medium text-slate-500 dark:text-dark-text-secondary">Unfolding the story...</p>
+        </div>
+      </div>
+    );
   }
 
-  if (error) {
-    return <div className="container mx-auto p-4 text-center text-red-500">Error: {error}</div>;
-  }
-
-  if (!post) {
-    return <div className="container mx-auto p-4 text-center">Blog post not found.</div>;
+  if (error || !post) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-dark-background p-4">
+        <div className="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-6">
+          <MessageSquare className="w-10 h-10 text-red-500" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-dark-text mb-2">Post not found</h1>
+        <p className="text-slate-500 dark:text-dark-text-secondary mb-8">We couldn't find the article you were looking for.</p>
+        <Link to="/blog" className="bg-slate-900 dark:bg-dark-primary text-white dark:text-black px-8 py-3 rounded-2xl font-black transition-all hover:scale-105">
+          Back to Blog
+        </Link>
+      </div>
+    );
   }
 
   const { attributes, body } = post;
   const postUrl = window.location.href;
   const origin = window.location.origin;
   
-  // Handle absolute Unsplash URLs or relative local paths
   const getFullImageUrl = (imagePath?: string) => {
     if (!imagePath) return `${origin}/images/lunchhub-og-image.png`;
     if (imagePath.startsWith('http')) return imagePath;
@@ -165,14 +179,12 @@ const BlogPostPage: React.FC = () => {
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <main className="min-h-screen bg-white dark:bg-dark-background pb-24">
       <Helmet>
         <title>{`${attributes.title} - Lunch Hub Blog`}</title>
         <meta name="description" content={attributes.description} />
         {attributes.keywords && <meta name="keywords" content={attributes.keywords} />}
         <link rel="canonical" href={postUrl} />
-
-        {/* Open Graph Tags */}
         <meta property="og:title" content={attributes.title} />
         <meta property="og:description" content={attributes.description} />
         <meta property="og:type" content="article" />
@@ -180,131 +192,151 @@ const BlogPostPage: React.FC = () => {
         <meta property="og:image" content={coverImageUrl} />
         <meta property="article:published_time" content={new Date(attributes.date).toISOString()} />
         <meta property="article:author" content="Lunch Hub Team" />
-
-        {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={attributes.title} />
-        <meta name="twitter:description" content={attributes.description} />
-        <meta name="twitter:image" content={coverImageUrl} />
-
-        {/* JSON-LD Article Schema */}
         <script type="application/ld+json">{renderSchema(articleSchema)}</script>
       </Helmet>
-      <div className="relative z-10 container mx-auto px-4 py-8 pt-16 max-w-3xl lg:max-w-4xl">
-        <Breadcrumb items={[{ name: 'Home', url: '/' }, { name: 'Blog', url: '/blog' }, { name: attributes.title }]} className="mb-6" />
-        <article className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-12">
-          {attributes.cover_image && (
-            <img 
-              src={attributes.cover_image} 
-              alt={attributes.title} 
-              className="w-full h-auto rounded-xl mb-8 object-cover max-h-[400px]"
-            />
-          )}
-          <header className="mb-8 border-b pb-8 border-gray-100 dark:border-gray-700">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 line-tight leading-tight">
-              {attributes.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-y-2 text-sm text-gray-500 dark:text-gray-400">
-              <time dateTime={new Date(attributes.date).toISOString()} className="flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                {new Date(attributes.date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </time>
-              <span className="mx-3 hidden sm:inline">•</span>
-              <ReadingTime text={body} />
-              <span className="mx-3 hidden sm:inline">•</span>
-              <span className="flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Lunch Hub Team
+
+      {/* Article Hero */}
+      <div className="relative w-full h-[50vh] sm:h-[60vh] overflow-hidden bg-slate-900">
+        {attributes.cover_image && (
+          <img 
+            src={attributes.cover_image} 
+            alt={attributes.title} 
+            className="w-full h-full object-cover opacity-60"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-dark-background via-transparent to-transparent" />
+        <div className="absolute inset-0 flex items-end">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 w-full pb-12 sm:pb-20">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="bg-blue-600 dark:bg-dark-primary text-white dark:text-black px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">
+                Lunch Journal
               </span>
             </div>
-          </header>
-          
-          <div className="prose prose-lg dark:prose-invert max-w-none 
-            prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
-            prose-p:text-gray-700 dark:prose-p:text-gray-300
-            prose-a:no-underline prose-strong:text-gray-900 dark:prose-strong:text-white">
-            <ReactMarkdown 
-              remarkPlugins={[remarkGfm]}
-              components={{
-                a: LinkRenderer,
-                h2: ({...props}) => <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-gray-100 dark:border-gray-700" {...props} />,
-                h3: ({...props}) => <h3 className="text-xl mt-8 mb-4 font-semibold" {...props} />,
-                p: ({...props}) => <p className="mb-1 p-0 leading-8 text-[1.05rem] text-gray-700 dark:text-gray-300 last:mb-0" {...props} />,
-                ul: ({...props}) => <ul className="list-disc pl-6 space-y-2 mb-6 text-gray-700 dark:text-gray-300" {...props} />,
-                ol: ({...props}) => <ol className="list-decimal pl-6 space-y-2 mb-6 text-gray-700 dark:text-gray-300" {...props} />,
-                blockquote: ({...props}) => <blockquote className="border-l-4 border-emerald-500 pl-4 italic my-8 bg-emerald-50 dark:bg-emerald-900/20 py-4 rounded-r-lg" {...props} />,
-              }}
-            >
-              {body}
-            </ReactMarkdown>
+            <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-dark-text leading-[1.1] mb-6">
+              {attributes.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-slate-500 dark:text-dark-text-secondary uppercase tracking-widest">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-blue-500 dark:text-dark-primary" />
+                {new Date(attributes.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </div>
+              <ReadingTime text={body} />
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-purple-500 dark:text-dark-primary" />
+                Lunch Hub Team
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
 
-          {relatedPosts.length > 0 && (
-            <section className="mt-16">
-              <div className="flex items-center justify-between mb-6 gap-4">
-                <div>
-                  <p className="text-sm uppercase tracking-[0.24em] text-blue-600 dark:text-blue-400 font-semibold">Related Posts</p>
-                  <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">More content you may like</h2>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 mt-12">
+        <Breadcrumb items={[{ name: 'Home', url: '/' }, { name: 'Blog', url: '/blog' }, { name: attributes.title }]} className="mb-12" />
+        
+        <div className="grid lg:grid-cols-12 gap-12">
+          {/* Main Content */}
+          <article className="lg:col-span-8">
+            <div className="prose prose-lg dark:prose-invert max-w-none 
+              prose-headings:font-black prose-headings:text-slate-900 dark:prose-headings:text-dark-text
+              prose-p:text-slate-600 dark:prose-p:text-dark-text-secondary prose-p:leading-relaxed prose-p:font-medium
+              prose-strong:text-slate-900 dark:prose-strong:text-dark-text prose-strong:font-black
+              prose-blockquote:border-l-8 prose-blockquote:border-blue-600 dark:prose-blockquote:border-dark-primary prose-blockquote:bg-slate-50 dark:prose-blockquote:bg-dark-card prose-blockquote:rounded-2xl prose-blockquote:p-8 prose-blockquote:italic
+              prose-img:rounded-[2rem] prose-img:shadow-2xl">
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: LinkRenderer,
+                  h2: ({...props}) => <h2 className="text-3xl mt-16 mb-8" {...props} />,
+                  h3: ({...props}) => <h3 className="text-2xl mt-12 mb-6" {...props} />,
+                }}
+              >
+                {body}
+              </ReactMarkdown>
+            </div>
+
+            {/* Post Footer */}
+            <footer className="mt-20 pt-12 border-t border-slate-100 dark:border-dark-border">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-8">
+                <div className="flex items-center gap-5">
+                  <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-blue-600 to-emerald-600 dark:from-dark-primary dark:to-orange-500 flex items-center justify-center text-white dark:text-black">
+                    <User className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-black text-slate-900 dark:text-dark-text">Lunch Hub Team</p>
+                    <p className="text-sm font-medium text-slate-500 dark:text-dark-text-secondary">Curating the best dining experiences.</p>
+                  </div>
                 </div>
-              </div>
-              <div className="grid gap-4 md:grid-cols-3">
-                {relatedPosts.map((related) => (
-                  <Link
-                    key={related.slug}
-                    to={`/blog/${related.slug}`}
-                    className="group block rounded-3xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-5 transition hover:border-blue-500 hover:shadow-xl"
-                  >
-                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-3">{new Date(related.attributes.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 mb-2">{related.attributes.title}</h3>
-                    <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">{related.attributes.description}</p>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-          
-          <footer className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">Lunch Hub Team</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Curating the best dining experiences.</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
                 <button 
                   onClick={() => {
                     if (navigator.share) {
-                      navigator.share({
-                        title: attributes.title,
-                        text: attributes.description,
-                        url: postUrl,
-                      });
+                      navigator.share({ title: attributes.title, text: attributes.description, url: postUrl });
                     } else {
                       navigator.clipboard.writeText(postUrl);
                       alert('Link copied to clipboard!');
                     }
                   }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 transition-all duration-200 text-sm font-medium"
+                  className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-slate-900 dark:bg-dark-card text-white font-black hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-200 dark:shadow-none"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
-                  Share Post
+                  <Share2 className="w-5 h-5" />
+                  Share This Post
                 </button>
               </div>
+            </footer>
+          </article>
+
+          {/* Sidebar */}
+          <aside className="lg:col-span-4 space-y-12">
+            <div className="sticky top-24 space-y-12">
+              {/* Back to Blog */}
+              <Link to="/blog" className="group flex items-center gap-3 text-sm font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-600 dark:hover:text-dark-primary transition-colors">
+                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                Back to all posts
+              </Link>
+
+              {/* Related Posts */}
+              {relatedPosts.length > 0 && (
+                <section>
+                  <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-900 dark:text-dark-text mb-8 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-600 dark:bg-dark-primary rounded-full" />
+                    Read Next
+                  </h3>
+                  <div className="space-y-8">
+                    {relatedPosts.map((related) => (
+                      <Link
+                        key={related.slug}
+                        to={`/blog/${related.slug}`}
+                        className="group block"
+                      >
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{new Date(related.attributes.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                        <h4 className="text-lg font-bold text-slate-900 dark:text-dark-text group-hover:text-blue-600 dark:group-hover:text-dark-primary transition-colors leading-snug">
+                          {related.attributes.title}
+                        </h4>
+                        <div className="mt-3 flex items-center gap-2 text-xs font-black text-blue-600 dark:text-dark-primary uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                          View Post <ArrowRight className="w-4 h-4" />
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Newsletter CTA Style */}
+              <div className="bg-slate-50 dark:bg-dark-card p-8 rounded-[2rem] border border-slate-100 dark:border-dark-border">
+                <h3 className="text-xl font-black text-slate-900 dark:text-dark-text mb-4">Never Miss a Meal</h3>
+                <p className="text-sm font-medium text-slate-500 dark:text-dark-text-secondary mb-6 leading-relaxed">
+                  Join our community to get the best lunch spots delivered to your home screen.
+                </p>
+                <Link to="/restaurants" className="block w-full bg-slate-900 dark:bg-dark-primary text-white dark:text-black text-center font-black py-4 rounded-2xl transition-all hover:opacity-90">
+                  Try Lunch Hub
+                </Link>
+              </div>
             </div>
-          </footer>
-        </article>
+          </aside>
+        </div>
       </div>
     </main>
   );
 };
-
 
 export default BlogPostPage;
