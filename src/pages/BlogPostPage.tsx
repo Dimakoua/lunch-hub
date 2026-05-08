@@ -197,33 +197,55 @@ const BlogPostPage: React.FC = () => {
       </Helmet>
 
       {/* Article Hero */}
-      <div className="relative w-full h-[50vh] sm:h-[60vh] overflow-hidden bg-slate-900">
+      <div className={`relative w-full h-[50vh] sm:h-[60vh] overflow-hidden ${
+        attributes.cover_image 
+          ? 'bg-slate-900' 
+          : 'bg-gradient-to-br from-blue-600 to-emerald-600 dark:from-dark-primary dark:to-orange-600'
+      }`}>
         {attributes.cover_image && (
           <img 
             src={attributes.cover_image} 
             alt={attributes.title} 
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-40 sm:opacity-60"
           />
         )}
+        
+        {/* Overlay Gradients */}
         <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-dark-background via-transparent to-transparent" />
+        {!attributes.cover_image && (
+          <div className="absolute inset-0 bg-white/10 dark:bg-black/10 backdrop-blur-[2px]" />
+        )}
+
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 w-full pb-12 sm:pb-20">
             <div className="flex items-center gap-3 mb-6">
-              <span className="bg-blue-600 dark:bg-dark-primary text-white dark:text-black px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">
+              <span className={`${
+                attributes.cover_image 
+                  ? 'bg-blue-600 dark:bg-dark-primary text-white dark:text-black' 
+                  : 'bg-white/20 backdrop-blur-md text-white border border-white/30'
+              } px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest`}>
                 Lunch Journal
               </span>
             </div>
-            <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-dark-text leading-[1.1] mb-6">
+            <h1 className={`text-4xl sm:text-6xl font-black leading-[1.1] mb-6 ${
+              attributes.cover_image 
+                ? 'text-slate-900 dark:text-dark-text' 
+                : 'text-white'
+            }`}>
               {attributes.title}
             </h1>
-            <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-slate-500 dark:text-dark-text-secondary uppercase tracking-widest">
+            <div className={`flex flex-wrap items-center gap-6 text-sm font-bold uppercase tracking-widest ${
+              attributes.cover_image 
+                ? 'text-slate-500 dark:text-dark-text-secondary' 
+                : 'text-white/80'
+            }`}>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-blue-500 dark:text-dark-primary" />
+                <Calendar className={`w-4 h-4 ${attributes.cover_image ? 'text-blue-500 dark:text-dark-primary' : 'text-white'}`} />
                 {new Date(attributes.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </div>
               <ReadingTime text={body} />
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-purple-500 dark:text-dark-primary" />
+                <User className={`w-4 h-4 ${attributes.cover_image ? 'text-purple-500 dark:text-dark-primary' : 'text-white'}`} />
                 Lunch Hub Team
               </div>
             </div>
