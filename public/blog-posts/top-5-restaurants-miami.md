@@ -2,7 +2,7 @@
 title: "Top 5 Restaurants in Miami: The Magic City's Hottest Eats"
 date: "March 12, 2026"
 description: "Experience the vibrant flavors of Miami, from Cuban delicacies to world-class seafood. Explore the top 5 restaurants in the Magic City."
-cover_image: "https://images.unsplash.com/photo-1534349762230-e0cadf78f505?q=80&w=2070&auto=format&fit=crop"
+cover_image: "/images/unsplash/photo-1555126634-323283e090fa.jpg"
 keywords: "Miami restaurants, Magic City eats, Cuban food, Miami Beach dining, Little Havana food"
 ---
 
