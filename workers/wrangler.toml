@@ -1,0 +1,7 @@
+name = "lunch-hub-api"
+main = "index.ts"
+compatibility_date = "2024-03-20"
+
+[[kv_namespaces]]
+binding = "POLLS"
+id = "LUNCH_HUB_POLLS_ID_PLACEHOLDER"

@@ -10,6 +10,7 @@ const RestaurantsPage = lazy(() => import('./pages/RestaurantsPage'));
 const BlogPage = lazy(() => import('./pages/BlogPage'));
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
 const CityGuidePage = lazy(() => import('./pages/CityGuidePage'));
+const PollPage = lazy(() => import('./pages/PollPage'));
 import { geocodeAddress, getCurrentLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
 import { 
@@ -24,7 +25,7 @@ import { FilterRule, FilterField } from './types/filter';
 import { isRestaurantOpen } from './utils/openingHours'; // NEW IMPORT
 import { setImperialUnitsOverride, useImperialUnits } from './utils/distanceFormatter';
 
-type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
+type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history' | 'poll';
 type Theme = 'light' | 'dark';
 
 function App() {
@@ -682,6 +683,7 @@ function App() {
           <Route path="/guide" element={<CityGuidePage />} />
           <Route path="/guide/:city" element={<CityGuidePage />} />
           <Route path="/guide/:city/:cuisine" element={<CityGuidePage />} />
+          <Route path="/poll/:id" element={<PollPage />} />
         </Routes>
       </Suspense>
       <Footer />

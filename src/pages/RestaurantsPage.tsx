@@ -15,6 +15,7 @@ import { fetchRoute } from '../services/routing'; // Import fetchRoute
 import { OnboardingTour } from '../components/OnboardingTour';
 import { shareRestaurant } from '../utils/share'; // Added shareRestaurant
 import { formatDistance, formatWalkingTime, getRadiusOptionsInMeters } from '../utils/distanceFormatter';
+import { createPoll } from '../services/polls';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
@@ -165,7 +166,41 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   const cuisineQuery = new URLSearchParams(pageLocation.search).get('cuisine')?.trim() ?? '';
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://thelunchub.com';
+  const [selectedForPoll, setSelectedForPoll] = useState<Restaurant[]>([]);
+  const [isCreatingPoll, setIsCreatingPoll] = useState(false);
+  const [pollError, setPollError] = useState<string | null>(null);
   const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
+
+  const handleCreatePoll = async () => {
+    if (selectedForPoll.length < 2) {
+      setPollError("Please select at least 2 restaurants.");
+      return;
+    }
+    if (selectedForPoll.length > 5) {
+      setPollError("Please select at most 5 restaurants.");
+      return;
+    }
+    setIsCreatingPoll(true);
+    setPollError(null);
+    try {
+      const id = await createPoll(selectedForPoll);
+      navigate(`/poll/${id}`);
+    } catch (e) {
+      setPollError("Failed to create poll. Please try again.");
+    } finally {
+      setIsCreatingPoll(false);
+    }
+  };
+
+  const togglePollSelection = (restaurant: Restaurant) => {
+    setSelectedForPoll(prev => {
+      const exists = prev.some(r => r.id === restaurant.id);
+      if (exists) return prev.filter(r => r.id !== restaurant.id);
+      if (prev.length >= 5) return prev;
+      return [...prev, restaurant];
+    });
+  };
+
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
   const [routeDuration, setRouteDuration] = useState<number | null>(null);
   const [newFilterField, setNewFilterField] = useState<FilterField>('name');
@@ -278,6 +313,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     wheel: 'Spin Wheel',
     random: 'Random',
     history: 'History',
+    poll: 'Create Poll',
   };
 
   const breadcrumbItems = [
@@ -582,6 +618,17 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         <History className="w-4 h-4" />
         <span className="hidden sm:inline">History</span>
       </button>
+      <button
+        onClick={() => setViewMode('poll')}
+        className={`${tabBase} ${
+          viewMode === 'poll'
+            ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
+            : tabInactive
+        }`}
+      >
+        <Share2 className="w-4 h-4" />
+        <span className="hidden sm:inline">Poll</span>
+      </button>
     </div>  </div>  );
 
   return (
@@ -856,6 +903,64 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     onRestaurantSelected={handleSpinWheelResult}
                     onMarkVisited={onMarkRestaurantVisited}
                   />
+                </div>
+              </div>
+            )}
+
+            {viewMode === 'poll' && (
+              <div className="mb-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-dark-text">Create a Team Poll</h2>
+                    <p className="text-sm text-gray-500 dark:text-dark-text-secondary">
+                      Select 2-5 restaurants from your nearby results to let your team vote.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-slate-500 dark:text-dark-text-secondary">
+                      {selectedForPoll.length}/5 selected
+                    </span>
+                    <button
+                      onClick={handleCreatePoll}
+                      disabled={isCreatingPoll || selectedForPoll.length < 2}
+                      className="bg-blue-600 dark:bg-dark-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {isCreatingPoll && <Loader2 className="w-4 h-4 animate-spin" />}
+                      Generate Poll Link
+                    </button>
+                  </div>
+                </div>
+                {pollError && (
+                  <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-medium mb-4">{pollError}</div>
+                )}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {restaurants.map((restaurant) => {
+                    const isSelected = selectedForPoll.some(r => r.id === restaurant.id);
+                    return (
+                      <div 
+                        key={restaurant.id}
+                        className={`relative border-2 rounded-2xl p-4 cursor-pointer transition-all ${
+                          isSelected 
+                            ? 'border-blue-500 bg-blue-50/50 dark:bg-dark-primary/10 ring-4 ring-blue-500/20' 
+                            : 'border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card hover:border-slate-300'
+                        }`}
+                        onClick={() => togglePollSelection(restaurant)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="font-bold text-lg text-slate-900 dark:text-dark-text mb-1">{restaurant.name}</h3>
+                            <p className="text-sm text-slate-500 dark:text-dark-text-secondary truncate max-w-[200px]">{restaurant.cuisine || 'Restaurant'}</p>
+                          </div>
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                            isSelected ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-300'
+                          }`}>
+                            {isSelected && <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 stroke-current stroke-[3px]"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
