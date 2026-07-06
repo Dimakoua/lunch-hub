@@ -43,22 +43,55 @@ Lunch Hub is your team's central place for planning group meals, coordinating ta
 
 ### Prerequisites
 
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
+- [Node.js](https://nodejs.org/) (v18+)
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) (installed automatically via npm scripts)
+- A Cloudflare Account (for production deployment)
 
-### Installation
+### Installation & Local Development
 
-1. Clone the repo
+1. Clone the repo:
    ```sh
    git clone https://github.com/your_username/lunch-hub.git
    ```
-2. Install dependencies
-    ```sh
-    npm install
-    ```
-3. Start the development server
-    ```sh
-    npm run dev
-    ```
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
+3. Start the development server (runs both Vite frontend and Wrangler backend concurrently):
+   ```sh
+   npm run dev
+   ```
+
+---
+
+## ☁️ Deployment
+
+### 1. Deploy the Backend (Cloudflare Workers)
+
+The polling feature uses a lightweight Cloudflare Worker backed by a KV (Key-Value) store to manage team polls without a database.
+
+1. **Login to Cloudflare** via Wrangler:
+   ```sh
+   npx wrangler login
+   ```
+2. **Deploy the Worker:**
+   ```sh
+   cd workers
+   npx wrangler deploy
+   ```
+   *(Wrangler will detect the `POLLS` KV namespace binding configuration in `wrangler.toml` and guide you to create it automatically if it doesn't already exist in your account).*
+
+### 2. Deploy the Frontend (Cloudflare Pages / Static Hosting)
+
+You can host the React frontend on Cloudflare Pages or any static provider.
+
+#### Routing the API (Same Domain Setup)
+To avoid CORS issues and keep everything under the same domain (`https://thelunchub.com/`), route the API requests directly through Cloudflare:
+1. In your Cloudflare Dashboard, go to your **Website / Domain** -> **Workers Routes**.
+2. Click **Add route**.
+3. Set the route path to `thelunchub.com/api/polls*` and select your `lunch-hub-api` worker.
+
+*Alternatively, if hosting the frontend and backend on separate domains, set the environment variable `VITE_POLLS_API_URL` to your Worker URL (e.g. `https://lunch-hub-api.yourusername.workers.dev`) when building the frontend.*
 
 ## 🤝 Contributing
 
