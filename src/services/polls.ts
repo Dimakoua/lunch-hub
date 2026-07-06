@@ -7,8 +7,10 @@ export interface Poll {
   votes: Record<string, number>;
 }
 
-// Use environment variable if available, otherwise default to local wrangler dev server
-const API_URL = import.meta.env.VITE_POLLS_API_URL || 'http://localhost:8787';
+// In production, we assume the API is hosted on the same domain (e.g. routed to /api/* via Cloudflare)
+// You can override this entirely with the VITE_POLLS_API_URL environment variable.
+const API_URL = import.meta.env.VITE_POLLS_API_URL 
+  || (import.meta.env.PROD ? '' : 'http://localhost:8787');
 
 export const createPoll = async (restaurants: Restaurant[]): Promise<string> => {
   const response = await fetch(`${API_URL}/api/polls`, {
