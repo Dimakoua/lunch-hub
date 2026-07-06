@@ -11,6 +11,7 @@ const BlogPage = lazy(() => import('./pages/BlogPage'));
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
 const CityGuidePage = lazy(() => import('./pages/CityGuidePage'));
 const PollPage = lazy(() => import('./pages/PollPage'));
+const MatchPage = lazy(() => import('./pages/MatchPage'));
 import { geocodeAddress, getCurrentLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
 import { 
@@ -684,6 +685,7 @@ function App() {
           <Route path="/guide/:city" element={<CityGuidePage />} />
           <Route path="/guide/:city/:cuisine" element={<CityGuidePage />} />
           <Route path="/poll/:id" element={<PollPage />} />
+          <Route path="/match/:id" element={<MatchPage />} />
         </Routes>
       </Suspense>
       <Footer />

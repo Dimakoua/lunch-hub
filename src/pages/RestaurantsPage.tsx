@@ -16,6 +16,7 @@ import { OnboardingTour } from '../components/OnboardingTour';
 import { shareRestaurant } from '../utils/share'; // Added shareRestaurant
 import { formatDistance, formatWalkingTime, getRadiusOptionsInMeters } from '../utils/distanceFormatter';
 import { createPoll } from '../services/polls';
+import { createMatchRoom } from '../services/matchmaker';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
@@ -170,6 +171,28 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   const [isCreatingPoll, setIsCreatingPoll] = useState(false);
   const [pollError, setPollError] = useState<string | null>(null);
   const [routeGeometry, setRouteGeometry] = useState<[number, number][] | null>(null);
+  
+  const [showMatchModal, setShowMatchModal] = useState(false);
+  const [groupSize, setGroupSize] = useState(2);
+  const [isCreatingMatch, setIsCreatingMatch] = useState(false);
+
+  const handleCreateMatchRoom = async () => {
+    if (selectedForPoll.length < 2) {
+      setPollError("Please select at least 2 restaurants.");
+      return;
+    }
+    setIsCreatingMatch(true);
+    setPollError(null);
+    try {
+      const id = await createMatchRoom(selectedForPoll, groupSize);
+      setShowMatchModal(false);
+      navigate(`/match/${id}`);
+    } catch (e) {
+      setPollError("Failed to create match room. Please try again.");
+    } finally {
+      setIsCreatingMatch(false);
+    }
+  };
 
   const handleCreatePoll = async () => {
     if (selectedForPoll.length < 2) {
@@ -921,9 +944,16 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                       {selectedForPoll.length}/5 selected
                     </span>
                     <button
+                      onClick={() => setShowMatchModal(true)}
+                      disabled={isCreatingPoll || isCreatingMatch || selectedForPoll.length < 2}
+                      className="bg-emerald-600 dark:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition"
+                    >
+                      🔥 Swipe Match
+                    </button>
+                    <button
                       onClick={handleCreatePoll}
-                      disabled={isCreatingPoll || selectedForPoll.length < 2}
-                      className="bg-blue-600 dark:bg-dark-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      disabled={isCreatingPoll || isCreatingMatch || selectedForPoll.length < 2}
+                      className="bg-blue-600 dark:bg-dark-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition"
                     >
                       {isCreatingPoll && <Loader2 className="w-4 h-4 animate-spin" />}
                       Generate Poll Link
@@ -962,6 +992,53 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     );
                   })}
                 </div>
+
+                {/* Group Size Selection Modal */}
+                {showMatchModal && (
+                  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-dark-card border border-slate-100 dark:border-dark-border rounded-3xl p-6 max-w-sm w-full shadow-2xl animate-fade-in">
+                      <h3 className="text-xl font-black text-slate-900 dark:text-dark-text mb-2">🔥 Swipe Matchmaker</h3>
+                      <p className="text-sm text-slate-500 dark:text-dark-text-secondary mb-6">
+                        How many people are deciding together? We will match once this many people agree on a place.
+                      </p>
+                      
+                      <div className="flex items-center justify-center gap-4 mb-6">
+                        <button 
+                          onClick={() => setGroupSize(prev => Math.max(2, prev - 1))}
+                          className="w-10 h-10 rounded-full border border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text flex items-center justify-center font-bold hover:bg-slate-50 active:scale-95 transition"
+                        >
+                          -
+                        </button>
+                        <span className="text-2xl font-black text-slate-950 dark:text-dark-text w-12 text-center">
+                          {groupSize}
+                        </span>
+                        <button 
+                          onClick={() => setGroupSize(prev => Math.min(10, prev + 1))}
+                          className="w-10 h-10 rounded-full border border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text flex items-center justify-center font-bold hover:bg-slate-50 active:scale-95 transition"
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setShowMatchModal(false)}
+                          className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text font-bold text-sm hover:bg-slate-50 transition"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleCreateMatchRoom}
+                          disabled={isCreatingMatch}
+                          className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition flex items-center justify-center gap-1.5"
+                        >
+                          {isCreatingMatch && <Loader2 className="w-4 h-4 animate-spin" />}
+                          Start Swiping
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
