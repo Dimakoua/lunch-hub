@@ -15,13 +15,17 @@ const KV_TTL = 604800; // 7 days in seconds
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    // Normalize pathname: remove trailing slash (except for root '/')
+    const pathname = url.pathname.endsWith('/') && url.pathname.length > 1
+      ? url.pathname.slice(0, -1)
+      : url.pathname;
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
     }
 
     // POST /api/polls - Create a new poll
-    if (request.method === 'POST' && url.pathname === '/api/polls') {
+    if (request.method === 'POST' && pathname === '/api/polls') {
       try {
         const body: any = await request.json();
         // Generate a 6-character random ID
@@ -45,8 +49,8 @@ export default {
     }
 
     // GET /api/polls/:id - Fetch poll
-    if (request.method === 'GET' && url.pathname.startsWith('/api/polls/')) {
-      const id = url.pathname.split('/').pop();
+    if (request.method === 'GET' && pathname.startsWith('/api/polls/')) {
+      const id = pathname.split('/').pop();
       if (!id) return new Response('Not Found', { status: 404, headers: corsHeaders });
       
       const poll = await env.POLLS.get(id);
@@ -58,8 +62,8 @@ export default {
     }
 
     // POST /api/polls/:id/vote - Vote on a restaurant
-    if (request.method === 'POST' && url.pathname.startsWith('/api/polls/') && url.pathname.endsWith('/vote')) {
-      const parts = url.pathname.split('/');
+    if (request.method === 'POST' && pathname.startsWith('/api/polls/') && pathname.endsWith('/vote')) {
+      const parts = pathname.split('/');
       const id = parts[parts.length - 2];
       
       try {
@@ -81,7 +85,7 @@ export default {
     }
 
     // POST /api/match/create - Create a new matchmaker room
-    if (request.method === 'POST' && url.pathname === '/api/match/create') {
+    if (request.method === 'POST' && pathname === '/api/match/create') {
       try {
         const { restaurants, groupSize } = await request.json();
         const id = Math.random().toString(36).substring(2, 8);
@@ -106,8 +110,8 @@ export default {
     }
 
     // GET /api/match/:id - Get matchmaker room state
-    if (request.method === 'GET' && url.pathname.startsWith('/api/match/') && !url.pathname.endsWith('/vote')) {
-      const id = url.pathname.split('/').pop();
+    if (request.method === 'GET' && pathname.startsWith('/api/match/') && !pathname.endsWith('/vote')) {
+      const id = pathname.split('/').pop();
       if (!id) return new Response('Not Found', { status: 404, headers: corsHeaders });
       
       const matchString = await env.POLLS.get(`match:${id}`);
@@ -119,8 +123,8 @@ export default {
     }
 
     // POST /api/match/:id/vote - Submit a swipe vote
-    if (request.method === 'POST' && url.pathname.startsWith('/api/match/') && url.pathname.endsWith('/vote')) {
-      const parts = url.pathname.split('/');
+    if (request.method === 'POST' && pathname.startsWith('/api/match/') && pathname.endsWith('/vote')) {
+      const parts = pathname.split('/');
       const id = parts[parts.length - 2];
       
       try {
@@ -161,6 +165,11 @@ export default {
       } catch (err) {
         return new Response('Bad Request', { status: 400, headers: corsHeaders });
       }
+    }
+
+    // Return 404 for unmatched API routes
+    if (pathname.startsWith('/api/')) {
+      return new Response('API Route Not Found', { status: 404, headers: corsHeaders });
     }
 
     // Not an API route — serve the React SPA static assets
