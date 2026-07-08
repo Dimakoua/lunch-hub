@@ -8,6 +8,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Only intercept GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   // Network-first strategy for a basic implementation
   event.respondWith(
     fetch(event.request).catch(() => {
