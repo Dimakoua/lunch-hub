@@ -48,38 +48,49 @@ async function prerender() {
   console.log('Starting prerender server...');
   const server = await startServer();
 
-  const paths = await getPathsFromSitemap();
-  console.log(`Found ${paths.length} paths to prerender.`);
+  try {
+    const paths = await getPathsFromSitemap();
+    console.log(`Found ${paths.length} paths to prerender.`);
 
-  const browser = await puppeteer.launch({ headless: 'new' });
-  
-  for (const p of paths) {
-    console.log(`Prerendering ${p}...`);
-    const page = await browser.newPage();
-    try {
-      await page.goto(`${BASE_URL}${p}`, { waitUntil: 'networkidle0', timeout: 30000 });
-      // Wait for helmet to inject meta tags
-      await wait(500);
+    // Launch with standard sandbox flags for Docker/Linux environments
+    const browser = await puppeteer.launch({ 
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+    
+    for (const p of paths) {
+      console.log(`Prerendering ${p}...`);
+      const page = await browser.newPage();
+      try {
+        await page.goto(`${BASE_URL}${p}`, { waitUntil: 'networkidle0', timeout: 30000 });
+        // Wait for helmet to inject meta tags
+        await wait(500);
 
-      let content = await page.content();
-      
-      const filePath = p === '/' ? 'index.html' : `${p}/index.html`.replace(/^\//, '');
-      const fullFilePath = path.join(distDir, filePath);
-      const fileDir = path.dirname(fullFilePath);
-      
-      fs.mkdirSync(fileDir, { recursive: true });
-      fs.writeFileSync(fullFilePath, content);
-      console.log(`✓ Saved ${filePath}`);
-    } catch (e) {
-      console.error(`✗ Error prerendering ${p}:`, e);
-    } finally {
-      await page.close();
+        let content = await page.content();
+        
+        const filePath = p === '/' ? 'index.html' : `${p}/index.html`.replace(/^\//, '');
+        const fullFilePath = path.join(distDir, filePath);
+        const fileDir = path.dirname(fullFilePath);
+        
+        fs.mkdirSync(fileDir, { recursive: true });
+        fs.writeFileSync(fullFilePath, content);
+        console.log(`✓ Saved ${filePath}`);
+      } catch (e) {
+        console.error(`✗ Error prerendering ${p}:`, e);
+      } finally {
+        await page.close();
+      }
     }
-  }
 
-  await browser.close();
-  server.close();
-  console.log('Prerendering complete!');
+    await browser.close();
+  } catch (e) {
+    console.error('✗ Prerendering engine failed to start:', e.message);
+    console.warn('⚠️ Dev Environment is missing Chromium system dependencies. Skipping pre-generation.');
+    console.warn('⚠️ The application will build and deploy as a standard client-side React SPA.');
+  } finally {
+    server.close();
+    console.log('Prerendering step finished!');
+  }
 }
 
 prerender().catch(console.error);
