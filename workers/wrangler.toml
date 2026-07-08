@@ -1,0 +1,11 @@
+name = "lunch-hub"
+main = "index.ts"
+compatibility_date = "2024-03-20"
+
+# Serve the built React app from the dist/ directory
+[assets]
+directory = "../dist"
+
+[[kv_namespaces]]
+binding = "POLLS"
+id = "LUNCH_HUB_POLLS_ID_PLACEHOLDER"
