@@ -1,98 +1,99 @@
-# Lunch Hub
+# 🗺️ Lunch Hub
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Built with React](https://img.shields.io/badge/Built%20with-React-61DAFB?logo=react)](https://react.dev)
+[![Deployed on Cloudflare](https://img.shields.io/badge/Deployed%20to-Cloudflare%20Workers-F38020?logo=cloudflare)](https://workers.cloudflare.com/)
 
+**Lunch Hub** is an ad-free, tracking-free, privacy-first web application designed to help individuals and office teams discover local lunch spots nearby and make group dining decisions without the friction. 
 
-Lunch Hub is your team's central place for planning group meals, coordinating takeout orders, and discovering new places to eat. It also helps individuals and teams discover restaurants nearby with a modern, user-friendly interface.
+Whether you're trying to figure out where to go solo, coordinating takeout orders for the team, or playing a quick game of Swipe-to-Match with friends, Lunch Hub eliminates the *"where do you want to go?"* debate.
 
+---
 
-## 🚀 Core Features
+## 🚀 Key Features
 
-- **Find Nearby Restaurants:** Enter your address or use your location to discover restaurants within a chosen radius.
-- **Search & Filters:** Filter restaurants by name, keyword, cuisine, or amenity. Exclude brands or types (e.g., coffee shops) to tailor your suggestions. Toggle to show only open restaurants.
-- **Multiple Views:**
-    - **Map View:** See restaurants plotted on an interactive map.
-    - **List View:** Browse a list of restaurants with details.
-    - **Random Picker:** Can't decide? Let Lunch Hub pick a restaurant for you at random.
-    - **Spin Wheel:** Use a fun wheel to choose your meal.
-    - **History:** Review your recent picks and searches.
-- **Modern UI:** Clean, dark and light themes with intuitive navigation and controls.
-- **Group/Team Creation:** Create or join teams (e.g., "Marketing Dept," "Frontend Devs") to plan lunches with colleagues.
-- **Restaurant Polling:** Propose restaurant options and let team members vote. Polls can have deadlines, and the winner is announced automatically.
-- **Order Aggregation:** For takeout, team members add their orders, and the organizer gets a consolidated list for easy ordering.
-- **Morning Coffee Runs:** Organize group coffee orders to kickstart the day.
+*   **🔥 Swipe Match ("Tinder for Food"):** Start a swipe matchroom, share the link, and swipe right or left on nearby restaurants. The moment your group hits consensus, the screen matches with confetti!
+*   **🗳️ No-Login Group Polls:** Select 2-5 restaurants from your map results and generate a lightweight sharing link for instant voting. No registration or account setup required.
+*   **📍 Privacy-First Restaurant Discovery:** Discover nearby dining options using OpenStreetMap (OSM) data. Drag the pin anywhere to explore new areas, and search with custom radius limits.
+*   **🎯 Quick Deciders:**
+    *   **Spin Wheel:** Enter your nearby options on a wheel and spin to let fate decide.
+    *   **Random Picker:** Instantly get a single, highly-rated recommendation in one tap.
+*   **🛠️ Smart Custom Filters:** Filter by cuisines (e.g. Italian, Sushi), amenities (e.g. Pub, Cafe), or toggle *Open Now* status. Exclude specific tags or chains you don't feel like eating today.
+*   **📱 Installable PWA:** Install directly to your iOS or Android home screen for instant native app access on the go.
 
+---
 
 ## 🖼️ Screenshots
 
-| Home Page | Map View | Random Picker |
+| Home Page | Map View & Directions | Swipe Matchmaker |
 |-----------|----------|--------------|
-| ![Home](public/readme/Screenshot%202026-01-28%20at%2010.58.56%E2%80%AFAM.png) | ![Map](public/readme/Screenshot%202026-01-28%20at%2010.59.24%E2%80%AFAM.png) | ![Random](public/readme/Screenshot%202026-01-28%20at%2010.59.33%E2%80%AFAM.png) |
+| ![Home](public/readme/Screenshot%202026-01-28%20at%2010.58.56%E2%80%AFAM.png) | ![Map](public/readme/Screenshot%202026-01-28%20at%2010.59.24%E2%80%AFAM.png) | ![Swipe Match](public/readme/Screenshot%202026-01-28%20at%2010.59.33%E2%80%AFAM.png) |
 
-| Filters & Controls |
-|-------------------|
-| ![Filters](public/readme/Screenshot%202026-01-28%20at%2010.59.45%E2%80%AFAM.png) |
-
+---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** React + Vite + Tailwind CSS
-- **Backend:** [Cloudflare Workers](https://workers.cloudflare.com/)
+- **Frontend:** React + Vite + Tailwind CSS (Responsive Desktop/Mobile Layout)
+- **Backend:** Cloudflare Workers (Handling Polls & Swipe room sync)
+- **Database:** Cloudflare KV Namespace (Key-Value edge storage)
+- **Data Source:** OpenStreetMap / Overpass API (Live geolocation-based directory)
+- **SEO/Metadata:** Static prerendering engine (Puppeteer-based) with automatic sitemap generation for maximum search visibility
+
+---
 
 ## 🏁 Getting Started
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18+)
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) (installed automatically via npm scripts)
-- A Cloudflare Account (for production deployment)
+- A Cloudflare Account (for serverless edge database deployment)
 
-### Installation & Local Development
+### Local Development
 
-1. Clone the repo:
+1. **Clone the repository:**
    ```sh
-   git clone https://github.com/your_username/lunch-hub.git
+   git clone https://github.com/Dimakoua/lunch-hub.git
+   cd lunch-hub
    ```
-2. Install dependencies:
+
+2. **Install dependencies:**
    ```sh
    npm install
    ```
-3. Start the development server (runs both Vite frontend and Wrangler backend concurrently):
+
+3. **Start local development servers:**
    ```sh
    npm run dev
    ```
+   *This starts both the Vite local server (for frontend) and the wrangler dev worker (for polls/swipe APIs) concurrently.*
 
 ---
 
-## ☁️ Deployment
+## ☁️ Production Deployment (Cloudflare Worker)
 
-### 1. Deploy the Backend (Cloudflare Workers)
+Lunch Hub uses a unified deployment model where both the React frontend assets and the backend API logic run from a single Cloudflare Worker.
 
-The polling feature uses a lightweight Cloudflare Worker backed by a KV (Key-Value) store to manage team polls without a database.
-
-1. **Login to Cloudflare** via Wrangler:
+1. **Log in to Cloudflare:**
    ```sh
    npx wrangler login
    ```
-2. **Deploy the Worker:**
+
+2. **Deploy the stack:**
    ```sh
-   cd workers
-   npx wrangler deploy
+   npm run deploy
    ```
-   *(Wrangler will detect the `POLLS` KV namespace binding configuration in `wrangler.toml` and guide you to create it automatically if it doesn't already exist in your account).*
+   *Wrangler will compile the static assets, prerender the routes for SEO, package the worker API code, and ask you to bind/create the `POLLS` KV database namespace automatically if it's your first run.*
 
-### 2. Deploy the Frontend (Cloudflare Pages / Static Hosting)
+3. **Connect Custom Domain (`thelunchub.com`):**
+   Go to your Cloudflare Dashboard -> **Workers & Pages** -> **lunch-hub** -> **Settings** -> **Domains & Routes** -> **Add Custom Domain** and input your domain.
 
-You can host the React frontend on Cloudflare Pages or any static provider.
-
-#### Routing the API (Same Domain Setup)
-To avoid CORS issues and keep everything under the same domain (`https://thelunchub.com/`), route the API requests directly through Cloudflare:
-1. In your Cloudflare Dashboard, go to your **Website / Domain** -> **Workers Routes**.
-2. Click **Add route**.
-3. Set the route path to `thelunchub.com/api/polls*` and select your `lunch-hub-api` worker.
-
-*Alternatively, if hosting the frontend and backend on separate domains, set the environment variable `VITE_POLLS_API_URL` to your Worker URL (e.g. `https://lunch-hub-api.yourusername.workers.dev`) when building the frontend.*
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! If you have ideas for new features, bug fixes, or enhancements:
+1. Fork the Project.
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the Branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
