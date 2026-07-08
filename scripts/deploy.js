@@ -11,7 +11,7 @@ console.log('🔍 Checking for existing KV namespace...');
 
 try {
   // Get list of KV namespaces
-  const listOutput = execSync('npx wrangler kv:namespace list', { cwd: workersDir, encoding: 'utf-8' });
+  const listOutput = execSync('npx wrangler kv namespace list', { cwd: workersDir, encoding: 'utf-8' });
   
   const firstBracket = listOutput.indexOf('[');
   const lastBracket = listOutput.lastIndexOf(']');
@@ -26,11 +26,11 @@ try {
   
   if (!pollsNamespace) {
     console.log('⚙️ KV namespace not found. Creating one automatically...');
-    const createOutput = execSync('npx wrangler kv:namespace create POLLS', { cwd: workersDir, encoding: 'utf-8' });
+    const createOutput = execSync('npx wrangler kv namespace create POLLS', { cwd: workersDir, encoding: 'utf-8' });
     console.log(createOutput);
     
     // Fetch the list again to get the ID
-    const newListOutput = execSync('npx wrangler kv:namespace list', { cwd: workersDir, encoding: 'utf-8' });
+    const newListOutput = execSync('npx wrangler kv namespace list', { cwd: workersDir, encoding: 'utf-8' });
     const newFirstBracket = newListOutput.indexOf('[');
     const newLastBracket = newListOutput.lastIndexOf(']');
     
