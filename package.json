@@ -9,6 +9,7 @@
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "prebuild": "node scripts/generate-sitemap.js",
     "build": "vite build && node scripts/prerender.js",
+    "deploy": "npm run build && cd workers && wrangler deploy",
     "lint": "eslint .",
     "preview": "vite preview"
   },

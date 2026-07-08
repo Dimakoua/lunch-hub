@@ -1,5 +1,6 @@
 interface Env {
   POLLS: KVNamespace;
+  ASSETS: Fetcher; // Static assets binding (dist/)
 }
 
 const corsHeaders = {
@@ -159,6 +160,7 @@ export default {
       }
     }
 
-    return new Response('Not Found', { status: 404, headers: corsHeaders });
+    // Not an API route — serve the React SPA static assets
+    return env.ASSETS.fetch(request);
   },
 };
