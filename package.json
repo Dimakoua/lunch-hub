@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev:frontend": "vite",
-    "dev:backend": "wrangler pages dev dist --kv POLLS",
+    "dev:backend": "wrangler dev",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "prebuild": "node scripts/generate-sitemap.js",
     "build": "vite build",
+    "deploy": "npm run build && wrangler deploy",
     "lint": "eslint .",
     "preview": "vite preview"
   },
