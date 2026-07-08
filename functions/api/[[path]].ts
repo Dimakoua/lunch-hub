@@ -41,8 +41,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       return new Response(JSON.stringify({ id }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
-    } catch (err) {
-      return new Response('Bad Request', { status: 400, headers: corsHeaders });
+    } catch (err: any) {
+      return new Response(`Bad Request: ${err.message}`, { status: 400, headers: corsHeaders });
     }
   }
 
