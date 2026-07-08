@@ -9,6 +9,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+// Automatic expiration: Clean up keys after 7 days of inactivity to prevent storage leaking
+const KV_TTL = 604800; // 7 days in seconds
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -31,7 +34,7 @@ export default {
           votes: {}
         };
         
-        await env.POLLS.put(id, JSON.stringify(pollData));
+        await env.POLLS.put(id, JSON.stringify(pollData), { expirationTtl: KV_TTL });
         
         return new Response(JSON.stringify({ id }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -67,7 +70,7 @@ export default {
         const poll = JSON.parse(pollString);
         poll.votes[restaurantId] = (poll.votes[restaurantId] || 0) + 1;
         
-        await env.POLLS.put(id, JSON.stringify(poll));
+        await env.POLLS.put(id, JSON.stringify(poll), { expirationTtl: KV_TTL });
         
         return new Response(JSON.stringify(poll), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -92,7 +95,7 @@ export default {
           matchedRestaurantId: null
         };
         
-        await env.POLLS.put(`match:${id}`, JSON.stringify(matchData));
+        await env.POLLS.put(`match:${id}`, JSON.stringify(matchData), { expirationTtl: KV_TTL });
         
         return new Response(JSON.stringify({ id }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -150,7 +153,7 @@ export default {
           room.matchedRestaurantId = restaurantId;
         }
         
-        await env.POLLS.put(`match:${id}`, JSON.stringify(room));
+        await env.POLLS.put(`match:${id}`, JSON.stringify(room), { expirationTtl: KV_TTL });
         
         return new Response(JSON.stringify(room), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
