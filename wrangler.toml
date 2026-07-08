@@ -8,4 +8,3 @@ directory = "dist"
 
 [[kv_namespaces]]
 binding = "POLLS"
-id = "LUNCH_HUB_POLLS_ID_PLACEHOLDER"
