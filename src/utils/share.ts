@@ -1,16 +1,24 @@
 // src/utils/share.ts
 
 import { Restaurant } from '../types/restaurant';
+import { shareRestaurantCard, downloadRestaurantCard } from './canvasShareCard';
+
+export { shareRestaurantCard, downloadRestaurantCard };
 
 export const shareRestaurant = async (restaurant: Restaurant) => {
-  const shareText = `Check out this lunch spot: ${restaurant.name} - ${restaurant.address}.`;
+  // Try sharing the beautiful image card first
+  const sharedCard = await shareRestaurantCard(restaurant);
+  if (sharedCard) return;
+
+  // Fallback for browsers that do not support sharing image files
+  const shareText = `Check out this lunch spot: ${restaurant.name} - ${restaurant.address || ''}.`;
   const shareData = {
     title: 'Lunch Hub',
     text: shareText,
-    url: window.location.href, // Could be improved to link directly to restaurant in future
+    url: window.location.origin,
   };
 
-  if (navigator.share && navigator.canShare(shareData)) {
+  if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
     try {
       await navigator.share(shareData);
       console.log('Restaurant shared successfully');
@@ -20,7 +28,7 @@ export const shareRestaurant = async (restaurant: Restaurant) => {
   } else {
     // Fallback for browsers that do not support Web Share API
     try {
-      await navigator.clipboard.writeText(shareText + ' ' + window.location.href);
+      await navigator.clipboard.writeText(shareText + ' ' + window.location.origin);
       alert('Restaurant details copied to clipboard!');
     } catch (error) {
       console.error('Error copying to clipboard:', error);

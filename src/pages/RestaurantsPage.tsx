@@ -14,6 +14,7 @@ import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../service
 import { fetchRoute } from '../services/routing'; // Import fetchRoute
 import { OnboardingTour } from '../components/OnboardingTour';
 import { shareRestaurant } from '../utils/share'; // Added shareRestaurant
+import { ShareCardModal } from '../components/ShareCardModal';
 import { formatDistance, formatWalkingTime, getRadiusOptionsInMeters } from '../utils/distanceFormatter';
 import { createPoll } from '../services/polls';
 import { createMatchRoom } from '../services/matchmaker';
@@ -175,6 +176,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [groupSize, setGroupSize] = useState(2);
   const [isCreatingMatch, setIsCreatingMatch] = useState(false);
+
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareTargetRestaurant, setShareTargetRestaurant] = useState<Restaurant | null>(null);
 
   const handleCreateMatchRoom = async () => {
     if (selectedForPoll.length < 2) {
@@ -819,7 +823,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   )}
                   {selectedRestaurant && (
                     <button
-                      onClick={() => shareRestaurant(selectedRestaurant)}
+                      onClick={() => {
+                        setShareTargetRestaurant(selectedRestaurant);
+                        setShareModalOpen(true);
+                      }}
                       className="w-10 h-10 flex items-center justify-center bg-white dark:bg-dark-card shadow-md rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200/50 dark:border-dark-border/50"
                       aria-label="Share restaurant"
                       title="Share"
@@ -1114,6 +1121,15 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         isOpen={tourOpen} 
         onClose={onTourClose} 
         onStepChange={handleTourStepChange}
+      />
+
+      <ShareCardModal
+        isOpen={shareModalOpen}
+        onClose={() => {
+          setShareModalOpen(false);
+          setShareTargetRestaurant(null);
+        }}
+        restaurant={shareTargetRestaurant}
       />
     </div>
   );

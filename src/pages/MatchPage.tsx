@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { getMatchRoom, submitSwipeVote, getClientId, MatchRoom } from '../services/matchmaker';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { Share2, MapPin, CheckCircle2, AlertCircle, ArrowLeft, Heart, X, Sparkles, MessageSquare } from 'lucide-react';
+import { ShareCardModal } from '../components/ShareCardModal';
 
 export const MatchPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +12,7 @@ export const MatchPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   
   // Swipe State
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -324,14 +326,23 @@ export const MatchPage: React.FC = () => {
 
             <div className="space-y-3">
               {matchedRestaurant && (
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${matchedRestaurant.lat},${matchedRestaurant.lon}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition text-sm"
-                >
-                  Get Walking Directions
-                </a>
+                <>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${matchedRestaurant.lat},${matchedRestaurant.lon}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition text-sm"
+                  >
+                    Get Walking Directions
+                  </a>
+                  <button
+                    onClick={() => setShareModalOpen(true)}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition text-sm flex items-center justify-center gap-2"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share Match Card
+                  </button>
+                </>
               )}
               <Link
                 to="/"
@@ -343,6 +354,12 @@ export const MatchPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ShareCardModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        restaurant={matchedRestaurant || null}
+      />
     </div>
   );
 };
