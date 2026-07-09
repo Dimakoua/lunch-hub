@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Share2, Loader2, ChevronLeft, Navigation, Route } from 'lucide-react';
+import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Share2, Loader2, ChevronLeft, Navigation, Route, Camera } from 'lucide-react';
 import { RestaurantCard } from '../components/RestaurantCard';
 import { MapView } from '../components/MapView';
+import { ARFoodFinder } from '../components/ARFoodFinder';
 import { SpinWheel } from '../components/SpinWheel';
 import { RandomPicker } from '../components/RandomPicker';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -183,6 +184,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState<HeatPoint[]>([]);
+  const [arModeActive, setArModeActive] = useState(false);
 
   useEffect(() => {
     if (showHeatmap && location?.lat && location?.lon) {
@@ -697,6 +699,14 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         <Share2 className="w-4 h-4" />
         <span className="hidden sm:inline">Poll</span>
       </button>
+      <button
+        onClick={() => setArModeActive(true)}
+        className={`${tabBase} ${tabInactive} lg:hidden`}
+        title="AR Food Finder"
+      >
+        <Camera className="w-4 h-4 text-emerald-500" />
+        <span className="hidden sm:inline">AR View</span>
+      </button>
     </div>  </div>  );
 
   return (
@@ -1178,6 +1188,19 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         }}
         restaurant={shareTargetRestaurant}
       />
+
+      {arModeActive && (
+        <ARFoodFinder
+          userLocation={location}
+          restaurants={restaurants}
+          useImperial={useImperial}
+          onClose={() => setArModeActive(false)}
+          onSelectRestaurant={(r) => {
+            setArModeActive(false);
+            onRestaurantSelected(r);
+          }}
+        />
+      )}
     </div>
   );
 };
