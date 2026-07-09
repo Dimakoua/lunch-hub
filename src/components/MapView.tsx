@@ -33,6 +33,7 @@ interface MapViewProps {
   onRestaurantSelected?: (restaurant: Restaurant | null) => void;
   onMarkVisited?: (restaurant: Restaurant) => void;
   onCenterDrag?: (lat: number, lon: number) => void;
+  onShare?: (restaurant: Restaurant) => void;
   zoom?: number;
   routeGeometry?: [number, number][] | null;
   routeDistance: number | null;
@@ -95,6 +96,7 @@ export const MapView: React.FC<MapViewProps> = ({
   onRestaurantSelected,
   onMarkVisited,
   onCenterDrag,
+  onShare,
   zoom = 13,
   radius,
   routeGeometry,
@@ -297,7 +299,13 @@ export const MapView: React.FC<MapViewProps> = ({
                   Apple Maps
                 </a>
                 <button
-                  onClick={() => shareRestaurant(restaurant)}
+                  onClick={() => {
+                    if (onShare) {
+                      onShare(restaurant);
+                    } else {
+                      shareRestaurant(restaurant);
+                    }
+                  }}
                   className="text-[10px] text-blue-600 hover:underline dark:text-dark-primary"
                   aria-label={`Share ${restaurant.name}`}
                 >

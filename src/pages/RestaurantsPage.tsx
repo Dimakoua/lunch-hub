@@ -712,6 +712,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 onRestaurantSelected={onRestaurantSelected}
                 onMarkVisited={onMarkRestaurantVisited}
                 onCenterDrag={onCenterDrag}
+                onShare={(r) => {
+                  setShareTargetRestaurant(r);
+                  setShareModalOpen(true);
+                }}
                 routeGeometry={routeGeometry}
                 routeDistance={routeDistance}
                 routeDuration={routeDuration}
