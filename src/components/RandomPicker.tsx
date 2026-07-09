@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Shuffle, ArrowRight } from 'lucide-react';
 import { Restaurant } from '../types/restaurant';
+import { useShakeGesture } from '../hooks/useShakeGesture';
 
 interface RandomPickerProps {
   restaurants: Restaurant[];
@@ -44,6 +45,8 @@ export const RandomPicker: React.FC<RandomPickerProps> = ({
       }
     }, 100);
   };
+
+  useShakeGesture(handleRandomPick, !isAnimating && restaurants.length > 0);
 
   if (restaurants.length === 0) {
     return (
@@ -106,36 +109,39 @@ export const RandomPicker: React.FC<RandomPickerProps> = ({
         )}
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4">
-        <button
-          onClick={handleRandomPick}
-          disabled={isAnimating}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 dark:from-dark-primary dark:to-orange-600 dark:hover:from-orange-500 dark:hover:to-orange-700 dark:disabled:from-gray-600 dark:disabled:to-gray-700 text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 transform hover:scale-105"
-        >
-          <Shuffle className={`w-5 h-5 ${isAnimating ? 'animate-spin' : ''}`} />
-          {isAnimating ? 'Picking...' : 'Pick Random Restaurant'}
-        </button>
-        
-        {selectedRestaurant && !isAnimating && (
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-wrap justify-center gap-4">
           <button
-            onClick={() => onRestaurantSelected(selectedRestaurant)}
-            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+            onClick={handleRandomPick}
+            disabled={isAnimating}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 dark:from-dark-primary dark:to-orange-600 dark:hover:from-orange-500 dark:hover:to-orange-700 dark:disabled:from-gray-600 dark:disabled:to-gray-700 text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 transform hover:scale-105"
           >
-            View Details
-            <ArrowRight className="w-4 h-4" />
+            <Shuffle className={`w-5 h-5 ${isAnimating ? 'animate-spin' : ''}`} />
+            {isAnimating ? 'Picking...' : 'Pick Random Restaurant'}
           </button>
-        )}
+          
+          {selectedRestaurant && !isAnimating && (
+            <button
+              onClick={() => onRestaurantSelected(selectedRestaurant)}
+              className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+            >
+              View Details
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
 
-        {onMarkVisited && selectedRestaurant && !isAnimating && (
-          <button
-            onClick={() => onMarkVisited(selectedRestaurant)}
-            className="bg-white dark:bg-dark-card text-blue-600 dark:text-dark-primary border border-blue-200 dark:border-dark-border hover:bg-blue-50 dark:hover:bg-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200"
-          >
-            Mark as visited
-          </button>
-        )}
-
-
+          {onMarkVisited && selectedRestaurant && !isAnimating && (
+            <button
+              onClick={() => onMarkVisited(selectedRestaurant)}
+              className="bg-white dark:bg-dark-card text-blue-600 dark:text-dark-primary border border-blue-200 dark:border-dark-border hover:bg-blue-50 dark:hover:bg-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200"
+            >
+              Mark as visited
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-gray-400 dark:text-dark-text-secondary font-semibold mt-1">
+          📱 Tip: Shake your phone to pick!
+        </p>
       </div>
 
       <div className="text-center text-sm text-gray-500 dark:text-dark-text-secondary">

@@ -16,6 +16,7 @@ import { fetchRoute } from '../services/routing'; // Import fetchRoute
 import { OnboardingTour } from '../components/OnboardingTour';
 import { shareRestaurant } from '../utils/share'; // Added shareRestaurant
 import { ShareCardModal } from '../components/ShareCardModal';
+import { useShakeGesture } from '../hooks/useShakeGesture';
 import { fetchPopularityData, HeatPoint } from '../services/popularity';
 import { formatDistance, formatWalkingTime, getRadiusOptionsInMeters } from '../utils/distanceFormatter';
 import { createPoll } from '../services/polls';
@@ -193,6 +194,14 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         .catch(err => console.error('Failed to load heatmap data:', err));
     }
   }, [showHeatmap, location, restaurants]);
+
+  // Shake gesture on map view triggers random selection highlight
+  useShakeGesture(() => {
+    if (restaurants.length > 0) {
+      const randomIndex = Math.floor(Math.random() * restaurants.length);
+      onRestaurantSelected(restaurants[randomIndex]);
+    }
+  }, viewMode === 'map');
 
   const handleCreateMatchRoom = async () => {
     if (selectedForPoll.length < 2) {

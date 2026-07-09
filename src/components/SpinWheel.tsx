@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Play } from 'lucide-react';
 import { Restaurant } from '../types/restaurant';
+import { useShakeGesture } from '../hooks/useShakeGesture';
 
 interface SpinWheelProps {
   restaurants: Restaurant[];
@@ -42,6 +43,8 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
       onRestaurantSelected(selected);
     }, 3000);
   };
+
+  useShakeGesture(handleSpin, !isSpinning && restaurants.length > 0);
 
   if (restaurants.length === 0) {
     return (
@@ -165,15 +168,20 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
       </div>
 
       {/* Controls */}
-      <div className="flex gap-4">
-        <button
-          onClick={handleSpin}
-          disabled={isSpinning}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
-        >
-          <Play className="w-4 h-4" />
-          {isSpinning ? 'Spinning...' : 'Spin the Wheel!'}
-        </button>
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex gap-4">
+          <button
+            onClick={handleSpin}
+            disabled={isSpinning}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+          >
+            <Play className="w-4 h-4" />
+            {isSpinning ? 'Spinning...' : 'Spin the Wheel!'}
+          </button>
+        </div>
+        <p className="text-xs text-gray-400 dark:text-dark-text-secondary font-semibold mt-1">
+          📱 Tip: Shake your phone to spin!
+        </p>
       </div>
 
       {/* Selected restaurant */}
