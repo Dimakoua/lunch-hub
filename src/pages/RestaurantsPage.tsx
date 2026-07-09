@@ -15,6 +15,7 @@ import { fetchRoute } from '../services/routing'; // Import fetchRoute
 import { OnboardingTour } from '../components/OnboardingTour';
 import { shareRestaurant } from '../utils/share'; // Added shareRestaurant
 import { ShareCardModal } from '../components/ShareCardModal';
+import { fetchPopularityData, HeatPoint } from '../services/popularity';
 import { formatDistance, formatWalkingTime, getRadiusOptionsInMeters } from '../utils/distanceFormatter';
 import { createPoll } from '../services/polls';
 import { createMatchRoom } from '../services/matchmaker';
@@ -179,6 +180,17 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareTargetRestaurant, setShareTargetRestaurant] = useState<Restaurant | null>(null);
+
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [heatmapData, setHeatmapData] = useState<HeatPoint[]>([]);
+
+  useEffect(() => {
+    if (showHeatmap && location?.lat && location?.lon) {
+      fetchPopularityData(location.lat, location.lon, restaurants)
+        .then(setHeatmapData)
+        .catch(err => console.error('Failed to load heatmap data:', err));
+    }
+  }, [showHeatmap, location, restaurants]);
 
   const handleCreateMatchRoom = async () => {
     if (selectedForPoll.length < 2) {
@@ -421,6 +433,35 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <div
                 className={`dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition ${
                   filterByOpenNow ? 'translate-x-4' : ''
+                }`}
+              ></div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border mt-3">
+        <div className="flex items-center justify-between">
+          <label htmlFor="heatmap-toggle" className="flex items-center cursor-pointer">
+            <span className="text-sm font-medium text-gray-700 dark:text-dark-text mr-3">
+              🔥 Show Lunch Rush Heatmap
+            </span>
+            <div className="relative">
+              <input
+                type="checkbox"
+                id="heatmap-toggle"
+                className="sr-only"
+                checked={showHeatmap}
+                onChange={(e) => setShowHeatmap(e.target.checked)}
+              />
+              <div
+                className={`block w-9 h-5 rounded-full transition ${
+                  showHeatmap ? 'bg-blue-500 dark:bg-dark-primary' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              ></div>
+              <div
+                className={`dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition ${
+                  showHeatmap ? 'translate-x-4' : ''
                 }`}
               ></div>
             </div>
@@ -721,6 +762,8 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 routeDuration={routeDuration}
                 radius={radius}
                 breadcrumbItems={breadcrumbItems}
+                showHeatmap={showHeatmap}
+                heatmapData={heatmapData}
               />
                 </div>
 

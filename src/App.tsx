@@ -14,6 +14,7 @@ const PollPage = lazy(() => import('./pages/PollPage'));
 const MatchPage = lazy(() => import('./pages/MatchPage'));
 import { geocodeAddress, getCurrentLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
+import { reportRestaurantVisit } from './services/popularity';
 import { 
   grantConsent,
   revokeConsent,
@@ -461,6 +462,7 @@ function App() {
     setSelectedRestaurant(restaurant);
     if (restaurant) {
       setViewMode('map');
+      reportRestaurantVisit(restaurant).catch((err) => console.error(err));
     }
   };
 

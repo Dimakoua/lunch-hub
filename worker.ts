@@ -163,6 +163,60 @@ export default {
       }
     }
 
+    // POST /api/popularity - Record an anonymous restaurant popularity check-in
+    if (request.method === 'POST' && pathname === '/api/popularity') {
+      try {
+        const body: any = await request.json();
+        const { restaurantId, lat, lon } = body;
+        if (!restaurantId || lat === undefined || lon === undefined) {
+          return new Response('Missing parameters', { status: 400, headers: corsHeaders });
+        }
+
+        const key = `pop:${restaurantId}`;
+        const existingStr = await env.POLLS.get(key);
+        let count = 1;
+        if (existingStr) {
+          try {
+            const parsed = JSON.parse(existingStr);
+            count = (parsed.count || 0) + 1;
+          } catch {
+            // ignore
+          }
+        }
+
+        await env.POLLS.put(key, JSON.stringify({ restaurantId, lat, lon, count }), { expirationTtl: 14400 }); // 4 hours TTL
+
+        return new Response(JSON.stringify({ success: true, count }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (err) {
+        return new Response('Bad Request', { status: 400, headers: corsHeaders });
+      }
+    }
+
+    // GET /api/popularity - Fetch active busy hotspots
+    if (request.method === 'GET' && pathname === '/api/popularity') {
+      try {
+        const list = await env.POLLS.list({ prefix: 'pop:' });
+        const results = [];
+        for (const key of list.keys) {
+          const val = await env.POLLS.get(key.name);
+          if (val) {
+            try {
+              results.push(JSON.parse(val));
+            } catch {
+              // ignore
+            }
+          }
+        }
+        return new Response(JSON.stringify(results), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (err) {
+        return new Response('Server Error', { status: 500, headers: corsHeaders });
+      }
+    }
+
     // Return 404 for unmatched API routes
     if (pathname.startsWith('/api/')) {
       return new Response('API Route Not Found', { status: 404, headers: corsHeaders });

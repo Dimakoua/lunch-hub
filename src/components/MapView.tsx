@@ -5,6 +5,7 @@ import { Restaurant } from '../types/restaurant';
 import { shareRestaurant } from '../utils/share';
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 import { formatDistance } from '../utils/distanceFormatter';
+import { HeatPoint } from '../services/popularity';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers
@@ -40,6 +41,8 @@ interface MapViewProps {
   routeDuration: number | null;
   radius?: number;
   breadcrumbItems?: BreadcrumbItem[];
+  showHeatmap?: boolean;
+  heatmapData?: HeatPoint[];
 }
 
 const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: Restaurant | null; routeGeometry?: [number, number][] | null }> = ({ 
@@ -103,6 +106,8 @@ export const MapView: React.FC<MapViewProps> = ({
   routeDistance,
   routeDuration,
   breadcrumbItems,
+  showHeatmap,
+  heatmapData,
 }) => {
   const userIcon = L.divIcon({
     html: `<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#2563EB"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
@@ -316,6 +321,46 @@ export const MapView: React.FC<MapViewProps> = ({
           </Popup>
         </Marker>
       ))}
+      {showHeatmap && heatmapData && heatmapData.map((point, index) => {
+        const color = point.isSimulated ? '#f59e0b' : '#ef4444';
+        return (
+          <React.Fragment key={`heat-${index}`}>
+            {/* Outer soft glow ring */}
+            <Circle
+              center={[point.lat, point.lon]}
+              radius={100 + point.intensity * 25}
+              pathOptions={{
+                fillColor: color,
+                fillOpacity: 0.05 * Math.min(1.5, point.intensity),
+                stroke: false,
+                interactive: false
+              }}
+            />
+            {/* Middle glow ring */}
+            <Circle
+              center={[point.lat, point.lon]}
+              radius={50 + point.intensity * 15}
+              pathOptions={{
+                fillColor: color,
+                fillOpacity: 0.12 * Math.min(1.5, point.intensity),
+                stroke: false,
+                interactive: false
+              }}
+            />
+            {/* Core hot spot */}
+            <Circle
+              center={[point.lat, point.lon]}
+              radius={20}
+              pathOptions={{
+                fillColor: color,
+                fillOpacity: 0.3 * Math.min(2.0, point.intensity),
+                stroke: false,
+                interactive: false
+              }}
+            />
+          </React.Fragment>
+        );
+      })}
       </MapContainer>
       {breadcrumbItems && breadcrumbItems.length > 0 && (
         <div className="absolute top-4 left-4 z-50">
