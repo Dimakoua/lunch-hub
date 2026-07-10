@@ -223,6 +223,16 @@ export default {
     }
 
     // Not an API route — serve the React SPA static assets
-    return env.ASSETS.fetch(request);
+    try {
+      const response = await env.ASSETS.fetch(request);
+      if (response.status === 404) {
+        const indexUrl = new URL('/index.html', request.url);
+        return await env.ASSETS.fetch(new Request(indexUrl.toString(), request));
+      }
+      return response;
+    } catch (err) {
+      const indexUrl = new URL('/index.html', request.url);
+      return await env.ASSETS.fetch(new Request(indexUrl.toString(), request));
+    }
   }
 };
