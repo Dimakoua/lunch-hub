@@ -1,6 +1,5 @@
 interface Env {
   POLLS: KVNamespace;
-  ASSETS: Fetcher;
 }
 
 const corsHeaders = {
@@ -218,25 +217,7 @@ export default {
     }
 
     // Return 404 for unmatched API routes
-    if (pathname.startsWith('/api/')) {
-      return new Response('API Route Not Found', { status: 404, headers: corsHeaders });
-    }
-
-    // Not an API route — serve the React SPA static assets
-    // For SPA client-side routes, fall back to index.html when the asset is not found
-    const spaIndexRequest = new Request(new URL('/index.html', request.url).toString(), {
-      method: 'GET',
-      headers: { 'Accept': 'text/html' },
-    });
-
-    try {
-      const response = await env.ASSETS.fetch(request);
-      if (response.status === 404) {
-        return env.ASSETS.fetch(spaIndexRequest);
-      }
-      return response;
-    } catch {
-      return env.ASSETS.fetch(spaIndexRequest);
-    }
+    // (Non-API routes are handled natively by Cloudflare Assets and never reach here)
+    return new Response('API Route Not Found', { status: 404, headers: corsHeaders });
   }
 };
