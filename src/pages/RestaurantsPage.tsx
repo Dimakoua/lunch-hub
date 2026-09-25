@@ -781,7 +781,6 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       <main className="max-w-7xl mx-auto px-4 py-6">
         {viewMode !== 'map' && (
           <div className="mb-6 space-y-4">
-            <Breadcrumb items={breadcrumbItems} className="mb-2" />
             {onSearch && onCurrentLocation && (
               <div className="max-w-xl">
                 <SearchBar 

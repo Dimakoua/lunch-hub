@@ -40,9 +40,9 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ onAccept, onDeclin
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center p-4">
+      <div className="fixed inset-0 bg-black/50 z-[10003] flex items-end justify-center p-4">
         {/* Cookie Consent Modal */}
-        <div className="bg-white dark:bg-dark-card rounded-xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-dark-border animate-slide-up">
+        <div className="bg-white dark:bg-dark-card rounded-xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-dark-border animate-slide-up mb-16 lg:mb-4">
           <div className="p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
