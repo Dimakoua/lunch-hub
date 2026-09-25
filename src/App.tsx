@@ -58,7 +58,13 @@ function App() {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          if (parsed && typeof parsed.lat === 'number' && typeof parsed.lon === 'number') {
+          if (
+            parsed &&
+            typeof parsed.lat === 'number' &&
+            typeof parsed.lon === 'number' &&
+            (Math.abs(parsed.lat - DEFAULT_FALLBACK_LOCATION.lat) > 0.0001 ||
+             Math.abs(parsed.lon - DEFAULT_FALLBACK_LOCATION.lon) > 0.0001)
+          ) {
             return parsed;
           }
         } catch {
@@ -227,7 +233,12 @@ function App() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      window.localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(location));
+      const isDefault =
+        Math.abs(location.lat - DEFAULT_FALLBACK_LOCATION.lat) < 0.0001 &&
+        Math.abs(location.lon - DEFAULT_FALLBACK_LOCATION.lon) < 0.0001;
+      if (!isDefault) {
+        window.localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(location));
+      }
     } catch (err) {
       console.warn('Failed to persist location to storage', err);
     }
@@ -350,14 +361,33 @@ function App() {
     }
   }, [radius, applyAvailabilityFilters, filterRules.length]);
 
-  // Attempt current location detection on initial app load if no saved location or using default
+  // Attempt current location detection on initial app load if no saved location or using default fallback
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const stored = window.localStorage.getItem(LOCATION_STORAGE_KEY);
-    // If not stored yet, attempt geolocation quietly
-    if (!stored) {
+    let hasCustomSavedLocation = false;
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (
+          parsed &&
+          typeof parsed.lat === 'number' &&
+          typeof parsed.lon === 'number' &&
+          (Math.abs(parsed.lat - DEFAULT_FALLBACK_LOCATION.lat) > 0.0001 ||
+           Math.abs(parsed.lon - DEFAULT_FALLBACK_LOCATION.lon) > 0.0001)
+        ) {
+          hasCustomSavedLocation = true;
+        }
+      } catch {
+        hasCustomSavedLocation = false;
+      }
+    }
+
+    // If no custom user location saved, attempt geolocation automatically
+    if (!hasCustomSavedLocation) {
       getCurrentLocation()
         .then((pos) => {
+          skipNextAutoSearchRef.current = true;
           setLocation({ lat: pos.lat, lon: pos.lon });
           searchRestaurants(pos.lat, pos.lon);
         })
@@ -457,8 +487,12 @@ function App() {
     try {
       const position = await getCurrentLocation();
       const newLocation = { lat: position.lat, lon: position.lon };
+      setSelectedRestaurant(null);
       skipNextAutoSearchRef.current = true;
       setLocation(newLocation);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('lunchhub:recenter'));
+      }
       const availableCount = await searchRestaurants(
         position.lat,
         position.lon,

@@ -59,6 +59,13 @@ const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: R
   }, [selectedRestaurant, map]);
 
   useEffect(() => {
+    // When center changes and no restaurant is specifically selected, update view to center
+    if (!selectedRestaurant) {
+      map.setView(center, Math.max(map.getZoom(), 14), { animate: true });
+    }
+  }, [center[0], center[1], selectedRestaurant, map]);
+
+  useEffect(() => {
     const onRecenter = () => {
       try {
         map.setView(center, 15, { animate: true });
