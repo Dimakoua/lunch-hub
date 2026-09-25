@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Share2, Loader2, ChevronLeft, Navigation, Route, Camera } from 'lucide-react';
 import { RestaurantCard } from '../components/RestaurantCard';
 import { MapView } from '../components/MapView';
+import { SearchBar } from '../components/SearchBar';
 import { ARFoodFinder } from '../components/ARFoodFinder';
 import { SpinWheel } from '../components/SpinWheel';
 import { RandomPicker } from '../components/RandomPicker';
@@ -21,6 +22,11 @@ import { fetchPopularityData, HeatPoint } from '../services/popularity';
 import { formatDistance, formatWalkingTime, getRadiusOptionsInMeters } from '../utils/distanceFormatter';
 import { createPoll } from '../services/polls';
 import { createMatchRoom } from '../services/matchmaker';
+import {
+  generateFAQSchema,
+  generateLocalBusinessSchema,
+  renderSchema,
+} from '../utils/schemaMarkup';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
 type Theme = 'light' | 'dark';
@@ -67,6 +73,8 @@ interface RestaurantsPageProps {
   useImperial: boolean;
   onToggleUnits: (imperial: boolean) => void;
   onRetry: () => void;
+  onSearch?: (query: string, radius: number, openNow: boolean) => void;
+  onCurrentLocation?: (radius: number, openNow: boolean) => void;
 }
 
 // ── Inline helpers ──────────────────────────────────────────────────────────
@@ -164,7 +172,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   onToggleUnits,
   filterByOpenNow,
   setFilterByOpenNow,
-  onRetry
+  onRetry,
+  onSearch,
+  onCurrentLocation
 }) => {
   const pageLocation = useLocation();
   const navigate = useNavigate();
@@ -480,12 +490,17 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         </div>
       </div>
 
-      <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
-        <div className="flex flex-col gap-3">
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-dark-text-secondary">
-              Filters
-            </h3>
+      <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-xl border border-gray-200 dark:border-dark-border">
+        <div className="flex flex-col gap-2.5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-dark-text flex items-center gap-1.5">
+                <span>🚫 Hide / Exclude Places</span>
+              </h3>
+              <p className="text-[11px] text-gray-500 dark:text-dark-text-secondary mt-0.5">
+                Add rules to automatically hide unwanted spots from your map & lists.
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -493,7 +508,8 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <select
                 value={newFilterField}
                 onChange={(event) => setNewFilterField(event.target.value as FilterField)}
-                className="w-20 px-1.5 py-1 border border-gray-300 dark:border-dark-border rounded-md text-[10px] font-black uppercase tracking-tight bg-gray-50 dark:bg-gray-800 dark:text-dark-text focus:outline-none transition-colors cursor-pointer"
+                className="w-24 px-2 py-1.5 border border-gray-300 dark:border-dark-border rounded-lg text-[11px] font-bold bg-white dark:bg-gray-800 dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-red-400 transition-colors cursor-pointer"
+                title="Select attribute to match for hiding"
               >
                 <option value="name">Name</option>
                 <option value="cuisine">Cuisine</option>
@@ -510,18 +526,17 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   }}
                   onFocus={() => setShowFilterSuggestions(true)}
                   onBlur={() => {
-                    // Delay hiding to allow for click on suggestion
                     setTimeout(() => setShowFilterSuggestions(false), 200);
                   }}
-                  placeholder="Value..."
-                  className="w-full px-2 py-1 border border-gray-300 dark:border-dark-border rounded-md text-xs bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-blue-500 transition-shadow"
-                  autoComplete="disabled"
+                  placeholder={`Hide by ${newFilterField}...`}
+                  className="w-full px-2.5 py-1.5 border border-gray-300 dark:border-dark-border rounded-lg text-xs bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-red-500 transition-shadow"
+                  autoComplete="off"
                   name={`filter-value-${newFilterField}`}
                   id={`filter-value-${newFilterField}`}
                 />
 
                 {showFilterSuggestions && filterSuggestions.length > 0 && (
-                  <div className="fixed bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-md shadow-xl z-50 max-h-40 overflow-y-auto ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-100" style={{
+                  <div className="fixed bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg shadow-xl z-50 max-h-40 overflow-y-auto ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-100" style={{
                     width: `${document.getElementById(`filter-value-${newFilterField}`)?.getBoundingClientRect().width ?? 0}px`,
                   }}>
                     {filterSuggestions.map((suggestion) => (
@@ -532,9 +547,10 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                           setNewFilterValue('');
                           setShowFilterSuggestions(false);
                         }}
-                        className="w-full text-left px-2 py-1.5 text-[11px] hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:text-dark-text transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0"
+                        className="w-full text-left px-3 py-2 text-[11px] hover:bg-red-50 dark:hover:bg-red-950/30 text-gray-700 dark:text-dark-text transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0 flex items-center justify-between"
                       >
-                        {suggestion}
+                        <span>{suggestion}</span>
+                        <span className="text-[10px] text-red-500 font-semibold">Hide</span>
                       </button>
                     ))}
                   </div>
@@ -549,61 +565,71 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   setShowFilterSuggestions(false);
                 }}
                 disabled={!canAddFilter}
-                className={`flex-shrink-0 px-3 py-1 rounded-md text-[10px] font-bold uppercase transition-all ${
+                className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase transition-all ${
                   canAddFilter
-                    ? 'bg-blue-600 dark:bg-dark-primary text-white shadow-sm hover:bg-blue-700 active:scale-95'
+                    ? 'bg-red-600 dark:bg-red-700 text-white shadow-sm hover:bg-red-700 active:scale-95'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
                 }`}
+                title="Add rule to exclude matching restaurants"
               >
-                Add
+                Hide
               </button>
             </div>
           </div>
 
           {filterRules.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {filterRules.map((rule) => (
-                <span
-                  key={rule.id}
-                  className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] rounded-md bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-700 dark:text-dark-text shadow-sm"
-                >
-                  <span className="font-bold uppercase opacity-60">{rule.field}</span>
-                  <span className="truncate max-w-[80px]">{rule.value}</span>
-                  <button
-                    onClick={() => onRemoveFilterRule(rule.id)}
-                    className="text-gray-400 hover:text-red-500 transition-colors ml-0.5"
-                    aria-label={`Remove filter ${rule.value}`}
+            <div className="flex flex-col gap-1.5 mt-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
+                Active exclusion rules ({hiddenByFiltersCount} hidden):
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {filterRules.map((rule) => (
+                  <span
+                    key={rule.id}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-[11px] rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-200 shadow-sm"
                   >
-                    ×
-                  </button>
-                </span>
-              ))}
+                    <span className="font-semibold text-red-600 dark:text-red-400 text-[10px] uppercase">Hide {rule.field}:</span>
+                    <span className="font-bold truncate max-w-[90px]">{rule.value}</span>
+                    <button
+                      onClick={() => onRemoveFilterRule(rule.id)}
+                      className="text-red-400 hover:text-red-700 transition-colors ml-0.5 p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/60 font-bold"
+                      aria-label={`Remove filter ${rule.value}`}
+                      title="Remove exclusion rule"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
           ) : (
-            <p className="text-[11px] text-gray-400 italic">No filters active.</p>
+            <p className="text-[11px] text-gray-400 dark:text-dark-text-secondary italic">
+              No exclusion rules active. All matching places within radius are shown.
+            </p>
           )}
 
           {filterRules.length > 0 && (
             <button
               onClick={onClearFilterRules}
-              className="text-[11px] font-bold text-blue-600 dark:text-dark-primary hover:underline text-left mt-1"
+              className="text-[11px] font-bold text-red-600 dark:text-red-400 hover:underline text-left mt-0.5"
             >
-              Clear all filters ({hiddenByFiltersCount} hidden)
+              Clear all exclusions (unhide {hiddenByFiltersCount} places)
             </button>
           )}
         </div>
       </div>
 
       {hiddenRestaurants.length > 0 && (
-        <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border">
+        <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-xl border border-gray-200 dark:border-dark-border">
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-dark-text-secondary">
-                Hidden by you ({hiddenByUserCount})
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-dark-text flex items-center gap-1">
+                <span>Individually Hidden Places</span>
+                <span className="text-gray-400 font-normal">({hiddenByUserCount})</span>
               </h3>
               <button
                 onClick={onClearHiddenRestaurants}
-                className="text-[10px] font-bold text-red-500 hover:underline"
+                className="text-[11px] font-bold text-blue-600 dark:text-dark-primary hover:underline"
               >
                 Unhide all
               </button>
@@ -619,7 +645,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     onClick={() => onUnhideRestaurant(r.id)}
                     className="text-gray-400 hover:text-emerald-500 transition-colors ml-0.5"
                     aria-label={`Unhide ${r.name}`}
-                    title="Unhide"
+                    title="Unhide this restaurant"
                   >
                     ↩
                   </button>
@@ -718,13 +744,35 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       </button>
     </div>  </div>  );
 
+  const localBusinessSchema = generateLocalBusinessSchema(origin);
+  const faqSchema = generateFAQSchema([
+    {
+      question: 'How do I search for restaurants?',
+      answer: 'Use the floating search bar on the map or click the location button to find nearby lunch places within your preferred walking distance.',
+    },
+    {
+      question: 'What is the Spin Wheel feature?',
+      answer: 'The Spin Wheel picks a restaurant randomly from your active map results, making quick lunch decisions fun.',
+    },
+    {
+      question: 'Can I filter by open restaurants?',
+      answer: 'Yes, toggle Open Now or use the filters menu to filter by cuisine and opening hours in real-time.',
+    },
+  ]);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-background pb-24 lg:pb-0">
       <Helmet>
-        <title>Lunch Hub - Restaurants Near You</title>
-        <meta name="description" content={`Found ${restaurants.length} restaurants near you. Explore on map, browse list, or use our fun selection tools!`} />
-        <meta name="keywords" content="restaurants near me, lunch map, restaurant list, find food, nearby eateries" />
+        <title>Lunch Hub - Live Map & Restaurants Near You</title>
+        <meta name="description" content={`Found ${restaurants.length} restaurants near you. Explore on our interactive live map, browse the list, or use our decision spinner!`} />
+        <meta name="keywords" content="restaurants near me, lunch map, restaurant map, find food, nearby eateries, lunch hub" />
         <link rel="canonical" href={`${origin}${window.location.pathname}`} />
+        <script type="application/ld+json">
+          {renderSchema(localBusinessSchema)}
+        </script>
+        <script type="application/ld+json">
+          {renderSchema(faqSchema)}
+        </script>
       </Helmet>
       
       {/* Selected restaurant banner removed — sharing now available in the map popup. */}
@@ -732,8 +780,21 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
         {viewMode !== 'map' && (
-          <div className="mb-6">
-            <Breadcrumb items={breadcrumbItems} className="mb-4" />
+          <div className="mb-6 space-y-4">
+            <Breadcrumb items={breadcrumbItems} className="mb-2" />
+            {onSearch && onCurrentLocation && (
+              <div className="max-w-xl">
+                <SearchBar 
+                  onSearch={onSearch}
+                  onCurrentLocation={onCurrentLocation}
+                  loading={loading || locationUpdating}
+                  initialRadius={radius}
+                  initialOpenNow={filterByOpenNow}
+                  compact={true}
+                  placeholder="Change location..."
+                />
+              </div>
+            )}
             {cuisineQuery && (
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-dark-text-secondary">
@@ -786,85 +847,85 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               />
                 </div>
 
-                {/* Left Floating Sidebar HUD */}
-                <div data-tour-target="map-sidebar" className={`absolute inset-x-3 sm:inset-x-4 z-[9999] max-w-sm sm:w-72 md:w-80 flex flex-col gap-3 top-3 sm:top-4`}>
-                  <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/60 dark:border-dark-border/60 flex flex-col overflow-hidden">
-                    {/* HUD Header */}
-                    <div className="px-2 py-2 sm:px-4 sm:py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
-                      <button
-                        onClick={() => setViewMode('list')}
-                        className="flex items-center gap-1 text-xs sm:gap-1.5 sm:text-sm font-bold text-blue-600 dark:text-dark-primary hover:scale-105 transition-transform"
-                      >
-                        <ChevronLeft className="w-4 h-4 stroke-[3px]" />
-                        <span className="hidden sm:inline">List</span>
-                      </button>
-
-                      <div className="flex items-center gap-1">
-                        <button
-                          data-tour-target="settings-button"
-                          onClick={() => setShowSettings(!showSettings)}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            showSettings
-                              ? 'bg-blue-100 dark:bg-dark-primary/20 text-blue-600 dark:text-dark-primary'
-                              : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary'
-                          }`}
-                          aria-label="Filters"
-                        >
-                          <Settings className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={toggleTheme}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary transition-colors"
-                          aria-label="Toggle theme"
-                        >
-                          {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4 text-yellow-400" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Stats section */}
-                    <div className="px-4 py-2 bg-gray-50/50 dark:bg-gray-800/30 flex items-center justify-between text-[11px] font-medium text-gray-500 dark:text-dark-text-secondary border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-gray-900 dark:text-dark-text font-bold">{restaurants.length}</span>
-                        <span>visible</span>
-                        {hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount > 0 && (
-                          <span className="opacity-60">
-                            ({hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount} hidden)
-                          </span>
-                        )}
-                      </div>
-                      <span>{useImperial ? `${(radius / 1609.34).toFixed(1)} mi` : `${(radius / 1000).toFixed(1)} km`} radius</span>
-                    </div>
-                    {locationUpdating && (
-                      <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-200 text-xs border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-2">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Updating location and nearby results...
-                      </div>
-                    )}
-                    {cuisineQuery && (
-                      <div className="px-4 py-2 bg-white dark:bg-dark-card border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-2 text-sm">
-                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-dark-text-secondary">
-                          Active filter
-                        </span>
-                        <button
-                          type="button"
-                          onClick={handleClearCuisineFilter}
-                          className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/40 px-3 py-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition"
-                        >
-                          <span className="font-semibold">Cuisine:</span>
-                          <span>{cuisineQuery}</span>
-                          <span className="text-xs font-black">×</span>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Settings / Filters Panel - Expands inside sidebar */}
-                    {settingsPanel && (
-                      <div data-tour-target="filters-panel-map" className={`p-4 overflow-y-auto ${isPWA ? 'max-h-[calc(100dvh-18rem)]' : 'max-h-[calc(100dvh-12rem)]'}`}>
-                        {settingsPanel}
-                      </div>
+                {/* Unified Floating Search & HUD Card (Google Maps style) */}
+                <div 
+                  data-tour-target="map-sidebar" 
+                  className="absolute inset-x-3 sm:inset-x-4 z-[9999] max-w-sm sm:w-80 md:w-96 flex flex-col top-3 sm:top-4 bg-white/95 dark:bg-dark-card/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/80 dark:border-dark-border/80 overflow-visible"
+                >
+                  {/* Search Bar on top with integrated Filter & Settings button */}
+                  <div className="p-1.5 sm:p-2 border-b border-gray-100 dark:border-gray-700/50">
+                    {onSearch && onCurrentLocation && (
+                      <SearchBar 
+                        onSearch={onSearch}
+                        onCurrentLocation={onCurrentLocation}
+                        loading={loading || locationUpdating}
+                        initialRadius={radius}
+                        initialOpenNow={filterByOpenNow}
+                        compact={true}
+                        placeholder="Search address or area..."
+                        className="w-full"
+                        onToggleSettings={() => setShowSettings(!showSettings)}
+                        isSettingsOpen={showSettings}
+                        hideInternalFilters={true}
+                      />
                     )}
                   </div>
+
+                  {/* Quick Status / Stats Bar */}
+                  <div className="px-3 py-1.5 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/30">
+                    <div className="text-[11px] text-gray-500 dark:text-dark-text-secondary flex items-center gap-1.5 font-medium">
+                      <span className="text-gray-900 dark:text-dark-text font-bold">{restaurants.length}</span>
+                      <span>places found</span>
+                      {hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount > 0 && (
+                        <span className="opacity-60 text-[10px]">
+                          ({hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount} hidden)
+                        </span>
+                      )}
+                      <span className="text-gray-300 dark:text-gray-600">·</span>
+                      <span>{useImperial ? `${(radius / 1609.34).toFixed(1)} mi` : `${(radius / 1000).toFixed(1)} km`}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={toggleTheme}
+                        className="p-1 rounded-md hover:bg-gray-200/60 dark:hover:bg-gray-700 text-gray-600 dark:text-dark-text-secondary transition-colors"
+                        aria-label="Toggle theme"
+                        title="Toggle theme"
+                      >
+                        {theme === 'light' ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5 text-yellow-400" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {locationUpdating && (
+                    <div className="px-3.5 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-200 text-xs border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-2">
+                      <Loader2 className="w-3 h-3 animate-spin flex-shrink-0" />
+                      <span className="truncate">Updating location & results...</span>
+                    </div>
+                  )}
+
+                  {cuisineQuery && (
+                    <div className="px-3 py-1.5 bg-white dark:bg-dark-card border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between text-xs">
+                      <span className="font-medium text-gray-500 dark:text-dark-text-secondary">
+                        Cuisine filter:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleClearCuisineFilter}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/40 px-2.5 py-0.5 font-medium text-emerald-700 dark:text-emerald-200 hover:bg-emerald-100 transition"
+                      >
+                        <span>{cuisineQuery}</span>
+                        <span className="font-bold">×</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Settings / Filters Panel - Expands seamlessly inside the unified card */}
+                  {settingsPanel && (
+                    <div data-tour-target="filters-panel-map" className={`p-3.5 overflow-y-auto ${isPWA ? 'max-h-[calc(100dvh-18rem)]' : 'max-h-[calc(100dvh-14rem)]'}`}>
+                      {settingsPanel}
+                    </div>
+                  )}
                 </div>
 
                 {/* Right-side floating map actions */}

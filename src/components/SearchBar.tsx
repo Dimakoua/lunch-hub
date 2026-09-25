@@ -9,6 +9,12 @@ interface SearchBarProps {
   loading: boolean;
   initialRadius?: number;
   initialOpenNow?: boolean;
+  compact?: boolean;
+  placeholder?: string;
+  className?: string;
+  onToggleSettings?: () => void;
+  isSettingsOpen?: boolean;
+  hideInternalFilters?: boolean;
 }
 
 interface LocationSuggestion {
@@ -24,7 +30,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   onCurrentLocation,
   loading,
   initialRadius = 1000,
-  initialOpenNow = false
+  initialOpenNow = false,
+  compact = false,
+  placeholder = 'Search address or neighborhood...',
+  className = '',
+  onToggleSettings,
+  isSettingsOpen = false,
+  hideInternalFilters = false
 }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
@@ -36,6 +48,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const [openNow, setOpenNow] = useState(initialOpenNow);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setRadius(initialRadius);
+  }, [initialRadius]);
+
+  useEffect(() => {
+    setOpenNow(initialOpenNow);
+  }, [initialOpenNow]);
 
   // Debounced search for suggestions
   useEffect(() => {
@@ -121,10 +141,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto relative">
+    <div className={`relative ${compact ? 'w-full' : 'w-full max-w-2xl mx-auto'} ${className}`}>
       <form onSubmit={handleSubmit} className="relative">
-        <div className="flex items-center bg-white dark:bg-dark-card rounded-full shadow-lg border border-gray-200 dark:border-dark-border hover:shadow-xl transition-shadow duration-300 px-2">
-          <Search className="w-5 h-5 text-gray-400 dark:text-dark-text-secondary ml-3" />
+        <div className={`flex items-center bg-white dark:bg-dark-card ${compact ? 'rounded-xl border border-gray-200/90 dark:border-dark-border shadow-sm' : 'rounded-2xl md:rounded-full shadow-lg border border-gray-200/80 dark:border-dark-border hover:shadow-xl'} transition-all duration-300 ${compact ? 'px-2 py-1' : 'px-2 py-1 sm:py-0'}`}>
+          <Search className={`${compact ? 'w-4 h-4 ml-2' : 'w-5 h-5 ml-3'} text-gray-400 dark:text-dark-text-secondary flex-shrink-0`} />
           <input
             ref={inputRef}
             type="text"
@@ -133,13 +153,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             onKeyDown={handleKeyDown}
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
-            placeholder="Enter address..."
-            className="flex-1 px-4 py-4 text-lg border-none outline-none rounded-full bg-transparent dark:text-dark-text"
+            placeholder={placeholder}
+            className={`flex-1 min-w-0 border-none outline-none rounded-full bg-transparent dark:text-dark-text ${compact ? 'px-2.5 py-2 text-xs sm:text-sm' : 'px-4 py-3 sm:py-4 text-base sm:text-lg'}`}
             disabled={loading}
             autoComplete="off"
           />
           
-          <div className="flex items-center">
+          <div className="flex items-center gap-0.5 flex-shrink-0">
             {query && (
               <button
                 type="button"
@@ -148,40 +168,52 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                   setSuggestions([]);
                   setShowSuggestions(false);
                 }}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-dark-text transition-colors duration-200"
                 title="Clear search"
               >
-                <X className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary" />
+                <X className={`${compact ? 'w-4 h-4' : 'w-5 h-5'}`} />
               </button>
             )}
             
             <button
               type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${showFilters ? 'text-blue-600 dark:text-dark-primary' : 'text-gray-600 dark:text-dark-text-secondary'}`}
-              title="Search filters"
+              data-tour-target="settings-button"
+              onClick={() => {
+                if (onToggleSettings) {
+                  onToggleSettings();
+                } else {
+                  setShowFilters(!showFilters);
+                }
+              }}
+              className={`p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
+                (onToggleSettings ? isSettingsOpen : showFilters)
+                  ? 'text-blue-600 dark:text-dark-primary bg-blue-50 dark:bg-dark-primary/10'
+                  : 'text-gray-600 dark:text-dark-text-secondary'
+              }`}
+              title="Filters & settings"
+              aria-label="Filters and search settings"
             >
-              <SlidersHorizontal className="w-5 h-5" />
+              <SlidersHorizontal className={`${compact ? 'w-4 h-4' : 'w-5 h-5'}`} />
             </button>
 
             <button
               type="button"
               onClick={() => onCurrentLocation(radius, openNow)}
               disabled={loading}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group"
+              className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group"
               title="Use current location"
             >
               {loading ? (
-                <Loader2 className="w-5 h-5 text-blue-600 dark:text-dark-primary animate-spin" />
+                <Loader2 className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} text-blue-600 dark:text-dark-primary animate-spin`} />
               ) : (
-                <MapPin className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary group-hover:text-blue-600 dark:group-hover:text-dark-primary transition-colors duration-200" />
+                <MapPin className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} text-gray-600 dark:text-dark-text-secondary group-hover:text-blue-600 dark:group-hover:text-dark-primary transition-colors duration-200`} />
               )}
             </button>
             
             <button
               type="submit"
               disabled={loading || !query.trim()}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full ml-1 transition-all duration-200 font-medium hidden md:block"
+              className={`bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white rounded-full transition-all duration-200 font-medium ${compact ? 'px-3 py-1.5 text-xs' : 'px-6 py-3 text-sm hidden md:block'}`}
             >
               Search
             </button>
@@ -189,18 +221,18 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </div>
       </form>
 
-      {/* Filters Panel */}
-      {showFilters && (
-        <div className="mt-3 p-4 bg-white dark:bg-dark-card rounded-2xl shadow-lg border border-gray-200 dark:border-dark-border animate-slide-up">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-dark-text flex items-center gap-2">
+      {/* Filters Panel (for standalone mode like HomePage) */}
+      {!hideInternalFilters && showFilters && (
+        <div className={`mt-2 p-3 sm:p-4 bg-white dark:bg-dark-card rounded-2xl shadow-xl border border-gray-200 dark:border-dark-border animate-slide-up ${compact ? 'text-xs' : ''}`}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-gray-700 dark:text-dark-text flex items-center gap-1">
                 Search radius
               </label>
               <select
                 value={radius}
                 onChange={(e) => setRadius(Number(e.target.value))}
-                className="px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg text-sm bg-white dark:bg-dark-background dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary"
+                className="px-2.5 py-1.5 border border-gray-300 dark:border-dark-border rounded-lg text-xs bg-white dark:bg-dark-background dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-dark-primary"
               >
                 {getRadiusOptionsInMeters().map(option => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -208,9 +240,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               </select>
             </div>
             
-            <div className="flex items-center justify-between md:justify-end">
+            <div className="flex items-center justify-between sm:justify-end">
               <label htmlFor="home-open-now" className="flex items-center cursor-pointer group">
-                <span className="text-sm font-medium text-gray-700 dark:text-dark-text mr-3">
+                <span className="text-xs font-semibold text-gray-700 dark:text-dark-text mr-2">
                   Open now only
                 </span>
                 <div className="relative">
@@ -222,13 +254,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                     onChange={(e) => setOpenNow(e.target.checked)}
                   />
                   <div
-                    className={`block w-10 h-6 rounded-full transition ${
+                    className={`block w-8 h-5 rounded-full transition ${
                       openNow ? 'bg-blue-600 dark:bg-dark-primary' : 'bg-gray-300 dark:bg-gray-600'
                     }`}
                   ></div>
                   <div
-                    className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
-                      openNow ? 'translate-x-full' : ''
+                    className={`dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition ${
+                      openNow ? 'translate-x-3' : ''
                     }`}
                   ></div>
                 </div>
@@ -238,21 +270,23 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </div>
       )}
 
-      {/* Mobile Search Button */}
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={loading || !query.trim()}
-        className="mt-4 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full transition-all duration-200 font-medium md:hidden"
-      >
-        Search
-      </button>
+      {/* Mobile Search Button (only in non-compact mode) */}
+      {!compact && (
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={loading || !query.trim()}
+          className="mt-4 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:bg-dark-primary dark:hover:bg-orange-600 dark:disabled:bg-gray-600 text-white px-6 py-3 rounded-full transition-all duration-200 font-medium md:hidden"
+        >
+          Search
+        </button>
+      )}
 
       {/* Suggestions dropdown */}
       {showSuggestions && (
         <div
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-200 dark:border-dark-border max-h-80 overflow-y-auto z-50"
+          className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-dark-card rounded-xl shadow-2xl border border-gray-200 dark:border-dark-border max-h-80 overflow-y-auto z-[10002]"
         >
           {isLoadingSuggestions ? (
             <div className="p-4 text-center">

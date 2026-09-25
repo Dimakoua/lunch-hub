@@ -29,12 +29,12 @@ export const Footer: React.FC = () => {
               <ul className="mt-4 space-y-3 text-sm">
                 <li>
                   <Link to="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                    Home
+                    Interactive Map
                   </Link>
                 </li>
                 <li>
-                  <Link to="/restaurants" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                    Find restaurants
+                  <Link to="/guide" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    City Guides
                   </Link>
                 </li>
                 <li>

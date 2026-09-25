@@ -17,20 +17,20 @@ export const BottomNav: React.FC = () => {
         <Link 
           to="/" 
           className={`flex flex-col items-center gap-1 transition-colors ${
-            isActive('/') ? 'text-blue-600 dark:text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
-        >
-          <Home className="w-6 h-6" />
-          <span className="text-[10px] font-medium uppercase tracking-wider">Home</span>
-        </Link>
-        <Link 
-          to="/restaurants" 
-          className={`flex flex-col items-center gap-1 transition-colors ${
-            isActive('/restaurants') ? 'text-blue-600 dark:text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            (location.pathname === '/' || location.pathname === '/restaurants') ? 'text-blue-600 dark:text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
           <MapPin className="w-6 h-6" />
-          <span className="text-[10px] font-medium uppercase tracking-wider">Find</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider">Map</span>
+        </Link>
+        <Link 
+          to="/guide" 
+          className={`flex flex-col items-center gap-1 transition-colors ${
+            location.pathname.startsWith('/guide') ? 'text-blue-600 dark:text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+          }`}
+        >
+          <Home className="w-6 h-6" />
+          <span className="text-[10px] font-medium uppercase tracking-wider">Guides</span>
         </Link>
         <Link 
           to="/blog" 
