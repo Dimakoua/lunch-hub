@@ -779,41 +779,23 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {viewMode !== 'map' && (
-          <div className="mb-6 space-y-4">
-            {onSearch && onCurrentLocation && (
-              <div className="max-w-xl">
-                <SearchBar 
-                  onSearch={onSearch}
-                  onCurrentLocation={onCurrentLocation}
-                  loading={loading || locationUpdating}
-                  initialRadius={radius}
-                  initialOpenNow={filterByOpenNow}
-                  compact={true}
-                  placeholder="Change location..."
-                />
-              </div>
-            )}
-            {cuisineQuery && (
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-dark-text-secondary">
-                  Active filter
-                </span>
-                <button
-                  type="button"
-                  onClick={handleClearCuisineFilter}
-                  className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/40 px-3 py-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition"
-                >
-                  <span className="font-semibold">Cuisine:</span>
-                  <span>{cuisineQuery}</span>
-                  <span className="text-xs font-black">×</span>
-                </button>
-              </div>
-            )}
+        {viewMode !== 'map' && cuisineQuery && (
+          <div className="mb-6 flex justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/40 px-3.5 py-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800">
+              <span className="font-semibold">Cuisine: {cuisineQuery}</span>
+              <button
+                type="button"
+                onClick={handleClearCuisineFilter}
+                className="text-emerald-600 dark:text-emerald-300 hover:text-emerald-900 font-bold ml-1 cursor-pointer"
+                title="Clear filter"
+              >
+                ×
+              </button>
+            </div>
           </div>
         )}
         {viewMode !== 'map' && showSettings && (
-          <div className="mb-6 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-3xl shadow-xl p-4">
+          <div className="mb-6 max-w-xl mx-auto bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-3xl shadow-xl p-4">
             {settingsPanel}
           </div>
         )}
