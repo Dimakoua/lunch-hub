@@ -151,7 +151,7 @@ export const InstallPWA: React.FC<InstallPWAProps> = ({ currentPath }) => {
 
   if (showAndroidPrompt) {
     return (
-      <div className="fixed bottom-20 left-4 right-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[2001] animate-slide-up lg:bottom-6">
+      <div className="fixed bottom-24 left-4 right-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[10001] animate-slide-up max-w-xl mx-auto lg:bottom-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg">
@@ -162,16 +162,19 @@ export const InstallPWA: React.FC<InstallPWAProps> = ({ currentPath }) => {
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Add to home screen for quick access!</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={handleAndroidInstall}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
             >
               Install
             </button>
             <button
+              type="button"
               onClick={closeAndroidPrompt}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              aria-label="Close install prompt"
+              title="Close"
             >
               <X className="w-5 h-5" />
             </button>
@@ -183,7 +186,7 @@ export const InstallPWA: React.FC<InstallPWAProps> = ({ currentPath }) => {
 
   if (showIOSPrompt) {
     return (
-      <div className="fixed bottom-20 left-4 right-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[2001] animate-slide-up lg:bottom-6">
+      <div className="fixed bottom-24 left-4 right-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[10001] animate-slide-up max-w-xl mx-auto lg:bottom-6">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -193,8 +196,11 @@ export const InstallPWA: React.FC<InstallPWAProps> = ({ currentPath }) => {
               <p className="font-semibold text-gray-900 dark:text-white">Install Lunch Hub</p>
             </div>
             <button
+              type="button"
               onClick={closeIOSPrompt}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              aria-label="Close install prompt"
+              title="Close"
             >
               <X className="w-5 h-5" />
             </button>
