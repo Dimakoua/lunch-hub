@@ -361,40 +361,30 @@ function App() {
     }
   }, [radius, applyAvailabilityFilters, filterRules.length]);
 
-  // Attempt current location detection on initial app load if no saved location or using default fallback
+  // Check current location in the background on initial app load
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const stored = window.localStorage.getItem(LOCATION_STORAGE_KEY);
-    let hasCustomSavedLocation = false;
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (
-          parsed &&
-          typeof parsed.lat === 'number' &&
-          typeof parsed.lon === 'number' &&
-          (Math.abs(parsed.lat - DEFAULT_FALLBACK_LOCATION.lat) > 0.0001 ||
-           Math.abs(parsed.lon - DEFAULT_FALLBACK_LOCATION.lon) > 0.0001)
-        ) {
-          hasCustomSavedLocation = true;
-        }
-      } catch {
-        hasCustomSavedLocation = false;
-      }
-    }
 
-    // If no custom user location saved, attempt geolocation automatically
-    if (!hasCustomSavedLocation) {
-      getCurrentLocation()
-        .then((pos) => {
-          skipNextAutoSearchRef.current = true;
-          setLocation({ lat: pos.lat, lon: pos.lon });
-          searchRestaurants(pos.lat, pos.lon);
-        })
-        .catch(() => {
-          // If denied, fallback location is used
+    getCurrentLocation()
+      .then((pos) => {
+        setLocation((prevLocation) => {
+          // If the location has changed meaningfully (e.g. > ~150 meters, or from fallback)
+          const latDiff = Math.abs(pos.lat - prevLocation.lat);
+          const lonDiff = Math.abs(pos.lon - prevLocation.lon);
+          const isSameLocation = latDiff < 0.0015 && lonDiff < 0.0015;
+
+          if (!isSameLocation) {
+            skipNextAutoSearchRef.current = true;
+            searchRestaurants(pos.lat, pos.lon);
+            window.dispatchEvent(new CustomEvent('lunchhub:recenter'));
+            return { lat: pos.lat, lon: pos.lon };
+          }
+          return prevLocation;
         });
-    }
+      })
+      .catch(() => {
+        // Geolocation denied or unavailable; retained cached/fallback location
+      });
   }, [searchRestaurants]);
 
   useEffect(() => {
