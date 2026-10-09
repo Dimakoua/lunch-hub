@@ -107,9 +107,9 @@ const CityGuidePage: React.FC = () => {
 
   const handleSearch = (searchCity?: string, searchCuisine?: string) => {
     if (searchCity && searchCuisine) {
-      navigate(`/restaurants?location=${searchCity}&cuisine=${searchCuisine}`);
+      navigate(`/?location=${searchCity}&cuisine=${searchCuisine}`);
     } else if (searchCity) {
-      navigate(`/restaurants?location=${searchCity}`);
+      navigate(`/?location=${searchCity}`);
     }
   };
 

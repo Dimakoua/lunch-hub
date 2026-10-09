@@ -139,7 +139,7 @@ function App() {
     if (typeof window === 'undefined') {
       return;
     }
-    if (pageLocation.pathname !== '/' && pageLocation.pathname !== '/restaurants') {
+    if (pageLocation.pathname !== '/') {
       return;
     }
     if (showTour) {
@@ -388,7 +388,12 @@ function App() {
   }, [searchRestaurants]);
 
   useEffect(() => {
-    if (pageLocation.pathname !== '/' && pageLocation.pathname !== '/restaurants') {
+    if (pageLocation.pathname === '/restaurants' && pageLocation.search) {
+      navigate(`/${pageLocation.search}`, { replace: true });
+      return;
+    }
+
+    if (pageLocation.pathname !== '/') {
       return;
     }
     
@@ -405,7 +410,6 @@ function App() {
     }
 
     lastProcessedQueryRef.current = queryKey;
-    setLocation(null);
     setRestaurants([]);
     setError(null);
     setLoading(true);
@@ -455,8 +459,8 @@ function App() {
           openNow !== undefined ? openNow : filterByOpenNow
         );
         trackRestaurantSearch(query, availableCount);
-        if (pageLocation.pathname !== '/' && pageLocation.pathname !== '/restaurants') {
-          navigate('/restaurants');
+        if (pageLocation.pathname !== '/') {
+          navigate('/');
         }
       } else {
         setError('Location not found. Please try a different address.');
@@ -491,8 +495,8 @@ function App() {
       );
       trackLocationPermission(true);
       trackRestaurantSearch('current_location', availableCount);
-      if (pageLocation.pathname !== '/' && pageLocation.pathname !== '/restaurants') {
-        navigate('/restaurants');
+      if (pageLocation.pathname !== '/') {
+        navigate('/');
       }
     } catch {
       trackLocationPermission(false);
@@ -738,56 +742,6 @@ function App() {
           <Route 
             path="/restaurants" 
             element={
-              <RestaurantsPage
-                location={location}
-                loading={loading}
-                error={error}
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                selectedRestaurant={selectedRestaurant}
-                radius={radius}
-                setRadius={setRadius}
-                showSettings={showSettings}
-                setShowSettings={setShowSettings}
-                theme={theme}
-                toggleTheme={toggleTheme}
-                onViewOnMap={handleViewOnMap}
-                onRestaurantSelected={handleRestaurantSelected}
-                restaurants={availableRestaurants}
-                visitedRestaurants={visitedRestaurants}
-                hiddenRestaurants={hiddenRestaurants}
-                filterRules={filterRules}
-                hiddenByHistoryCount={hiddenByHistoryCount}
-                hiddenByFiltersCount={hiddenByFiltersCount}
-                hiddenByUserCount={hiddenByUserCount}
-                onMarkRestaurantVisited={markRestaurantVisited}
-                onRemoveVisitedRestaurant={removeVisitedRestaurant}
-                onClearVisitedRestaurants={clearVisitedRestaurants}
-                onHideRestaurant={hideRestaurant}
-                onUnhideRestaurant={unhideRestaurant}
-                onClearHiddenRestaurants={clearHiddenRestaurants}
-                onAddFilterRule={addFilterRule}
-                onRemoveFilterRule={removeFilterRule}
-                onClearFilterRules={clearFilterRules}
-                onCenterDrag={handleLocationDrag}
-                locationUpdating={locationUpdating}
-                filterByOpenNow={filterByOpenNow}
-                setFilterByOpenNow={setFilterByOpenNow}
-                onOpenTour={openTour}
-                tourOpen={showTour}
-                onTourClose={handleTourClose}
-                onTourStepChange={handleTourStepChange}
-                useImperial={useImperial}
-                onToggleUnits={handleToggleUnits}
-                onRetry={handleRetry}
-                onSearch={handleSearch}
-                onCurrentLocation={handleCurrentLocation}
-              />
-            }
-          />
-          <Route 
-            path="/landing" 
-            element={
               <HomePage
                 onSearch={handleSearch}
                 onCurrentLocation={handleCurrentLocation}
@@ -796,7 +750,7 @@ function App() {
                 theme={theme}
                 toggleTheme={toggleTheme}
               />
-            } 
+            }
           />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />

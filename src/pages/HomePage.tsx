@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MapPin, Shuffle, RotateCcw, Sun, Moon, Sparkles, ArrowRight, BookOpen } from 'lucide-react';
 import { SearchBar } from '../components/SearchBar';
@@ -28,6 +28,7 @@ const HomePage: React.FC<HomePageProps> = ({
   theme,
   toggleTheme
 }) => {
+  const pageLocation = useLocation();
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.thelunchub.com';
   const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
   const localBusinessSchema = generateLocalBusinessSchema(origin);
@@ -66,10 +67,10 @@ const HomePage: React.FC<HomePageProps> = ({
         <title>Lunch Hub - Discover Best Restaurants Near You for Lunch</title>
         <meta name="description" content="Discover amazing lunch restaurants near you. Use our random picker, spin wheel, or map to find your next favorite meal in seconds!" />
         <meta name="keywords" content="lunch picker, find restaurants near me, random restaurant generator, lunch hub, where to eat, restaurant map" />
-        <link rel="canonical" href={`${origin}/`} />
+        <link rel="canonical" href={`${origin}${pageLocation.pathname === '/' ? '/' : pageLocation.pathname}`} />
         <meta property="og:title" content="Lunch Hub - Discover Best Restaurants Near You" />
         <meta property="og:description" content="Take the stress out of lunch. Discover nearby eateries with our interactive map and fun decision tools." />
-        <meta property="og:url" content={`${origin}/`} />
+        <meta property="og:url" content={`${origin}${pageLocation.pathname === '/' ? '/' : pageLocation.pathname}`} />
         <script type="application/ld+json">
           {renderSchema(localBusinessSchema)}
         </script>
@@ -140,27 +141,36 @@ const HomePage: React.FC<HomePageProps> = ({
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-6xl w-full mb-20">
-          <div className="bg-white dark:bg-dark-card p-10 rounded-[2.5rem] border border-slate-200 dark:border-dark-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all">
-            <div className="w-14 h-14 bg-blue-50 dark:bg-dark-primary/10 rounded-2xl flex items-center justify-center mb-6">
+          <Link to="/" className="group bg-white dark:bg-dark-card p-10 rounded-[2.5rem] border border-slate-200 dark:border-dark-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all block text-left">
+            <div className="w-14 h-14 bg-blue-50 dark:bg-dark-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <MapPin className="w-7 h-7 text-blue-600 dark:text-dark-primary" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-dark-text mb-3">Live Map</h3>
+            <h3 className="text-xl font-black text-slate-900 dark:text-dark-text mb-3 flex items-center justify-between">
+              <span>Live Map</span>
+              <ArrowRight className="w-5 h-5 text-blue-600 dark:text-dark-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </h3>
             <p className="text-slate-500 dark:text-dark-text-secondary font-medium">Find restaurants within walking distance of your current position.</p>
-          </div>
-          <div className="bg-white dark:bg-dark-card p-10 rounded-[2.5rem] border border-slate-200 dark:border-dark-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all">
-            <div className="w-14 h-14 bg-purple-50 dark:bg-purple-900/10 rounded-2xl flex items-center justify-center mb-6">
+          </Link>
+          <Link to="/" className="group bg-white dark:bg-dark-card p-10 rounded-[2.5rem] border border-slate-200 dark:border-dark-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all block text-left">
+            <div className="w-14 h-14 bg-purple-50 dark:bg-purple-900/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Shuffle className="w-7 h-7 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-dark-text mb-3">Randomizer</h3>
+            <h3 className="text-xl font-black text-slate-900 dark:text-dark-text mb-3 flex items-center justify-between">
+              <span>Randomizer</span>
+              <ArrowRight className="w-5 h-5 text-purple-600 dark:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </h3>
             <p className="text-slate-500 dark:text-dark-text-secondary font-medium">Let our high-speed picker choose your next meal when you're indecisive.</p>
-          </div>
-          <div className="bg-white dark:bg-dark-card p-10 rounded-[2.5rem] border border-slate-200 dark:border-dark-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all">
-            <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl flex items-center justify-center mb-6">
+          </Link>
+          <Link to="/" className="group bg-white dark:bg-dark-card p-10 rounded-[2.5rem] border border-slate-200 dark:border-dark-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all block text-left">
+            <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <RotateCcw className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-dark-text mb-3">Spin Wheel</h3>
+            <h3 className="text-xl font-black text-slate-900 dark:text-dark-text mb-3 flex items-center justify-between">
+              <span>Spin Wheel</span>
+              <ArrowRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </h3>
             <p className="text-slate-500 dark:text-dark-text-secondary font-medium">Gamify your lunch choice with our interactive wheel—perfect for groups!</p>
-          </div>
+          </Link>
         </div>
 
         {/* Cuisines CTA */}

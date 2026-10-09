@@ -766,7 +766,16 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         <title>Lunch Hub - Live Map & Restaurants Near You</title>
         <meta name="description" content={`Found ${restaurants.length} restaurants near you. Explore on our interactive live map, browse the list, or use our decision spinner!`} />
         <meta name="keywords" content="restaurants near me, lunch map, restaurant map, find food, nearby eateries, lunch hub" />
-        <link rel="canonical" href={`${origin}${window.location.pathname}`} />
+        <link rel="canonical" href={`${origin}${pageLocation.pathname}`} />
+        <meta property="og:title" content="Lunch Hub - Live Map & Restaurants Near You" />
+        <meta property="og:description" content="Explore restaurants near you on our live interactive map, browse by cuisine, or spin the wheel to decide lunch faster." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${origin}${pageLocation.pathname}`} />
+        <meta property="og:image" content={`${origin}/images/lunchhub-og-image.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Lunch Hub - Live Map & Restaurants Near You" />
+        <meta name="twitter:description" content="Explore restaurants near you on our live interactive map, browse by cuisine, or spin the wheel to decide lunch faster." />
+        <meta name="twitter:image" content={`${origin}/images/lunchhub-og-image.png`} />
         <script type="application/ld+json">
           {renderSchema(localBusinessSchema)}
         </script>
