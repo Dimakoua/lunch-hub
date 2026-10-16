@@ -209,7 +209,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
   const [showSubmitDealModal, setShowSubmitDealModal] = useState(false);
   const [dealForm, setDealForm] = useState({
+    restaurantId: '',
     name: '',
+    address: '',
     cuisine: '',
     dealTitle: '',
     price: '',
@@ -220,11 +222,16 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   const handleDealSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!dealForm.name || !dealForm.dealTitle || !dealForm.price) return;
+
+    const matchedRestaurant = restaurants.find(r => r.id === dealForm.restaurantId || r.name.toLowerCase() === dealForm.name.toLowerCase());
+    const lat = matchedRestaurant ? matchedRestaurant.lat : location.lat + (Math.random() - 0.5) * 0.005;
+    const lng = matchedRestaurant ? matchedRestaurant.lon : location.lon + (Math.random() - 0.5) * 0.005;
+
     submitDeal({
       name: dealForm.name,
-      lat: location.lat + (Math.random() - 0.5) * 0.005,
-      lng: location.lon + (Math.random() - 0.5) * 0.005,
-      cuisine: dealForm.cuisine || 'Lunch Special',
+      lat,
+      lng,
+      cuisine: dealForm.cuisine || matchedRestaurant?.cuisine || 'Lunch Special',
       dealTitle: dealForm.dealTitle,
       price: dealForm.price,
       validDays: dealForm.validDays,
@@ -233,7 +240,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     setTimeout(() => {
       setDealSubmittedMsg(false);
       setShowSubmitDealModal(false);
-      setDealForm({ name: '', cuisine: '', dealTitle: '', price: '', validDays: 'Mon-Fri 11am-3pm' });
+      setDealForm({ restaurantId: '', name: '', address: '', cuisine: '', dealTitle: '', price: '', validDays: 'Mon-Fri 11am-3pm' });
     }, 1500);
   };
 
@@ -1063,15 +1070,6 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                   )}
                 </div>
 
-                {/* Floating Spin Wheel CTA */}
-                <button
-                  onClick={() => setViewMode('wheel')}
-                  className="absolute bottom-24 left-1/2 -translate-x-1/2 z-[9999] bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 border-2 border-white/80 transition-transform hover:scale-105 active:scale-95 animate-bounce"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  <span>🎲 Spin Lunch Wheel</span>
-                </button>
-
                 {/* Right-side floating map actions */}
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 z-[9999] flex flex-col gap-2">
                   <button
@@ -1468,6 +1466,33 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             ) : (
               <form onSubmit={handleDealSubmit} className="space-y-3 text-xs sm:text-sm">
                 <div>
+                  <label className="block font-bold text-gray-700 dark:text-dark-text mb-1">Select Nearby Restaurant (or enter below)</label>
+                  <select
+                    value={dealForm.restaurantId}
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      const selected = restaurants.find(r => r.id === id);
+                      if (selected) {
+                        setDealForm(prev => ({
+                          ...prev,
+                          restaurantId: id,
+                          name: selected.name,
+                          cuisine: selected.cuisine || prev.cuisine,
+                          address: selected.address || prev.address,
+                        }));
+                      } else {
+                        setDealForm(prev => ({ ...prev, restaurantId: '' }));
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-dark-text mb-2"
+                  >
+                    <option value="">-- Choose from map spots --</option>
+                    {restaurants.slice(0, 30).map(r => (
+                      <option key={r.id} value={r.id}>{r.name} ({r.cuisine || 'Restaurant'})</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
                   <label className="block font-bold text-gray-700 dark:text-dark-text mb-1">Restaurant Name</label>
                   <input
                     required
@@ -1475,6 +1500,16 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     placeholder="e.g. Banh Mi Boys"
                     value={dealForm.name}
                     onChange={(e) => setDealForm({ ...dealForm, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-dark-text"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-gray-700 dark:text-dark-text mb-1">Address / Location</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 392 Queen St W, Toronto"
+                    value={dealForm.address}
+                    onChange={(e) => setDealForm({ ...dealForm, address: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-dark-text"
                   />
                 </div>
