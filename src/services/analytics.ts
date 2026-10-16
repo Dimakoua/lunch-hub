@@ -48,16 +48,33 @@ export const trackPageView = (path: string, title?: string) => {
 };
 
 // Track custom events (only if consent given)
-export const trackEvent = (action: string, category: string, label?: string, value?: number) => {
+export function trackEvent(action: string, categoryOrMetadata?: string | Record<string, any>, label?: string, value?: number) {
+  console.log(`[Event Logged] ${action}:`, categoryOrMetadata);
   if (!window.gtag) {
     return;
   }
 
-  window.gtag('event', action, {
-    event_category: category,
-    event_label: label,
-    value: value,
-  });
+  if (typeof categoryOrMetadata === 'object' && categoryOrMetadata !== null) {
+    window.gtag('event', action, categoryOrMetadata);
+  } else {
+    window.gtag('event', action, {
+      event_category: categoryOrMetadata,
+      event_label: label,
+      value: value,
+    });
+  }
+}
+
+export const trackDirectionsClick = (restaurantName: string, lat: number, lon: number) => {
+  trackEvent('directions_clicked', { restaurant_name: restaurantName, destination_lat: lat, destination_lon: lon });
+};
+
+export const trackReviewsClick = (restaurantName: string) => {
+  trackEvent('reviews_clicked', { restaurant_name: restaurantName });
+};
+
+export const trackPollShare = (pollId: string) => {
+  trackEvent('poll_shared', { poll_id: pollId });
 };
 
 // Common tracking events for the restaurant app

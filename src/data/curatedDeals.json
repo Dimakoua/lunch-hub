@@ -1,0 +1,57 @@
+[
+  {
+    "id": "deal-toronto-1",
+    "name": "Banh Mi Boys",
+    "lat": 43.6482,
+    "lng": -79.3965,
+    "cuisine": "Vietnamese",
+    "dealTitle": "$11.99 Pork Belly Banh Mi + Drink",
+    "price": "$11.99",
+    "validDays": "Mon-Fri 11am-3pm",
+    "verifiedDate": "2025-02-15"
+  },
+  {
+    "id": "deal-toronto-2",
+    "name": "Shawarma Empire",
+    "lat": 43.6512,
+    "lng": -79.3832,
+    "cuisine": "Middle Eastern",
+    "dealTitle": "$12.99 Chicken Shawarma Wrap + Fries",
+    "price": "$12.99",
+    "validDays": "Daily 11am-4pm",
+    "verifiedDate": "2025-02-18"
+  },
+  {
+    "id": "deal-toronto-3",
+    "name": "Pizzeria Libretto Express",
+    "lat": 43.6475,
+    "lng": -79.3789,
+    "cuisine": "Italian / Pizza",
+    "dealTitle": "$14.50 Margherita Pizza + Drink",
+    "price": "$14.50",
+    "validDays": "Mon-Fri 11:30am-2:30pm",
+    "verifiedDate": "2025-02-20"
+  },
+  {
+    "id": "deal-toronto-4",
+    "name": "Fresh Burrito Core",
+    "lat": 43.6498,
+    "lng": -79.3815,
+    "cuisine": "Mexican",
+    "dealTitle": "$10.99 Loaded Steak Burrito + Chips",
+    "price": "$10.99",
+    "validDays": "Mon-Fri 11am-3pm",
+    "verifiedDate": "2025-02-22"
+  },
+  {
+    "id": "deal-nyc-1",
+    "name": "7th Street Burger",
+    "lat": 40.7128,
+    "lng": -74.0060,
+    "cuisine": "American / Burgers",
+    "dealTitle": "$11.50 Cheeseburger & Fries Combo",
+    "price": "$11.50",
+    "validDays": "Mon-Fri 11am-4pm",
+    "verifiedDate": "2025-02-10"
+  }
+]

@@ -61,6 +61,50 @@ export const searchLocationSuggestions = async (query: string) => {
   }
 };
 
+const DOWNTOWN_TORONTO = { lat: 43.6487, lon: -79.3803, label: 'Downtown Core' };
+
+export const getFastFallbackLocation = async (): Promise<{ lat: number; lon: number; label: string }> => {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const hub = params.get('hub');
+    if (hub) {
+      if (hub.toLowerCase().includes('toronto')) {
+        return { lat: 43.6487, lon: -79.3803, label: 'Downtown Toronto' };
+      }
+      if (hub.toLowerCase().includes('nyc') || hub.toLowerCase().includes('new-york')) {
+        return { lat: 40.7128, lon: -74.0060, label: 'Downtown NYC' };
+      }
+      if (hub.toLowerCase().includes('chicago')) {
+        return { lat: 41.8781, lon: -87.6298, label: 'Downtown Chicago' };
+      }
+    }
+  }
+
+  const ipPromise = (async () => {
+    try {
+      const res = await fetch('https://freeipapi.com/api/json');
+      if (!res.ok) throw new Error('IP lookup failed');
+      const data = await res.json();
+      if (data && typeof data.latitude === 'number' && typeof data.longitude === 'number' && data.latitude !== 0) {
+        return {
+          lat: data.latitude,
+          lon: data.longitude,
+          label: data.cityName ? `${data.cityName} Area` : 'Downtown Core',
+        };
+      }
+    } catch {
+      // fallback
+    }
+    return DOWNTOWN_TORONTO;
+  })();
+
+  const timeoutPromise = new Promise<{ lat: number; lon: number; label: string }>((resolve) => {
+    setTimeout(() => resolve(DOWNTOWN_TORONTO), 800);
+  });
+
+  return Promise.race([ipPromise, timeoutPromise]);
+};
+
 export const getCurrentLocation = (): Promise<{ lat: number; lon: number }> => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {

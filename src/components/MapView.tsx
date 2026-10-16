@@ -140,6 +140,22 @@ export const MapView: React.FC<MapViewProps> = ({
     popupAnchor: [0, -40],
   });
 
+  const getDealIcon = (price: string) => L.divIcon({
+    html: `
+      <div class="relative flex items-center justify-center">
+        <span class="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 animate-ping"></span>
+        <div class="relative bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-[11px] px-2 py-1 rounded-full shadow-lg border-2 border-white flex items-center gap-0.5 whitespace-nowrap">
+          <span>🔥</span>
+          <span>${price}</span>
+        </div>
+      </div>
+    `,
+    className: 'deal-marker-pin',
+    iconSize: [70, 30],
+    iconAnchor: [35, 15],
+    popupAnchor: [0, -15],
+  });
+
   const formatDuration = (seconds: number | null | undefined) => {
     if (seconds === null || seconds === undefined) return 'N/A';
     const minutes = Math.round(seconds / 60);
@@ -217,7 +233,13 @@ export const MapView: React.FC<MapViewProps> = ({
         <Marker
           key={restaurant.id}
           position={[restaurant.lat, restaurant.lon]}
-          icon={selectedRestaurant?.id === restaurant.id ? selectedIcon : restaurantIcon}
+          icon={
+            selectedRestaurant?.id === restaurant.id
+              ? selectedIcon
+              : restaurant.deal
+              ? getDealIcon(restaurant.deal.price)
+              : restaurantIcon
+          }
           eventHandlers={{
             click: () => {
               if (onRestaurantSelected) {
@@ -238,6 +260,13 @@ export const MapView: React.FC<MapViewProps> = ({
                 <span className="inline-block text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-400 px-1.5 py-0.5 rounded-full mb-1">
                   {restaurant.cuisine}
                 </span>
+              )}
+
+              {restaurant.deal && (
+                <div className="bg-amber-50 border border-amber-200 rounded-md p-1.5 mb-1 text-[11px] text-amber-900">
+                  <div className="font-bold">🔥 {restaurant.deal.dealTitle}</div>
+                  <div className="text-[10px] text-amber-700">{restaurant.deal.validDays}</div>
+                </div>
               )}
               {/* <p className="text-xs text-gray-600 dark:text-dark-text-secondary mb-1 line-clamp-1">{restaurant.address}</p> */}
 

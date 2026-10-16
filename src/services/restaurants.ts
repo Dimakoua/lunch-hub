@@ -1,5 +1,6 @@
 import { Restaurant } from '../types/restaurant';
 import { cacheService } from './cache';
+import { overlayDeals } from './deals';
 import { CACHE_TTL_LONG, OVERPASS_ENDPOINTS } from '../constants';
 
 interface OverpassTags {
@@ -126,12 +127,16 @@ export const fetchRestaurants = async (
           website: element.tags.website,
           opening_hours: element.tags.opening_hours,
           amenity: element.tags.amenity,
+          takeaway: element.tags.takeaway,
         };
       })
       .filter((r): r is Restaurant => r !== null);
 
+    // Overlay curated deals onto restaurants
+    const withDeals = overlayDeals(restaurants);
+
     // Filter restaurants to be strictly within the circular radius
-    const filteredRestaurants = restaurants.filter(restaurant => {
+    const filteredRestaurants = withDeals.filter(restaurant => {
       const distance = haversineDistance(lat, lon, restaurant.lat, restaurant.lon);
       return distance <= radius;
     });
