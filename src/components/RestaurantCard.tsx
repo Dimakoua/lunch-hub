@@ -2,6 +2,7 @@ import React from 'react';
 import { MapPin, Phone, Globe, Clock, Utensils, PersonStanding, EyeOff } from 'lucide-react';
 import { Restaurant } from '../types/restaurant';
 import { formatDistance, formatWalkingTime } from '../utils/distanceFormatter';
+import { trackDirectionsClick, trackReviewsClick } from '../services/analytics';
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -93,13 +94,18 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
           )}
         </div>
 
-        {restaurant.cuisine && (
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm font-medium text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900 px-3 py-1 rounded-full">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          {restaurant.cuisine && (
+            <span className="text-xs font-medium text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/40 px-2.5 py-0.5 rounded-full">
               {restaurant.cuisine}
             </span>
-          </div>
-        )}
+          )}
+          {restaurant.deal && (
+            <span className="text-xs font-bold text-amber-700 bg-amber-100 dark:text-amber-300 dark:bg-amber-900/60 px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 animate-pulse">
+              🔥 {restaurant.deal.dealTitle} ({restaurant.deal.price})
+            </span>
+          )}
+        </div>
 
         <div className="space-y-2 text-sm text-gray-600 dark:text-dark-text-secondary">
           <div className="flex items-start gap-2">
@@ -141,7 +147,29 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
           )}
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border space-y-2">
+        {/* Outbound verification links */}
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-border flex flex-wrap items-center gap-2 text-xs">
+          <a
+            href={`https://www.google.com/search?q=${encodeURIComponent(restaurant.name + ' ' + (restaurant.address || '') + ' menu reviews')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackReviewsClick(restaurant.name)}
+            className="flex-1 text-center py-1.5 px-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 font-semibold transition-colors border border-amber-200/60 dark:border-amber-800/40"
+          >
+            ⭐ Google Reviews &amp; Menu
+          </a>
+          <a
+            href={`https://www.google.com/maps/dir/?api=1&origin=${userLat || ''},${userLon || ''}&destination=${restaurant.lat},${restaurant.lon}&travelmode=walking`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackDirectionsClick(restaurant.name, restaurant.lat, restaurant.lon)}
+            className="flex-1 text-center py-1.5 px-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300 font-semibold transition-colors border border-blue-200/60 dark:border-blue-800/40"
+          >
+            🗺️ Walking Directions
+          </a>
+        </div>
+
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-border space-y-2">
           {onMarkVisited && (
             <button
               data-tour-target="mark-as-visited-btn"

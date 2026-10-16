@@ -60,6 +60,10 @@ export const PollPage: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const pollLocationName = poll?.restaurants[0]?.address?.split(',')[0] || 'Downtown';
+  const pollTitleStr = `🍕 Vote on Today's Lunch Spot! (${poll?.restaurants.length || 4} options near ${pollLocationName})`;
+  const pollDescStr = `Vote in 1-click between ${poll?.restaurants.map(r => r.name).join(', ')}. No login required.`;
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-dark-background">
@@ -85,8 +89,14 @@ export const PollPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-dark-background pb-20 pt-6 px-4 sm:px-6">
       <Helmet>
-        <title>Team Lunch Poll - Lunch Hub</title>
-        <meta name="description" content="Vote on where to eat for the upcoming team lunch!" />
+        <title>{pollTitleStr}</title>
+        <meta name="description" content={pollDescStr} />
+        <meta property="og:title" content={pollTitleStr} />
+        <meta property="og:description" content={pollDescStr} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+        <meta name="twitter:title" content={pollTitleStr} />
+        <meta name="twitter:description" content={pollDescStr} />
       </Helmet>
 
       <div className="max-w-3xl mx-auto">

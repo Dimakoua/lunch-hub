@@ -12,7 +12,7 @@ const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
 const CityGuidePage = lazy(() => import('./pages/CityGuidePage'));
 const PollPage = lazy(() => import('./pages/PollPage'));
 const MatchPage = lazy(() => import('./pages/MatchPage'));
-import { geocodeAddress, getCurrentLocation } from './services/geocoding';
+import { geocodeAddress, getCurrentLocation, getFastFallbackLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
 import { reportRestaurantVisit } from './services/popularity';
 import { 
@@ -38,8 +38,8 @@ function App() {
   const ONBOARDING_STORAGE_KEY = 'lunch-hub-tour-seen';
   const LOCATION_STORAGE_KEY = 'lunch-hub-last-location';
   const DEFAULT_FALLBACK_LOCATION: Location = {
-    lat: 40.7128,
-    lon: -74.0060,
+    lat: 43.6487,
+    lon: -79.3803,
   };
   const TOUR_DEMO_ID = '__tour_demo__';
   const TOUR_DEMO_RESTAURANT: Restaurant = {
@@ -52,6 +52,8 @@ function App() {
     amenity: 'restaurant',
   };
   const [showTour, setShowTour] = useState(false);
+  const [isExactLocation, setIsExactLocation] = useState(false);
+  const [locationLabel, setLocationLabel] = useState('Downtown Core');
   const [location, setLocation] = useState<Location>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(LOCATION_STORAGE_KEY);
@@ -61,9 +63,7 @@ function App() {
           if (
             parsed &&
             typeof parsed.lat === 'number' &&
-            typeof parsed.lon === 'number' &&
-            (Math.abs(parsed.lat - DEFAULT_FALLBACK_LOCATION.lat) > 0.0001 ||
-             Math.abs(parsed.lon - DEFAULT_FALLBACK_LOCATION.lon) > 0.0001)
+            typeof parsed.lon === 'number'
           ) {
             return parsed;
           }
@@ -135,21 +135,7 @@ function App() {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    if (pageLocation.pathname !== '/') {
-      return;
-    }
-    if (showTour) {
-      return;
-    }
-    const seenTour = window.localStorage.getItem(ONBOARDING_STORAGE_KEY);
-    if (!seenTour) {
-      setShowTour(true);
-    }
-  }, [pageLocation.pathname, showTour]);
+  // Onboarding tour auto-trigger removed to eliminate cold-start friction
 
   const handleTourClose = () => {
     if (typeof window !== 'undefined') {
@@ -361,14 +347,22 @@ function App() {
     }
   }, [radius, applyAvailabilityFilters, filterRules.length]);
 
-  // Check current location in the background on initial app load
+  // Fast cold-start location initialization
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    const stored = localStorage.getItem(LOCATION_STORAGE_KEY);
+    if (!stored) {
+      getFastFallbackLocation().then((fastLoc) => {
+        setLocationLabel(fastLoc.label);
+        setLocation({ lat: fastLoc.lat, lon: fastLoc.lon });
+      });
+    }
+
     getCurrentLocation()
       .then((pos) => {
+        setIsExactLocation(true);
         setLocation((prevLocation) => {
-          // If the location has changed meaningfully (e.g. > ~150 meters, or from fallback)
           const latDiff = Math.abs(pos.lat - prevLocation.lat);
           const lonDiff = Math.abs(pos.lon - prevLocation.lon);
           const isSameLocation = latDiff < 0.0015 && lonDiff < 0.0015;
@@ -383,7 +377,7 @@ function App() {
         });
       })
       .catch(() => {
-        // Geolocation denied or unavailable; retained cached/fallback location
+        // Geolocation pending or denied; retains fast IP / default location
       });
   }, [searchRestaurants]);
 
@@ -484,6 +478,7 @@ function App() {
       setSelectedRestaurant(null);
       skipNextAutoSearchRef.current = true;
       setLocation(newLocation);
+      setIsExactLocation(true);
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('lunchhub:recenter'));
       }
@@ -694,6 +689,8 @@ function App() {
             element={
               <RestaurantsPage
                 location={location}
+                isExactLocation={isExactLocation}
+                locationLabel={locationLabel}
                 loading={loading}
                 error={error}
                 viewMode={viewMode}

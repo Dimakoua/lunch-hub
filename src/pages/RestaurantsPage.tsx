@@ -12,7 +12,7 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { Restaurant, Location } from '../types/restaurant';
 import { FilterRule, FilterField } from '../types/filter';
-import { trackRestaurantView, trackSpinWheel, trackRandomPick } from '../services/analytics';
+import { trackRestaurantView, trackSpinWheel, trackRandomPick, trackPollShare } from '../services/analytics';
 import { fetchRoute } from '../services/routing'; // Import fetchRoute
 import { OnboardingTour } from '../components/OnboardingTour';
 import { shareRestaurant } from '../utils/share'; // Added shareRestaurant
@@ -21,6 +21,7 @@ import { useShakeGesture } from '../hooks/useShakeGesture';
 import { fetchPopularityData, HeatPoint } from '../services/popularity';
 import { formatDistance, formatWalkingTime, getRadiusOptionsInMeters } from '../utils/distanceFormatter';
 import { createPoll } from '../services/polls';
+import { submitDeal } from '../services/deals';
 import { createMatchRoom } from '../services/matchmaker';
 import {
   generateFAQSchema,
@@ -33,6 +34,8 @@ type Theme = 'light' | 'dark';
 
 interface RestaurantsPageProps {
   location: Location;
+  isExactLocation?: boolean;
+  locationLabel?: string;
   restaurants: Restaurant[];
   loading: boolean;
   error: string | null;
@@ -174,7 +177,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   setFilterByOpenNow,
   onRetry,
   onSearch,
-  onCurrentLocation
+  onCurrentLocation,
+  isExactLocation = false,
+  locationLabel = 'Downtown Core',
 }) => {
   const pageLocation = useLocation();
   const navigate = useNavigate();
@@ -196,6 +201,86 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState<HeatPoint[]>([]);
   const [arModeActive, setArModeActive] = useState(false);
+
+  const [quickUnder7Min, setQuickUnder7Min] = useState(false);
+  const [quickUnder15Deals, setQuickUnder15Deals] = useState(false);
+  const [quickFastTakeout, setQuickFastTakeout] = useState(false);
+  const [quickExcludeRecent, setQuickExcludeRecent] = useState(false);
+
+  const [showSubmitDealModal, setShowSubmitDealModal] = useState(false);
+  const [dealForm, setDealForm] = useState({
+    name: '',
+    cuisine: '',
+    dealTitle: '',
+    price: '',
+    validDays: 'Mon-Fri 11am-3pm',
+  });
+  const [dealSubmittedMsg, setDealSubmittedMsg] = useState(false);
+
+  const handleDealSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dealForm.name || !dealForm.dealTitle || !dealForm.price) return;
+    submitDeal({
+      name: dealForm.name,
+      lat: location.lat + (Math.random() - 0.5) * 0.005,
+      lng: location.lon + (Math.random() - 0.5) * 0.005,
+      cuisine: dealForm.cuisine || 'Lunch Special',
+      dealTitle: dealForm.dealTitle,
+      price: dealForm.price,
+      validDays: dealForm.validDays,
+    });
+    setDealSubmittedMsg(true);
+    setTimeout(() => {
+      setDealSubmittedMsg(false);
+      setShowSubmitDealModal(false);
+      setDealForm({ name: '', cuisine: '', dealTitle: '', price: '', validDays: 'Mon-Fri 11am-3pm' });
+    }, 1500);
+  };
+
+  const displayRestaurants = useMemo(() => {
+    let list = restaurants;
+
+    if (quickUnder7Min) {
+      list = list.filter((r) => {
+        const dist = calcDist(location.lat, location.lon, r.lat, r.lon);
+        return dist <= 560; // 7 min walk @ 80m/min
+      });
+    }
+
+    if (quickUnder15Deals) {
+      list = list.filter((r) => Boolean(r.deal));
+    }
+
+    if (quickFastTakeout) {
+      list = list.filter((r) => {
+        const amenity = (r.amenity || '').toLowerCase();
+        const cuisine = (r.cuisine || '').toLowerCase();
+        const takeaway = (r.takeaway || '').toLowerCase();
+        return (
+          takeaway === 'yes' ||
+          takeaway === 'only' ||
+          amenity === 'fast_food' ||
+          amenity === 'cafe' ||
+          cuisine.includes('sandwich') ||
+          cuisine.includes('burger') ||
+          cuisine.includes('pizza') ||
+          cuisine.includes('fast food')
+        );
+      });
+    }
+
+    if (quickExcludeRecent) {
+      const fiveDaysAgo = Date.now() - 5 * 24 * 60 * 60 * 1000;
+      list = list.filter((r) => {
+        const visited = visitedRestaurants.find((v) => v.id === r.id);
+        if (!visited) return true;
+        const visitedTime = (visited as any).visitedAt || 0;
+        return visitedTime < fiveDaysAgo;
+      });
+    }
+
+    return list;
+  }, [restaurants, quickUnder7Min, quickUnder15Deals, quickFastTakeout, quickExcludeRecent, location, visitedRestaurants]);
 
   useEffect(() => {
     if (showHeatmap && location?.lat && location?.lon) {
@@ -231,6 +316,11 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     }
   };
 
+  const handleAutoPickTop4 = () => {
+    if (displayRestaurants.length === 0) return;
+    setSelectedForPoll(displayRestaurants.slice(0, 4));
+  };
+
   const handleCreatePoll = async () => {
     if (selectedForPoll.length < 2) {
       setPollError("Please select at least 2 restaurants.");
@@ -244,6 +334,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     setPollError(null);
     try {
       const id = await createPoll(selectedForPoll);
+      trackPollShare(id);
       navigate(`/poll/${id}`);
     } catch (e) {
       setPollError("Failed to create poll. Please try again.");
@@ -734,14 +825,6 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         <Share2 className="w-4 h-4" />
         <span className="hidden sm:inline">Poll</span>
       </button>
-      <button
-        onClick={() => setArModeActive(true)}
-        className={`${tabBase} ${tabInactive} lg:hidden`}
-        title="AR Food Finder"
-      >
-        <Camera className="w-4 h-4 text-emerald-500" />
-        <span className="hidden sm:inline">AR View</span>
-      </button>
     </div>  </div>  );
 
   const localBusinessSchema = generateLocalBusinessSchema(origin);
@@ -814,11 +897,19 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             data-tour-target="map-container"
             className="fixed inset-0 z-40"
           >
+            {!isExactLocation && onCurrentLocation && (
+              <button
+                onClick={() => onCurrentLocation()}
+                className="absolute top-3 sm:top-4 left-1/2 -translate-x-1/2 z-[9999] bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 border border-amber-300/40"
+              >
+                <span>📍 Showing {locationLabel} — Tap to use my exact location</span>
+              </button>
+            )}
             {/* Full-screen map */}
             <div className="absolute inset-0">
               <MapView 
                 center={[location.lat, location.lon]}
-                restaurants={restaurants}
+                restaurants={displayRestaurants}
                 selectedRestaurant={selectedRestaurant}
                 onRestaurantSelected={onRestaurantSelected}
                 onMarkVisited={onMarkRestaurantVisited}
@@ -861,10 +952,64 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     )}
                   </div>
 
+                  {/* Submit Deal CTA */}
+                  <div className="p-1.5 border-b border-gray-100 dark:border-gray-700/50 bg-amber-50/40 dark:bg-amber-950/20">
+                    <button
+                      onClick={() => setShowSubmitDealModal(true)}
+                      className="w-full py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-[11px] rounded-xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-1"
+                    >
+                      🔥 Know a cheap deal? Submit a spot
+                    </button>
+                  </div>
+
+                  {/* Quick Lunch Filter Pills */}
+                  <div className="px-2 py-1 flex items-center gap-1 overflow-x-auto border-b border-gray-100 dark:border-gray-700/50 bg-gray-50/30 dark:bg-gray-800/20 text-[10px]">
+                    <button
+                      onClick={() => setQuickUnder7Min(!quickUnder7Min)}
+                      className={`px-2 py-0.5 rounded-full font-bold transition-all whitespace-nowrap border ${
+                        quickUnder7Min
+                          ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
+                          : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                      }`}
+                    >
+                      ⚡ &lt; 7 Min
+                    </button>
+                    <button
+                      onClick={() => setQuickUnder15Deals(!quickUnder15Deals)}
+                      className={`px-2 py-0.5 rounded-full font-bold transition-all whitespace-nowrap border ${
+                        quickUnder15Deals
+                          ? 'bg-orange-600 text-white border-orange-700 shadow-sm'
+                          : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                      }`}
+                    >
+                      🔥 Deals
+                    </button>
+                    <button
+                      onClick={() => setQuickFastTakeout(!quickFastTakeout)}
+                      className={`px-2 py-0.5 rounded-full font-bold transition-all whitespace-nowrap border ${
+                        quickFastTakeout
+                          ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm'
+                          : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                      }`}
+                    >
+                      🥡 Takeout
+                    </button>
+                    <button
+                      onClick={() => setQuickExcludeRecent(!quickExcludeRecent)}
+                      className={`px-2 py-0.5 rounded-full font-bold transition-all whitespace-nowrap border ${
+                        quickExcludeRecent
+                          ? 'bg-purple-600 text-white border-purple-700 shadow-sm'
+                          : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                      }`}
+                    >
+                      🎲 Exclude Recent
+                    </button>
+                  </div>
+
                   {/* Quick Status / Stats Bar */}
                   <div className="px-3 py-1.5 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/30">
                     <div className="text-[11px] text-gray-500 dark:text-dark-text-secondary flex items-center gap-1.5 font-medium">
-                      <span className="text-gray-900 dark:text-dark-text font-bold">{restaurants.length}</span>
+                      <span className="text-gray-900 dark:text-dark-text font-bold">{displayRestaurants.length}</span>
                       <span>places found</span>
                       {hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount > 0 && (
                         <span className="opacity-60 text-[10px]">
@@ -917,6 +1062,15 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     </div>
                   )}
                 </div>
+
+                {/* Floating Spin Wheel CTA */}
+                <button
+                  onClick={() => setViewMode('wheel')}
+                  className="absolute bottom-24 left-1/2 -translate-x-1/2 z-[9999] bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 border-2 border-white/80 transition-transform hover:scale-105 active:scale-95 animate-bounce"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>🎲 Spin Lunch Wheel</span>
+                </button>
 
                 {/* Right-side floating map actions */}
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 z-[9999] flex flex-col gap-2">
@@ -986,23 +1140,57 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <>
               {viewMode === 'list' && (
                 <>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">
                     Nearby restaurants
                     <span className="ml-2 text-sm font-normal text-gray-400 dark:text-dark-text-secondary">
-                      {restaurants.length} visible
+                      {displayRestaurants.length} visible
                       {hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount > 0 && ` (${hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount} hidden)`}
                     </span>
                   </h2>
+                  <div className="flex items-center gap-1.5 overflow-x-auto text-xs pb-1">
+                    <button
+                      onClick={() => setQuickUnder7Min(!quickUnder7Min)}
+                      className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
+                        quickUnder7Min ? 'bg-amber-500 text-white border-amber-600' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                      }`}
+                    >
+                      ⚡ &lt; 7 Min
+                    </button>
+                    <button
+                      onClick={() => setQuickUnder15Deals(!quickUnder15Deals)}
+                      className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
+                        quickUnder15Deals ? 'bg-orange-600 text-white border-orange-700' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                      }`}
+                    >
+                      🔥 Deals
+                    </button>
+                    <button
+                      onClick={() => setQuickFastTakeout(!quickFastTakeout)}
+                      className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
+                        quickFastTakeout ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                      }`}
+                    >
+                      🥡 Takeout
+                    </button>
+                    <button
+                      onClick={() => setQuickExcludeRecent(!quickExcludeRecent)}
+                      className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
+                        quickExcludeRecent ? 'bg-purple-600 text-white border-purple-700' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                      }`}
+                    >
+                      🎲 Exclude Recent
+                    </button>
+                  </div>
                 </div>
-                {restaurants.length === 0 ? (
+                {displayRestaurants.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-dark-text-secondary gap-3">
                     <MapPin className="w-10 h-10 opacity-30" />
-                    <p className="text-base">No restaurants found in this area.</p>
+                    <p className="text-base">No restaurants match active quick filters.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {restaurants.map((restaurant) => (
+                    {displayRestaurants.map((restaurant) => (
                       <RestaurantCard
                         key={restaurant.id}
                         restaurant={restaurant}
@@ -1030,7 +1218,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     <p className="text-sm text-gray-500 dark:text-dark-text-secondary">Let luck decide your lunch from {restaurants.length} options</p>
                   </div>
                   <RandomPicker 
-                    restaurants={restaurants}
+                    restaurants={displayRestaurants}
                     onRestaurantSelected={handleRandomPickResult}
                     onMarkVisited={onMarkRestaurantVisited}
                   />
@@ -1046,9 +1234,11 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     <p className="text-sm text-gray-500 dark:text-dark-text-secondary">Give it a spin and see where lunch takes you</p>
                   </div>
                   <SpinWheel 
-                    restaurants={restaurants}
+                    restaurants={displayRestaurants}
                     onRestaurantSelected={handleSpinWheelResult}
                     onMarkVisited={onMarkRestaurantVisited}
+                    userLat={location.lat}
+                    userLon={location.lon}
                   />
                 </div>
               </div>
@@ -1063,21 +1253,28 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                       Select 2-5 restaurants from your nearby results to let your team vote.
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-slate-500 dark:text-dark-text-secondary">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-medium text-slate-500 dark:text-dark-text-secondary">
                       {selectedForPoll.length}/5 selected
                     </span>
                     <button
+                      onClick={handleAutoPickTop4}
+                      type="button"
+                      className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1 transition shadow-sm"
+                    >
+                      ⚡ Auto-Pick 4 Top Spots
+                    </button>
+                    <button
                       onClick={() => setShowMatchModal(true)}
                       disabled={isCreatingPoll || isCreatingMatch || selectedForPoll.length < 2}
-                      className="bg-emerald-600 dark:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition"
+                      className="bg-emerald-600 dark:bg-emerald-600 text-white px-3 py-2 rounded-xl font-bold text-xs sm:text-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition"
                     >
                       🔥 Swipe Match
                     </button>
                     <button
                       onClick={handleCreatePoll}
                       disabled={isCreatingPoll || isCreatingMatch || selectedForPoll.length < 2}
-                      className="bg-blue-600 dark:bg-dark-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition"
+                      className="bg-blue-600 dark:bg-dark-primary text-white px-4 py-2 rounded-xl font-bold text-xs sm:text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition"
                     >
                       {isCreatingPoll && <Loader2 className="w-4 h-4 animate-spin" />}
                       Generate Poll Link
@@ -1248,6 +1445,104 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         }}
         restaurant={shareTargetRestaurant}
       />
+
+      {showSubmitDealModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[10000] flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-3xl p-6 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-black text-gray-900 dark:text-dark-text flex items-center gap-2">
+                <span>🔥 Submit a Lunch Deal</span>
+              </h3>
+              <button
+                onClick={() => setShowSubmitDealModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-dark-text text-xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+
+            {dealSubmittedMsg ? (
+              <div className="p-6 text-center text-emerald-600 dark:text-emerald-400 font-bold text-base">
+                🎉 Thanks for submitting! Your deal is now live on the map.
+              </div>
+            ) : (
+              <form onSubmit={handleDealSubmit} className="space-y-3 text-xs sm:text-sm">
+                <div>
+                  <label className="block font-bold text-gray-700 dark:text-dark-text mb-1">Restaurant Name</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="e.g. Banh Mi Boys"
+                    value={dealForm.name}
+                    onChange={(e) => setDealForm({ ...dealForm, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-dark-text"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-gray-700 dark:text-dark-text mb-1">Cuisine / Category</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Vietnamese"
+                    value={dealForm.cuisine}
+                    onChange={(e) => setDealForm({ ...dealForm, cuisine: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-dark-text"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-gray-700 dark:text-dark-text mb-1">Deal Title</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="e.g. $11.99 Pork Belly Banh Mi + Drink"
+                    value={dealForm.dealTitle}
+                    onChange={(e) => setDealForm({ ...dealForm, dealTitle: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-dark-text"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-gray-700 dark:text-dark-text mb-1">Price</label>
+                    <input
+                      required
+                      type="text"
+                      placeholder="$11.99"
+                      value={dealForm.price}
+                      onChange={(e) => setDealForm({ ...dealForm, price: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-dark-text"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-700 dark:text-dark-text mb-1">Valid Days</label>
+                    <input
+                      type="text"
+                      placeholder="Mon-Fri 11am-3pm"
+                      value={dealForm.validDays}
+                      onChange={(e) => setDealForm({ ...dealForm, validDays: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-dark-text"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowSubmitDealModal(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-dark-border font-bold text-gray-600 dark:text-dark-text hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-md"
+                  >
+                    Submit Spot
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {arModeActive && (
         <ARFoodFinder

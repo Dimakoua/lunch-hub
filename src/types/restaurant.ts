@@ -1,3 +1,15 @@
+export interface Deal {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  cuisine: string;
+  dealTitle: string;
+  price: string;
+  validDays: string;
+  verifiedDate?: string;
+}
+
 export interface Restaurant {
   id: string;
   name: string;
@@ -9,6 +21,8 @@ export interface Restaurant {
   website?: string;
   opening_hours?: string;
   amenity: string;
+  takeaway?: string;
+  deal?: Deal;
 }
 
 export interface Review {
