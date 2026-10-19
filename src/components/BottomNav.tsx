@@ -17,11 +17,25 @@ export const BottomNav: React.FC = () => {
         <Link 
           to="/" 
           className={`flex flex-col items-center gap-1 transition-colors ${
-            (location.pathname === '/' || location.pathname === '/restaurants') ? 'text-blue-600 dark:text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            (location.pathname === '/' || location.pathname === '/restaurants') && !location.search.includes('view=poll') ? 'text-blue-600 dark:text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
-          <MapPin className="w-6 h-6" />
+          <MapPin className="w-5 h-5" />
           <span className="text-[10px] font-medium uppercase tracking-wider">Map</span>
+        </Link>
+        <Link 
+          to="/?view=poll" 
+          className={`flex flex-col items-center gap-1 transition-colors relative ${
+            location.search.includes('view=poll') || location.pathname.startsWith('/match') || location.pathname.startsWith('/poll') ? 'text-blue-600 dark:text-orange-500 font-bold' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+          }`}
+        >
+          <div className="relative">
+            <span className="text-lg leading-none">🔥</span>
+            <span className="absolute -top-1 -right-2 px-1 py-0.2 bg-gradient-to-r from-amber-500 to-rose-500 text-white text-[8px] font-black rounded-full uppercase tracking-wider shadow-sm animate-pulse">
+              HOT
+            </span>
+          </div>
+          <span className="text-[10px] font-medium uppercase tracking-wider">Match</span>
         </Link>
         <Link 
           to="/guide" 
@@ -29,7 +43,7 @@ export const BottomNav: React.FC = () => {
             location.pathname.startsWith('/guide') ? 'text-blue-600 dark:text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
-          <Home className="w-6 h-6" />
+          <Home className="w-5 h-5" />
           <span className="text-[10px] font-medium uppercase tracking-wider">Guides</span>
         </Link>
         <Link 
@@ -38,7 +52,7 @@ export const BottomNav: React.FC = () => {
             isActive('/blog') ? 'text-blue-600 dark:text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
-          <BookOpen className="w-6 h-6" />
+          <BookOpen className="w-5 h-5" />
           <span className="text-[10px] font-medium uppercase tracking-wider">Blog</span>
         </Link>
       </div>

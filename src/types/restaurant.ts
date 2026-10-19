@@ -23,6 +23,10 @@ export interface Restaurant {
   amenity: string;
   takeaway?: string;
   deal?: Deal;
+  image?: string;
+  rating?: number;
+  reviewsCount?: number;
+  menuUrl?: string;
 }
 
 export interface Review {

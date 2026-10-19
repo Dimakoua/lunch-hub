@@ -328,6 +328,29 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
     setSelectedForPoll(displayRestaurants.slice(0, 4));
   };
 
+  const handleQuickLaunchMatch = async (size: number = 2) => {
+    const candidates = displayRestaurants.length >= 2 
+      ? displayRestaurants.slice(0, 5) 
+      : restaurants.slice(0, 5);
+      
+    if (candidates.length < 2) {
+      setViewMode('poll');
+      return;
+    }
+
+    setIsCreatingMatch(true);
+    setPollError(null);
+    try {
+      const id = await createMatchRoom(candidates, size);
+      navigate(`/match/${id}`);
+    } catch {
+      setPollError("Failed to auto-launch match room. You can select spots manually below.");
+      setViewMode('poll');
+    } finally {
+      setIsCreatingMatch(false);
+    }
+  };
+
   const handleCreatePoll = async () => {
     if (selectedForPoll.length < 2) {
       setPollError("Please select at least 2 restaurants.");
@@ -823,14 +846,19 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       </button>
       <button
         onClick={() => setViewMode('poll')}
-        className={`${tabBase} ${
+        className={`${tabBase} relative ${
           viewMode === 'poll'
-            ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
-            : tabInactive
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+            : 'text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 font-bold'
         }`}
       >
-        <Share2 className="w-4 h-4" />
-        <span className="hidden sm:inline">Poll</span>
+        <span className="flex items-center gap-1.5">
+          <Share2 className="w-4 h-4" />
+          <span className="hidden sm:inline">Team Poll</span>
+        </span>
+        <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.2 bg-gradient-to-r from-amber-500 to-rose-500 text-white text-[8px] font-black rounded-full uppercase tracking-wider shadow-sm animate-pulse">
+          HOT
+        </span>
       </button>
     </div>  </div>  );
 
@@ -1138,6 +1166,42 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <>
               {viewMode === 'list' && (
                 <>
+                {/* Featured Team Decisions & Tinder Match Banner */}
+                <div className="mb-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden">
+                  <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="max-w-xl">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-white/20 backdrop-blur-md mb-2 text-white">
+                        <span>🔥 Group Decisions</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>No Login Required</span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
+                        Eating with co-workers or friends?
+                      </h3>
+                      <p className="text-xs sm:text-sm text-blue-100 mt-1">
+                        Stop arguing over where to eat. Swipe on photos like Tinder until your group matches, or run a 1-click team vote.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <button
+                        onClick={() => handleQuickLaunchMatch(2)}
+                        disabled={isCreatingMatch || displayRestaurants.length < 2}
+                        className="px-4 py-2.5 rounded-xl bg-white text-blue-700 hover:bg-blue-50 font-black text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-1.5 disabled:opacity-50"
+                      >
+                        {isCreatingMatch ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>🔥</span>}
+                        <span>1-Tap Quick Match</span>
+                      </button>
+                      <button
+                        onClick={() => setViewMode('poll')}
+                        className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold text-xs sm:text-sm transition flex items-center gap-1.5"
+                      >
+                        <span>🗳️ Create Poll</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">
                     Nearby restaurants

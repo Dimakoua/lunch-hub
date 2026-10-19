@@ -541,6 +541,14 @@ function App() {
     }
   };
 
+  // Support ?view=poll in URL search params
+  useEffect(() => {
+    const viewParam = new URLSearchParams(pageLocation.search).get('view');
+    if (viewParam === 'poll') {
+      setViewMode('poll');
+    }
+  }, [pageLocation.search]);
+
   // Auto-search when radius changes
   useEffect(() => {
     if (!location) {

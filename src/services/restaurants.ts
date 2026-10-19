@@ -116,6 +116,12 @@ export const fetchRestaurants = async (
         
         if (!restaurantLat || !restaurantLon || !element.tags) return null;
 
+        let osmImage: string | undefined = element.tags.image;
+        if (!osmImage && element.tags.wikimedia_commons) {
+          const file = element.tags.wikimedia_commons.replace(/^File:/i, '').trim();
+          osmImage = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=800`;
+        }
+
         return {
           id: element.id.toString(),
           name: element.tags.name || 'Unknown',
@@ -128,6 +134,7 @@ export const fetchRestaurants = async (
           opening_hours: element.tags.opening_hours,
           amenity: element.tags.amenity,
           takeaway: element.tags.takeaway,
+          image: osmImage,
         };
       })
       .filter((r): r is Restaurant => r !== null);
