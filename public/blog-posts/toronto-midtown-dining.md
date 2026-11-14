@@ -20,8 +20,8 @@ With its vibrant floral exterior and whimsical interior, Piano Piano brings a se
 ## 4. Tabülè Middle Eastern Cuisine - Davisville Gem
 For some of the best Middle Eastern food in the city, head to Tabülè on Bayview. Their fresh hummus, fluffy pita, and expertly grilled kebabs have made them a staple in the Davisville community. The warm, inviting atmosphere makes it a great choice for both lunch and dinner.
 
-## 5. Byblos Uptown - Eastern Mediterranean Flavors
-Byblos Uptown brings the coastal flavors of the Eastern Mediterranean to North Toronto. The menu is designed for sharing, featuring aromatic rice dishes, delicate dumplings, and wood-fired meats. The stunning, high-ceilinged space on Yonge Street is an experience in itself.
+## 5. Grazie Ristorante - Yonge & Eglinton Institution
+A beloved Midtown Toronto staple since 1990, Grazie Ristorante (2373 Yonge St) is the go-to spot for classic, comforting Italian fare. Known for its bustling atmosphere, wood-fired pizzas, and generous bowls of pasta, it’s a reliable favorite for a lively lunch or dinner just steps from Eglinton Station.
 
 Midtown Toronto continues to evolve as a premier dining destination. Whether you're looking for a quick lunch or a lavish dinner, this area has it all. Use Lunch Hub to explore more creative dining spots in your neighborhood.
 

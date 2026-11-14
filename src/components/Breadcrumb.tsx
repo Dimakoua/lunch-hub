@@ -15,7 +15,7 @@ interface BreadcrumbProps {
 }
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://www.thelunchub.com';
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://thelunchub.com';
   const breadcrumbItems = items.map((item) => ({
     name: item.name,
     url: item.url ? `${baseUrl}${item.url}` : undefined,

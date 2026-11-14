@@ -29,7 +29,7 @@ const HomePage: React.FC<HomePageProps> = ({
   toggleTheme
 }) => {
   const pageLocation = useLocation();
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.thelunchub.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://thelunchub.com';
   const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
   const localBusinessSchema = generateLocalBusinessSchema(origin);
   const faqSchema = generateFAQSchema([
