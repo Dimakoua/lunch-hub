@@ -90,7 +90,7 @@ const PROVIDERS: Record<MapProviderType, () => MapProvider> = {
 export function createMapProvider(preferred?: MapProviderType): MapProvider {
   const target: MapProviderType =
     preferred ??
-    (import.meta.env.VITE_MAP_PROVIDER === 'google' ? 'google' : 'leaflet');
+    (import.meta.env.VITE_MAP_PROVIDER === 'leaflet' ? 'leaflet' : 'google');
 
   const provider = PROVIDERS[target]();
   if (!provider.isAvailable()) {
