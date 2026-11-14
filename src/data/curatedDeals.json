@@ -1,1 +1,90 @@
-[]
+[
+    {
+        "id": "deal-1",
+        "name": "Simpl Things",
+        "lat": 43.6408,
+        "lng": -79.4343,
+        "cuisine": "Italian",
+        "dealTitle": "Panino + 5oz House Wine Lunch Special",
+        "price": "$20",
+        "validDays": "Wed-Sun Lunch",
+        "verifiedDate": "2026-11-14"
+    },
+    {
+        "id": "deal-2",
+        "name": "Black+Blue Toronto",
+        "lat": 43.6484,
+        "lng": -79.3834,
+        "cuisine": "Steakhouse",
+        "dealTitle": "Lunch 45 (Daily Featured Dish)",
+        "price": "$25",
+        "validDays": "Mon-Fri Lunch",
+        "verifiedDate": "2026-11-14"
+    },
+    {
+        "id": "deal-3",
+        "name": "Deauville Club",
+        "lat": 43.647,
+        "lng": -79.3932,
+        "cuisine": "French",
+        "dealTitle": "Express Lunch (Rotating Daily Menu)",
+        "price": "$29",
+        "validDays": "Mon-Fri Lunch",
+        "verifiedDate": "2026-11-14"
+    },
+    {
+        "id": "deal-4",
+        "name": "Café ZUZU Pizzeria",
+        "lat": 43.66,
+        "lng": -79.3628,
+        "cuisine": "Italian",
+        "dealTitle": "Freshly Baked Stuffed Panuozzo",
+        "price": "$16",
+        "validDays": "Daily Lunch",
+        "verifiedDate": "2026-11-14"
+    },
+    {
+        "id": "deal-5",
+        "name": "Piano Piano Restaurant",
+        "lat": 43.663,
+        "lng": -79.4029,
+        "cuisine": "Italian",
+        "dealTitle": "3-Course Prix-Fixe Lunch (Appetizer + Pizza/Pasta + Dessert)",
+        "price": "$39",
+        "validDays": "Daily 12pm-4pm",
+        "verifiedDate": "2026-11-14"
+    },
+    {
+        "id": "deal-6",
+        "name": "Bridgette Bar Toronto",
+        "lat": 43.6436,
+        "lng": -79.3957,
+        "cuisine": "Mediterranean",
+        "dealTitle": "2-Course Lunch (Starter + Main)",
+        "price": "$28",
+        "validDays": "Tue-Fri 11:30am-3pm",
+        "verifiedDate": "2026-11-14"
+    },
+    {
+        "id": "deal-7",
+        "name": "Café Boulud",
+        "lat": 43.6717,
+        "lng": -79.3897,
+        "cuisine": "French",
+        "dealTitle": "50 for 50 Two-Course Power Lunch",
+        "price": "$50",
+        "validDays": "Mon-Fri 11:45am-2:30pm",
+        "verifiedDate": "2026-11-14"
+    },
+    {
+        "id": "deal-8",
+        "name": "Sunnyside Provisions",
+        "lat": 43.6477,
+        "lng": -79.4493,
+        "cuisine": "Comfort Food",
+        "dealTitle": "Fish and Chips (or $10 Poutine / Dave's Salad Fries)",
+        "price": "$12",
+        "validDays": "Tue-Sat 11am-7pm, Sun 11am-6pm",
+        "verifiedDate": "2026-11-14"
+    }
+]

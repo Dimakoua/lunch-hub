@@ -1,15 +1,49 @@
 import { cacheService } from './cache';
 import { CACHE_TTL_LONG } from '../constants';
+import { createMapProvider } from './mapProvider';
 
 export const fetchRoute = async (
   start: [number, number],
   end: [number, number]
 ): Promise<{ geometry: [number, number][]; duration: number; distance: number } | null> => {
-  const cacheKey = cacheService.generateKey('route', start, end);
+  const providerType = createMapProvider().type;
+  const cacheKey = cacheService.generateKey('route', providerType, start, end);
   const cachedData = cacheService.get<{ geometry: [number, number][]; duration: number; distance: number }>(cacheKey);
 
   if (cachedData) {
     return cachedData;
+  }
+
+  // When Google Maps is active, use ONLY Google DirectionsService
+  if (providerType === 'google') {
+    if (typeof google === 'undefined' || !google.maps?.DirectionsService) {
+      return null;
+    }
+    try {
+      const service = new google.maps.DirectionsService();
+      const response = await service.route({
+        origin: { lat: start[0], lng: start[1] },
+        destination: { lat: end[0], lng: end[1] },
+        travelMode: google.maps.TravelMode.WALKING,
+      });
+
+      const leg = response.routes?.[0]?.legs?.[0];
+      const overviewPath = response.routes?.[0]?.overview_path;
+      if (leg && overviewPath && overviewPath.length > 0) {
+        const geometry: [number, number][] = overviewPath.map((pt) => [pt.lat(), pt.lng()]);
+        const result = {
+          geometry,
+          duration: leg.duration?.value ?? 0,
+          distance: leg.distance?.value ?? 0,
+        };
+        cacheService.set(cacheKey, result, CACHE_TTL_LONG);
+        return result;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching Google walking route:', error);
+      return null;
+    }
   }
 
   try {

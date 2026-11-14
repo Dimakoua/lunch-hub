@@ -1,7 +1,6 @@
 import { useState, useEffect, lazy, Suspense, useMemo, useCallback, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
-import { InstallPWA } from './components/InstallPWA';
 import { BottomNav } from './components/BottomNav';
 import { Footer } from './components/Footer';
 
@@ -14,6 +13,7 @@ const PollPage = lazy(() => import('./pages/PollPage'));
 const MatchPage = lazy(() => import('./pages/MatchPage'));
 import { geocodeAddress, getCurrentLocation, getFastFallbackLocation } from './services/geocoding';
 import { fetchRestaurants } from './services/restaurants';
+import { checkGoogleQuotaStatus } from './services/quotaState';
 import { reportRestaurantVisit } from './services/popularity';
 import { 
   grantConsent,
@@ -25,7 +25,7 @@ import {
 import { Restaurant, Location } from './types/restaurant';
 import { FilterRule, FilterField } from './types/filter';
 import { isRestaurantOpen } from './utils/openingHours'; // NEW IMPORT
-import { setImperialUnitsOverride, useImperialUnits } from './utils/distanceFormatter';
+import { setImperialUnitsOverride, shouldUseImperialUnits } from './utils/distanceFormatter';
 
 type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history' | 'poll';
 type Theme = 'light' | 'dark';
@@ -77,13 +77,29 @@ function App() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('map');
+  const [viewMode, setViewModeState] = useState<ViewMode>('map');
+  const setViewMode = useCallback((mode: ViewMode) => {
+    setViewModeState(mode);
+    const targetPath = mode === 'map' ? '/' : `/${mode}`;
+    if (pageLocation.pathname !== targetPath && !pageLocation.pathname.startsWith('/restaurants')) {
+      navigate(targetPath);
+    }
+  }, [navigate, pageLocation.pathname]);
+
+  useEffect(() => {
+    const pathView = pageLocation.pathname.replace('/', '') as ViewMode;
+    if (['list', 'wheel', 'random', 'history', 'poll'].includes(pathView)) {
+      setViewModeState(pathView);
+    } else if (pageLocation.pathname === '/' || pageLocation.pathname === '/map') {
+      setViewModeState('map');
+    }
+  }, [pageLocation.pathname]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [radius, setRadius] = useState(1000); // 1km default
   const UNITS_STORAGE_KEY = 'lunch-hub-units';
   const [useImperial, setUseImperial] = useState<boolean>(() => {
     const stored = typeof window !== 'undefined' ? localStorage.getItem('lunch-hub-units') : null;
-    const val = stored !== null ? stored === 'imperial' : useImperialUnits();
+    const val = stored !== null ? stored === 'imperial' : shouldUseImperialUnits();
     setImperialUnitsOverride(val);
     return val;
   });
@@ -176,11 +192,14 @@ function App() {
   };
 
   useEffect(() => {
+    const meta = document.querySelector('meta[name="color-scheme"]');
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+      if (meta) meta.setAttribute('content', 'dark');
       localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      if (meta) meta.setAttribute('content', 'light');
       localStorage.setItem('theme', 'light');
     }
   }, [theme]);
@@ -342,14 +361,25 @@ function App() {
       }
       return availableAfterFilters.length;
     } catch {
+      setRestaurants([]);
       setError('Error finding restaurants. Please try again.');
       return 0;
     }
   }, [radius, applyAvailabilityFilters, filterRules.length]);
 
-  // Fast cold-start location initialization
+  const searchRestaurantsRef = useRef(searchRestaurants);
+  searchRestaurantsRef.current = searchRestaurants;
+
+  // Fast cold-start location initialization (runs once on mount)
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    checkGoogleQuotaStatus();
+
+    const onQuotaExceeded = () => {
+      searchRestaurantsRef.current(location.lat, location.lon);
+    };
+    window.addEventListener('lunchhub:quota-exceeded', onQuotaExceeded);
 
     const stored = localStorage.getItem(LOCATION_STORAGE_KEY);
     if (!stored) {
@@ -369,7 +399,7 @@ function App() {
 
           if (!isSameLocation) {
             skipNextAutoSearchRef.current = true;
-            searchRestaurants(pos.lat, pos.lon);
+            searchRestaurantsRef.current(pos.lat, pos.lon);
             window.dispatchEvent(new CustomEvent('lunchhub:recenter'));
             return { lat: pos.lat, lon: pos.lon };
           }
@@ -379,7 +409,11 @@ function App() {
       .catch(() => {
         // Geolocation pending or denied; retains fast IP / default location
       });
-  }, [searchRestaurants]);
+
+    return () => {
+      window.removeEventListener('lunchhub:quota-exceeded', onQuotaExceeded);
+    };
+  }, []);
 
   useEffect(() => {
     if (pageLocation.pathname === '/restaurants' && pageLocation.search) {
@@ -692,58 +726,61 @@ function App() {
       )}
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
-          <Route 
-            path="/" 
-            element={
-              <RestaurantsPage
-                location={location}
-                isExactLocation={isExactLocation}
-                locationLabel={locationLabel}
-                loading={loading}
-                error={error}
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                selectedRestaurant={selectedRestaurant}
-                radius={radius}
-                setRadius={setRadius}
-                showSettings={showSettings}
-                setShowSettings={setShowSettings}
-                theme={theme}
-                toggleTheme={toggleTheme}
-                onViewOnMap={handleViewOnMap}
-                onRestaurantSelected={handleRestaurantSelected}
-                restaurants={availableRestaurants}
-                visitedRestaurants={visitedRestaurants}
-                hiddenRestaurants={hiddenRestaurants}
-                filterRules={filterRules}
-                hiddenByHistoryCount={hiddenByHistoryCount}
-                hiddenByFiltersCount={hiddenByFiltersCount}
-                hiddenByUserCount={hiddenByUserCount}
-                onMarkRestaurantVisited={markRestaurantVisited}
-                onRemoveVisitedRestaurant={removeVisitedRestaurant}
-                onClearVisitedRestaurants={clearVisitedRestaurants}
-                onHideRestaurant={hideRestaurant}
-                onUnhideRestaurant={unhideRestaurant}
-                onClearHiddenRestaurants={clearHiddenRestaurants}
-                onAddFilterRule={addFilterRule}
-                onRemoveFilterRule={removeFilterRule}
-                onClearFilterRules={clearFilterRules}
-                onCenterDrag={handleLocationDrag}
-                locationUpdating={locationUpdating}
-                filterByOpenNow={filterByOpenNow}
-                setFilterByOpenNow={setFilterByOpenNow}
-                onOpenTour={openTour}
-                tourOpen={showTour}
-                onTourClose={handleTourClose}
-                onTourStepChange={handleTourStepChange}
-                useImperial={useImperial}
-                onToggleUnits={handleToggleUnits}
-                onRetry={handleRetry}
-                onSearch={handleSearch}
-                onCurrentLocation={handleCurrentLocation}
-              />
-            } 
-          />
+          {(['/', '/map', '/list', '/wheel', '/random', '/history', '/poll'] as const).map((routePath) => (
+            <Route
+              key={routePath}
+              path={routePath}
+              element={
+                <RestaurantsPage
+                  location={location}
+                  isExactLocation={isExactLocation}
+                  locationLabel={locationLabel}
+                  loading={loading}
+                  error={error}
+                  viewMode={viewMode}
+                  setViewMode={setViewMode}
+                  selectedRestaurant={selectedRestaurant}
+                  radius={radius}
+                  setRadius={setRadius}
+                  showSettings={showSettings}
+                  setShowSettings={setShowSettings}
+                  theme={theme}
+                  toggleTheme={toggleTheme}
+                  onViewOnMap={handleViewOnMap}
+                  onRestaurantSelected={handleRestaurantSelected}
+                  restaurants={availableRestaurants}
+                  visitedRestaurants={visitedRestaurants}
+                  hiddenRestaurants={hiddenRestaurants}
+                  filterRules={filterRules}
+                  hiddenByHistoryCount={hiddenByHistoryCount}
+                  hiddenByFiltersCount={hiddenByFiltersCount}
+                  hiddenByUserCount={hiddenByUserCount}
+                  onMarkRestaurantVisited={markRestaurantVisited}
+                  onRemoveVisitedRestaurant={removeVisitedRestaurant}
+                  onClearVisitedRestaurants={clearVisitedRestaurants}
+                  onHideRestaurant={hideRestaurant}
+                  onUnhideRestaurant={unhideRestaurant}
+                  onClearHiddenRestaurants={clearHiddenRestaurants}
+                  onAddFilterRule={addFilterRule}
+                  onRemoveFilterRule={removeFilterRule}
+                  onClearFilterRules={clearFilterRules}
+                  onCenterDrag={handleLocationDrag}
+                  locationUpdating={locationUpdating}
+                  filterByOpenNow={filterByOpenNow}
+                  setFilterByOpenNow={setFilterByOpenNow}
+                  onOpenTour={openTour}
+                  tourOpen={showTour}
+                  onTourClose={handleTourClose}
+                  onTourStepChange={handleTourStepChange}
+                  useImperial={useImperial}
+                  onToggleUnits={handleToggleUnits}
+                  onRetry={handleRetry}
+                  onSearch={handleSearch}
+                  onCurrentLocation={handleCurrentLocation}
+                />
+              }
+            />
+          ))}
           <Route 
             path="/restaurants" 
             element={
@@ -768,7 +805,6 @@ function App() {
       </Suspense>
       {/* Hide footer when map view is active to keep map full screen */}
       {viewMode !== 'map' && <Footer />}
-      <InstallPWA currentPath={pageLocation.pathname} />
       <BottomNav />
     </div>
   );

@@ -1,4 +1,7 @@
 import { Restaurant } from '../types/restaurant';
+import { createMapProvider } from './mapProvider';
+import { fetchNearbyGooglePlaces } from './googlePlaces';
+import { isGoogleQuotaExceeded } from './quotaState';
 import { cacheService } from './cache';
 import { overlayDeals } from './deals';
 import { CACHE_TTL_LONG, OVERPASS_ENDPOINTS } from '../constants';
@@ -55,12 +58,36 @@ export const fetchRestaurants = async (
   radius: number = 1000,
   forceRefresh: boolean = false
 ): Promise<Restaurant[]> => {
-  const cacheKey = cacheService.generateKey(lat, lon, radius);
+  const providerType = createMapProvider().type;
+  const cacheKey = cacheService.generateKey(providerType, lat, lon, radius);
   
   if (!forceRefresh) {
     const cachedData = cacheService.get<Restaurant[]>(cacheKey);
     if (cachedData) {
       return cachedData;
+    }
+  }
+
+  // When Google Maps is active, use ONLY Google Places API (unless quota is exceeded, then fall back to Overpass)
+  if (providerType === 'google') {
+    try {
+      const googlePlaces = await fetchNearbyGooglePlaces(lat, lon, radius);
+      if (!isGoogleQuotaExceeded()) {
+        const withDeals = overlayDeals(googlePlaces);
+        const filteredRestaurants = withDeals.filter((restaurant) => {
+          const distance = haversineDistance(lat, lon, restaurant.lat, restaurant.lon);
+          return distance <= radius;
+        });
+        if (filteredRestaurants.length > 0) {
+          cacheService.set(cacheKey, filteredRestaurants, CACHE_TTL_LONG);
+        }
+        return filteredRestaurants;
+      }
+    } catch (error) {
+      console.error('Error fetching Google Places:', error);
+      if (!isGoogleQuotaExceeded()) {
+        return [];
+      }
     }
   }
 
@@ -153,7 +180,7 @@ export const fetchRestaurants = async (
 
     return filteredRestaurants;
   } catch (error) {
-    console.error('Error fetching restaurants:', error);
+    console.error('Error fetching restaurants from Overpass:', error);
     return [];
   }
 };

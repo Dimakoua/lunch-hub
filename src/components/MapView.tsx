@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, Polyline, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import { Restaurant } from '../types/restaurant';
@@ -7,6 +7,8 @@ import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 import { formatDistance } from '../utils/distanceFormatter';
 import { HeatPoint } from '../services/popularity';
 import 'leaflet/dist/leaflet.css';
+import { createMapProvider } from '../services/mapProvider';
+import { GoogleMapCanvas } from './GoogleMapCanvas';
 
 // Fix for default markers
 delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl;
@@ -51,6 +53,7 @@ const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: R
   routeGeometry
 }) => {
   const map = useMap();
+  const [centerLat, centerLng] = center;
 
   useEffect(() => {
     if (selectedRestaurant) {
@@ -61,9 +64,9 @@ const MapController: React.FC<{ center: [number, number]; selectedRestaurant?: R
   useEffect(() => {
     // When center changes and no restaurant is specifically selected, update view to center
     if (!selectedRestaurant) {
-      map.setView(center, Math.max(map.getZoom(), 14), { animate: true });
+      map.setView([centerLat, centerLng], Math.max(map.getZoom(), 14), { animate: true });
     }
-  }, [center[0], center[1], selectedRestaurant, map]);
+  }, [centerLat, centerLng, selectedRestaurant, map]);
 
   useEffect(() => {
     const onRecenter = () => {
@@ -116,6 +119,13 @@ export const MapView: React.FC<MapViewProps> = ({
   showHeatmap,
   heatmapData,
 }) => {
+  const [, setQuotaTick] = useState(0);
+  useEffect(() => {
+    const onQuotaExceeded = () => setQuotaTick((t) => t + 1);
+    window.addEventListener('lunchhub:quota-exceeded', onQuotaExceeded);
+    return () => window.removeEventListener('lunchhub:quota-exceeded', onQuotaExceeded);
+  }, []);
+
   const userIcon = L.divIcon({
     html: `<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#2563EB"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
     className: 'tour-user-pin',
@@ -158,12 +168,49 @@ export const MapView: React.FC<MapViewProps> = ({
 
   const formatDuration = (seconds: number | null | undefined) => {
     if (seconds === null || seconds === undefined) return 'N/A';
-    const minutes = Math.round(seconds / 60);
-    return `${minutes} ${minutes === 1 ? 'min' : 'mins'}`;
+    const totalMinutes = Math.round(seconds / 60);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (typeof Intl !== 'undefined' && 'DurationFormat' in Intl) {
+      const DurationFormat = (Intl as unknown as {
+        DurationFormat: new (locale?: string, options?: { style?: string }) => {
+          format: (duration: { hours?: number; minutes?: number }) => string;
+        };
+      }).DurationFormat;
+      return new DurationFormat(undefined, { style: 'short' }).format(
+        hours > 0 ? { hours, minutes } : { minutes }
+      );
+    }
+    return `${totalMinutes} ${totalMinutes === 1 ? 'min' : 'mins'}`;
   };
 
   // Note: formatDistance is imported from distanceFormatter utility
   // which provides locale-aware distance formatting (km/m or miles/feet)
+
+  const googleJsKey = import.meta.env.VITE_GOOGLE_MAPS_JS_KEY as string | undefined;
+  const provider = createMapProvider();
+
+  if (provider.type === 'google' && googleJsKey) {
+    return (
+      <div className="relative w-full h-full">
+        <GoogleMapCanvas
+          apiKey={googleJsKey}
+          center={center}
+          zoom={zoom}
+          radius={radius}
+          restaurants={restaurants}
+          selectedRestaurant={selectedRestaurant}
+          routeGeometry={routeGeometry}
+          routeDistance={routeDistance}
+          routeDuration={routeDuration}
+          onRestaurantClick={onRestaurantSelected}
+          onCenterDrag={onCenterDrag}
+          onMarkVisited={onMarkVisited}
+          onShare={onShare}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-full">
@@ -174,8 +221,8 @@ export const MapView: React.FC<MapViewProps> = ({
         zoomControl={false}
       >
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url={createMapProvider().getTileUrl()}
+        attribution={createMapProvider().getAttribution()}
       />
       
       <MapController center={center} selectedRestaurant={selectedRestaurant} routeGeometry={routeGeometry} />
@@ -197,11 +244,11 @@ export const MapView: React.FC<MapViewProps> = ({
         draggable={true}
         zIndexOffset={1000}
         eventHandlers={{
-          dragend: (event: any) => {
+          dragend: (event: L.LeafletEvent) => {
             if (!onCenterDrag) {
               return;
             }
-            const marker = event.target;
+            const marker = event.target as L.Marker;
             const { lat, lng } = marker.getLatLng();
             onCenterDrag(lat, lng);
           },

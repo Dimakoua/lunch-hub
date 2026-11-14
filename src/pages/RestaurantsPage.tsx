@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { createMapProvider } from '../services/mapProvider';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Share2, Loader2, ChevronLeft, Navigation, Route, Camera } from 'lucide-react';
-import { RestaurantCard } from '../components/RestaurantCard';
+import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Share2, Loader2, Navigation, Route } from 'lucide-react';
+import { RestaurantsTable } from '../components/RestaurantsTable';
 import { MapView } from '../components/MapView';
 import { SearchBar } from '../components/SearchBar';
 import { ARFoodFinder } from '../components/ARFoodFinder';
 import { SpinWheel } from '../components/SpinWheel';
 import { RandomPicker } from '../components/RandomPicker';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { Breadcrumb } from '../components/Breadcrumb';
 import { Restaurant, Location } from '../types/restaurant';
 import { FilterRule, FilterField } from '../types/filter';
 import { trackRestaurantView, trackSpinWheel, trackRandomPick, trackPollShare } from '../services/analytics';
 import { fetchRoute } from '../services/routing'; // Import fetchRoute
 import { OnboardingTour } from '../components/OnboardingTour';
-import { shareRestaurant } from '../utils/share'; // Added shareRestaurant
 import { ShareCardModal } from '../components/ShareCardModal';
 import { useShakeGesture } from '../hooks/useShakeGesture';
 import { fetchPopularityData, HeatPoint } from '../services/popularity';
@@ -198,7 +197,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareTargetRestaurant, setShareTargetRestaurant] = useState<Restaurant | null>(null);
 
-  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState<HeatPoint[]>([]);
   const [arModeActive, setArModeActive] = useState(false);
 
@@ -281,7 +280,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       list = list.filter((r) => {
         const visited = visitedRestaurants.find((v) => v.id === r.id);
         if (!visited) return true;
-        const visitedTime = (visited as any).visitedAt || 0;
+        const visitedTime = (visited as Restaurant & { visitedAt?: number }).visitedAt || 0;
         return visitedTime < fiveDaysAgo;
       });
     }
@@ -299,9 +298,9 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
   // Shake gesture on map view triggers random selection highlight
   useShakeGesture(() => {
-    if (restaurants.length > 0) {
-      const randomIndex = Math.floor(Math.random() * restaurants.length);
-      onRestaurantSelected(restaurants[randomIndex]);
+    if (displayRestaurants.length > 0) {
+      const randomIndex = Math.floor(Math.random() * displayRestaurants.length);
+      onRestaurantSelected(displayRestaurants[randomIndex]);
     }
   }, viewMode === 'map');
 
@@ -316,7 +315,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       const id = await createMatchRoom(selectedForPoll, groupSize);
       setShowMatchModal(false);
       navigate(`/match/${id}`);
-    } catch (e) {
+    } catch {
       setPollError("Failed to create match room. Please try again.");
     } finally {
       setIsCreatingMatch(false);
@@ -326,29 +325,6 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
   const handleAutoPickTop4 = () => {
     if (displayRestaurants.length === 0) return;
     setSelectedForPoll(displayRestaurants.slice(0, 4));
-  };
-
-  const handleQuickLaunchMatch = async (size: number = 2) => {
-    const candidates = displayRestaurants.length >= 2 
-      ? displayRestaurants.slice(0, 5) 
-      : restaurants.slice(0, 5);
-      
-    if (candidates.length < 2) {
-      setViewMode('poll');
-      return;
-    }
-
-    setIsCreatingMatch(true);
-    setPollError(null);
-    try {
-      const id = await createMatchRoom(candidates, size);
-      navigate(`/match/${id}`);
-    } catch {
-      setPollError("Failed to auto-launch match room. You can select spots manually below.");
-      setViewMode('poll');
-    } finally {
-      setIsCreatingMatch(false);
-    }
   };
 
   const handleCreatePoll = async () => {
@@ -366,7 +342,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       const id = await createPoll(selectedForPoll);
       trackPollShare(id);
       navigate(`/poll/${id}`);
-    } catch (e) {
+    } catch {
       setPollError("Failed to create poll. Please try again.");
     } finally {
       setIsCreatingPoll(false);
@@ -575,35 +551,6 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               <div
                 className={`dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition ${
                   filterByOpenNow ? 'translate-x-4' : ''
-                }`}
-              ></div>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-lg border border-gray-200 dark:border-dark-border mt-3">
-        <div className="flex items-center justify-between">
-          <label htmlFor="heatmap-toggle" className="flex items-center cursor-pointer">
-            <span className="text-sm font-medium text-gray-700 dark:text-dark-text mr-3">
-              🔥 Show Lunch Rush Heatmap
-            </span>
-            <div className="relative">
-              <input
-                type="checkbox"
-                id="heatmap-toggle"
-                className="sr-only"
-                checked={showHeatmap}
-                onChange={(e) => setShowHeatmap(e.target.checked)}
-              />
-              <div
-                className={`block w-9 h-5 rounded-full transition ${
-                  showHeatmap ? 'bg-blue-500 dark:bg-dark-primary' : 'bg-gray-300 dark:bg-gray-600'
-                }`}
-              ></div>
-              <div
-                className={`dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition ${
-                  showHeatmap ? 'translate-x-4' : ''
                 }`}
               ></div>
             </div>
@@ -987,16 +934,6 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                     )}
                   </div>
 
-                  {/* Submit Deal CTA */}
-                  <div className="p-1.5 border-b border-gray-100 dark:border-gray-700/50 bg-amber-50/40 dark:bg-amber-950/20">
-                    <button
-                      onClick={() => setShowSubmitDealModal(true)}
-                      className="w-full py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-[11px] rounded-xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-1"
-                    >
-                      🔥 Know a cheap deal? Submit a spot
-                    </button>
-                  </div>
-
                   {/* Quick Lunch Filter Pills */}
                   <div className="px-2 py-1 flex items-center gap-1 overflow-x-auto border-b border-gray-100 dark:border-gray-700/50 bg-gray-50/30 dark:bg-gray-800/20 text-[10px]">
                     <button
@@ -1165,112 +1102,70 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             ) : (
               <>
               {viewMode === 'list' && (
-                <>
-                {/* Featured Team Decisions & Tinder Match Banner */}
-                <div className="mb-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden">
-                  <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="max-w-xl">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-white/20 backdrop-blur-md mb-2 text-white">
-                        <span>🔥 Group Decisions</span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span>No Login Required</span>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
-                        Eating with co-workers or friends?
-                      </h3>
-                      <p className="text-xs sm:text-sm text-blue-100 mt-1">
-                        Stop arguing over where to eat. Swipe on photos like Tinder until your group matches, or run a 1-click team vote.
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2.5">
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">
+                      Nearby restaurants
+                      <span className="ml-2 text-sm font-normal text-gray-400 dark:text-dark-text-secondary">
+                        {displayRestaurants.length} visible
+                        {hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount > 0 && ` (${hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount} hidden)`}
+                      </span>
+                    </h2>
+                    <div className="flex items-center gap-1.5 overflow-x-auto text-xs pb-1">
                       <button
-                        onClick={() => handleQuickLaunchMatch(2)}
-                        disabled={isCreatingMatch || displayRestaurants.length < 2}
-                        className="px-4 py-2.5 rounded-xl bg-white text-blue-700 hover:bg-blue-50 font-black text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-1.5 disabled:opacity-50"
+                        onClick={() => setQuickUnder7Min(!quickUnder7Min)}
+                        className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
+                          quickUnder7Min ? 'bg-amber-500 text-white border-amber-600' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                        }`}
                       >
-                        {isCreatingMatch ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>🔥</span>}
-                        <span>1-Tap Quick Match</span>
+                        ⚡ &lt; 7 Min
                       </button>
                       <button
-                        onClick={() => setViewMode('poll')}
-                        className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold text-xs sm:text-sm transition flex items-center gap-1.5"
+                        onClick={() => setQuickUnder15Deals(!quickUnder15Deals)}
+                        className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
+                          quickUnder15Deals ? 'bg-orange-600 text-white border-orange-700' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                        }`}
                       >
-                        <span>🗳️ Create Poll</span>
+                        🔥 Deals
+                      </button>
+                      <button
+                        onClick={() => setQuickFastTakeout(!quickFastTakeout)}
+                        className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
+                          quickFastTakeout ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                        }`}
+                      >
+                        🥡 Takeout
+                      </button>
+                      <button
+                        onClick={() => setQuickExcludeRecent(!quickExcludeRecent)}
+                        className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
+                          quickExcludeRecent ? 'bg-purple-600 text-white border-purple-700' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
+                        }`}
+                      >
+                        🎲 Exclude Recent
                       </button>
                     </div>
                   </div>
+                  {displayRestaurants.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-dark-text-secondary gap-3 bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border">
+                      <MapPin className="w-10 h-10 opacity-30" />
+                      <p className="text-base">No restaurants match active quick filters.</p>
+                    </div>
+                  ) : (
+                    <RestaurantsTable
+                      restaurants={displayRestaurants}
+                      userLat={location.lat}
+                      userLon={location.lon}
+                      onViewOnMap={(restaurantToView) => {
+                        trackRestaurantView(restaurantToView.name, 'map');
+                        onViewOnMap(restaurantToView);
+                      }}
+                      onMarkVisited={onMarkRestaurantVisited}
+                      onHide={onHideRestaurant}
+                    />
+                  )}
                 </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">
-                    Nearby restaurants
-                    <span className="ml-2 text-sm font-normal text-gray-400 dark:text-dark-text-secondary">
-                      {displayRestaurants.length} visible
-                      {hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount > 0 && ` (${hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount} hidden)`}
-                    </span>
-                  </h2>
-                  <div className="flex items-center gap-1.5 overflow-x-auto text-xs pb-1">
-                    <button
-                      onClick={() => setQuickUnder7Min(!quickUnder7Min)}
-                      className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
-                        quickUnder7Min ? 'bg-amber-500 text-white border-amber-600' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
-                      }`}
-                    >
-                      ⚡ &lt; 7 Min
-                    </button>
-                    <button
-                      onClick={() => setQuickUnder15Deals(!quickUnder15Deals)}
-                      className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
-                        quickUnder15Deals ? 'bg-orange-600 text-white border-orange-700' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
-                      }`}
-                    >
-                      🔥 Deals
-                    </button>
-                    <button
-                      onClick={() => setQuickFastTakeout(!quickFastTakeout)}
-                      className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
-                        quickFastTakeout ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
-                      }`}
-                    >
-                      🥡 Takeout
-                    </button>
-                    <button
-                      onClick={() => setQuickExcludeRecent(!quickExcludeRecent)}
-                      className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${
-                        quickExcludeRecent ? 'bg-purple-600 text-white border-purple-700' : 'bg-white dark:bg-dark-card text-gray-700 dark:text-dark-text border-gray-200 dark:border-dark-border hover:bg-gray-100'
-                      }`}
-                    >
-                      🎲 Exclude Recent
-                    </button>
-                  </div>
-                </div>
-                {displayRestaurants.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-dark-text-secondary gap-3">
-                    <MapPin className="w-10 h-10 opacity-30" />
-                    <p className="text-base">No restaurants match active quick filters.</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {displayRestaurants.map((restaurant) => (
-                      <RestaurantCard
-                        key={restaurant.id}
-                        restaurant={restaurant}
-                        userLat={location.lat}
-                        userLon={location.lon}
-                        onViewOnMap={(restaurantToView) => {
-                          trackRestaurantView(restaurantToView.name, 'map');
-                          onViewOnMap(restaurantToView);
-                        }}
-                        onMarkVisited={onMarkRestaurantVisited}
-                        onHide={onHideRestaurant}
-                        useImperial={useImperial}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
+              )}
 
             {viewMode === 'random' && (
               <div className="flex flex-col items-center gap-2">
@@ -1476,7 +1371,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
       {viewModeTabs}
 
-      <div className="fixed right-4 bottom-32 z-[9999] flex flex-col gap-2 lg:bottom-10">
+      <div className="fixed left-4 bottom-24 z-[9999] flex flex-col gap-2 lg:bottom-8">
         <button
           onClick={() => setShowSettings(!showSettings)}
           className="w-12 h-12 rounded-2xl bg-white dark:bg-dark-card shadow-xl border border-gray-200/70 dark:border-dark-border/70 flex items-center justify-center text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -1484,13 +1379,15 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
         >
           <Settings className="w-5 h-5" />
         </button>
-        <button
-          onClick={toggleTheme}
-          className="w-12 h-12 rounded-2xl bg-white dark:bg-dark-card shadow-xl border border-gray-200/70 dark:border-dark-border/70 flex items-center justify-center text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          aria-label="Toggle theme"
-        >
-          {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
-        </button>
+        {createMapProvider().type !== 'google' && (
+          <button
+            onClick={toggleTheme}
+            className="w-12 h-12 rounded-2xl bg-white dark:bg-dark-card shadow-xl border border-gray-200/70 dark:border-dark-border/70 flex items-center justify-center text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
+          </button>
+        )}
       </div>
 
       <OnboardingTour 

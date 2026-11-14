@@ -17,7 +17,7 @@ export const setImperialUnitsOverride = (v: boolean): void => {
 /**
  * Detects if the current locale uses imperial units (miles/feet) or metric (km/m)
  */
-export const useImperialUnits = (): boolean => {
+export const shouldUseImperialUnits = (): boolean => {
   if (_imperialOverride !== null) return _imperialOverride;
   const language = i18n.language || 'en';
   // Check if current language is in imperial list or if locale starts with imperial prefix
@@ -33,7 +33,7 @@ export const useImperialUnits = (): boolean => {
 export const formatDistance = (meters: number | null | undefined): string => {
   if (meters === null || meters === undefined) return 'N/A';
   
-  const useImperial = useImperialUnits();
+  const useImperial = shouldUseImperialUnits();
   
   if (useImperial) {
     // Convert to feet/miles
@@ -68,7 +68,7 @@ export const formatWalkingTime = (meters: number): string => {
  * Format radius selector value (in meters) to display text based on locale
  */
 export const formatRadiusOption = (meters: number): string => {
-  const useImperial = useImperialUnits();
+  const useImperial = shouldUseImperialUnits();
   
   if (useImperial) {
     // Convert to miles
@@ -86,7 +86,7 @@ export const formatRadiusOption = (meters: number): string => {
  * Used for radius selector options
  */
 export const getRadiusOptionsInMeters = (): { value: number; label: string }[] => {
-  const useImperial = useImperialUnits();
+  const useImperial = shouldUseImperialUnits();
   
   if (useImperial) {
     return [
@@ -101,4 +101,27 @@ export const getRadiusOptionsInMeters = (): { value: number; label: string }[] =
       { value: 5000, label: '5 km' },
     ];
   }
+};
+
+/**
+ * Calculate great-circle distance in meters between two coordinates.
+ */
+export const haversineDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number => {
+  const R = 6371e3;
+  const phi1 = (lat1 * Math.PI) / 180;
+  const phi2 = (lat2 * Math.PI) / 180;
+  const dPhi = ((lat2 - lat1) * Math.PI) / 180;
+  const dLambda = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(dPhi / 2) * Math.sin(dPhi / 2) +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(dLambda / 2) * Math.sin(dLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
 };

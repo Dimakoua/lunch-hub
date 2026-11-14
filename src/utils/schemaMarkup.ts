@@ -155,3 +155,46 @@ export function generateBreadcrumbSchema(
     })),
   };
 }
+
+export function generateRestaurantSchema(restaurant: {
+  name: string;
+  address?: string;
+  cuisine?: string;
+  lat: number;
+  lon: number;
+  rating?: number;
+  reviewCount?: number;
+  priceRange?: string;
+  url?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Restaurant',
+    name: restaurant.name,
+    ...(restaurant.cuisine ? { servesCuisine: restaurant.cuisine } : {}),
+    ...(restaurant.priceRange ? { priceRange: restaurant.priceRange } : {}),
+    ...(restaurant.url ? { url: restaurant.url } : {}),
+    ...(restaurant.address
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: restaurant.address,
+          },
+        }
+      : {}),
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: restaurant.lat,
+      longitude: restaurant.lon,
+    },
+    ...(restaurant.rating
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: restaurant.rating,
+            reviewCount: restaurant.reviewCount ?? 1,
+          },
+        }
+      : {}),
+  };
+}

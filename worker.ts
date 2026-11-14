@@ -1,5 +1,12 @@
+interface KVNamespace {
+  get(key: string): Promise<string | null>;
+  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
+  list(options?: { prefix?: string }): Promise<{ keys: Array<{ name: string }> }>;
+}
+
 interface Env {
   POLLS: KVNamespace;
+  GOOGLE_MAPS_API_KEY?: string;
 }
 
 const corsHeaders = {
@@ -9,11 +16,26 @@ const corsHeaders = {
 };
 
 const KV_TTL = 604800; // 7 days in seconds
+// Stay strictly within Google Maps Platform's free tier:
+// Text Search Pro = 5,000/mo, Place Details Enterprise (ratings/hours/website/phone) = 1,000/mo
+const GOOGLE_MONTHLY_CAP = 900;
+
+async function canCallGoogleApi(kv: KVNamespace): Promise<boolean> {
+  const monthKey = `gplaces:quota:${new Date().toISOString().slice(0, 7)}`;
+  const count = Number((await kv.get(monthKey)) || '0');
+  return count < GOOGLE_MONTHLY_CAP;
+}
+
+async function recordGoogleApiCall(kv: KVNamespace): Promise<void> {
+  const monthKey = `gplaces:quota:${new Date().toISOString().slice(0, 7)}`;
+  const count = Number((await kv.get(monthKey)) || '0');
+  await kv.put(monthKey, String(count + 1), { expirationTtl: 60 * 60 * 24 * 35 });
+}
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    
+
     // Normalize pathname: remove trailing slash (except for root '/')
     const pathname = url.pathname.endsWith('/') && url.pathname.length > 1
       ? url.pathname.slice(0, -1)
@@ -26,23 +48,24 @@ export default {
     // POST /api/polls - Create a new poll
     if (request.method === 'POST' && pathname === '/api/polls') {
       try {
-        const body: any = await request.json();
+        const body = (await request.json()) as { restaurants?: unknown };
         const id = Math.random().toString(36).substring(2, 8);
-        
+
         const pollData = {
           id,
           createdAt: Date.now(),
           restaurants: body.restaurants,
           votes: {}
         };
-        
+
         await env.POLLS.put(id, JSON.stringify(pollData), { expirationTtl: KV_TTL });
-        
+
         return new Response(JSON.stringify({ id }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
-      } catch (err: any) {
-        return new Response(`Bad Request: ${err.message}`, { status: 400, headers: corsHeaders });
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        return new Response(`Bad Request: ${message}`, { status: 400, headers: corsHeaders });
       }
     }
 
@@ -50,30 +73,338 @@ export default {
     if (request.method === 'GET' && pathname.startsWith('/api/polls/')) {
       const id = pathname.split('/').pop();
       if (!id) return new Response('Not Found', { status: 404, headers: corsHeaders });
-      
+
       const poll = await env.POLLS.get(id);
       if (!poll) return new Response('Poll not found', { status: 404, headers: corsHeaders });
-      
+
       return new Response(poll, {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
+    }
+
+    // GET /api/places/status - Check whether Google Places quota is available
+    if (request.method === 'GET' && pathname === '/api/places/status') {
+      const quotaExceeded = !env.GOOGLE_MAPS_API_KEY || !(await canCallGoogleApi(env.POLLS));
+      return new Response(JSON.stringify({ quotaExceeded }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+      });
+    }
+
+    // GET /api/places/nearby - Cached Google Places Nearby Search proxy
+    if (request.method === 'GET' && pathname === '/api/places/nearby') {
+      if (!env.GOOGLE_MAPS_API_KEY) {
+        return new Response(JSON.stringify({ configured: false, places: [] }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' }
+        });
+      }
+      const lat = Number(url.searchParams.get('lat'));
+      const lng = Number(url.searchParams.get('lng'));
+      const radius = Math.min(5000, Math.max(200, Number(url.searchParams.get('radius')) || 1000));
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return new Response(JSON.stringify({ error: 'Missing lat/lng' }), { status: 400, headers: corsHeaders });
+      }
+      const cacheKey = `gplaces:nearby:v2:${lat.toFixed(3)}:${lng.toFixed(3)}:${Math.round(radius / 100) * 100}`;
+      const cached = await env.POLLS.get(cacheKey);
+      if (cached) {
+        return new Response(cached, {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=604800', 'X-Cache': 'HIT' }
+        });
+      }
+
+      if (!(await canCallGoogleApi(env.POLLS))) {
+        return new Response(JSON.stringify({ configured: false, quotaExceeded: true, places: [] }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' }
+        });
+      }
+      await recordGoogleApiCall(env.POLLS);
+
+      const excludedPrimaryTypes = [
+        'grocery_store',
+        'supermarket',
+        'convenience_store',
+        'department_store',
+        'shopping_mall',
+        'gas_station',
+        'liquor_store',
+        'drugstore',
+        'pharmacy',
+        'store',
+      ];
+      const excludedTypeSet = new Set(excludedPrimaryTypes);
+
+      const res = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': env.GOOGLE_MAPS_API_KEY,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.location,places.formattedAddress,places.primaryType',
+        },
+        body: JSON.stringify({
+          includedTypes: ['restaurant', 'cafe', 'bakery', 'meal_takeaway'],
+          excludedPrimaryTypes,
+          maxResultCount: 20,
+          locationRestriction: {
+            circle: {
+              center: { latitude: lat, longitude: lng },
+              radius,
+            },
+          },
+        }),
+      });
+      const data = (await res.json()) as {
+        places?: Array<{
+          id?: string;
+          displayName?: { text?: string };
+          location?: { latitude?: number; longitude?: number };
+          formattedAddress?: string;
+          primaryType?: string;
+        }>;
+      };
+      const places = (data?.places ?? [])
+        .filter(
+          (p) =>
+            p.id &&
+            p.location?.latitude !== undefined &&
+            p.location?.longitude !== undefined &&
+            (!p.primaryType || !excludedTypeSet.has(p.primaryType))
+        )
+        .map((p) => ({
+          id: `gplace:${p.id}`,
+          name: p.displayName?.text || 'Restaurant',
+          lat: p.location!.latitude!,
+          lon: p.location!.longitude!,
+          address: p.formattedAddress,
+          cuisine: p.primaryType?.replace(/_/g, ' ') || 'restaurant',
+          amenity: 'restaurant',
+        }));
+
+      const payload = JSON.stringify({ configured: true, places });
+      if (places.length > 0) {
+        await env.POLLS.put(cacheKey, payload, { expirationTtl: KV_TTL });
+      }
+      return new Response(payload, {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': places.length > 0 ? 'public, max-age=604800' : 'no-store', 'X-Cache': 'MISS' }
+      });
+    }
+
+    // GET /api/places/search - Cached Google Places Text Search proxy
+    if (request.method === 'GET' && pathname === '/api/places/search') {
+      if (!env.GOOGLE_MAPS_API_KEY) {
+        return new Response(JSON.stringify({ configured: false }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' }
+        });
+      }
+      const query = url.searchParams.get('query')?.trim();
+      if (!query) {
+        return new Response(JSON.stringify({ error: 'Missing query' }), { status: 400, headers: corsHeaders });
+      }
+      const lat = url.searchParams.get('lat');
+      const lng = url.searchParams.get('lng');
+      const cacheKey = `gplaces:search:${query.toLowerCase()}:${lat ? Number(lat).toFixed(3) : ''}:${lng ? Number(lng).toFixed(3) : ''}`;
+
+      const cached = await env.POLLS.get(cacheKey);
+      if (cached) {
+        return new Response(cached, {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=604800', 'X-Cache': 'HIT' }
+        });
+      }
+
+      if (!(await canCallGoogleApi(env.POLLS))) {
+        return new Response(JSON.stringify({ configured: false, quotaExceeded: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' }
+        });
+      }
+      await recordGoogleApiCall(env.POLLS);
+
+      // Use Places API (New) Text Search
+      const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': env.GOOGLE_MAPS_API_KEY,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.rating,places.userRatingCount,places.photos',
+        },
+        body: JSON.stringify({
+          textQuery: query,
+          ...(lat && lng
+            ? {
+              locationBias: {
+                circle: {
+                  center: { latitude: Number(lat), longitude: Number(lng) },
+                  radius: 1500,
+                },
+              },
+            }
+            : {}),
+        }),
+      });
+      const data = (await res.json()) as {
+        places?: Array<{
+          id?: string;
+          rating?: number;
+          userRatingCount?: number;
+          photos?: Array<{ name?: string }>;
+        }>;
+        error?: { message?: string; status?: string };
+      };
+      const first = data?.places?.[0];
+      const payload = JSON.stringify(
+        first
+          ? {
+            configured: true,
+            placeId: first.id,
+            rating: first.rating,
+            userRatingsTotal: first.userRatingCount,
+            photoRef: first.photos?.[0]?.name,
+          }
+          : { configured: true, placeId: null, error: data?.error?.message }
+      );
+
+      if (first?.id) {
+        await env.POLLS.put(cacheKey, payload, { expirationTtl: KV_TTL });
+      }
+      return new Response(payload, {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': first?.id ? 'public, max-age=604800' : 'no-store', 'X-Cache': 'MISS' }
+      });
+    }
+
+    // GET /api/places/details - Cached Google Place Details proxy
+    if (request.method === 'GET' && pathname === '/api/places/details') {
+      if (!env.GOOGLE_MAPS_API_KEY) {
+        return new Response(JSON.stringify({ configured: false }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' }
+        });
+      }
+      const placeId = url.searchParams.get('placeId')?.trim();
+      if (!placeId) {
+        return new Response(JSON.stringify({ error: 'Missing placeId' }), { status: 400, headers: corsHeaders });
+      }
+      const cacheKey = `gplaces:details:${placeId}`;
+      const cached = await env.POLLS.get(cacheKey);
+      if (cached) {
+        return new Response(cached, {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=1209600', 'X-Cache': 'HIT' }
+        });
+      }
+
+      if (!(await canCallGoogleApi(env.POLLS))) {
+        return new Response(JSON.stringify({ configured: false, quotaExceeded: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' }
+        });
+      }
+      await recordGoogleApiCall(env.POLLS);
+
+      const res = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
+        headers: {
+          'X-Goog-Api-Key': env.GOOGLE_MAPS_API_KEY,
+          'X-Goog-FieldMask': 'id,displayName,rating,userRatingCount,formattedAddress,regularOpeningHours,photos,priceLevel,websiteUri,nationalPhoneNumber,googleMapsUri,editorialSummary,reviews,dineIn,takeout,delivery',
+        },
+      });
+      const r = (await res.json()) as {
+        id?: string;
+        displayName?: { text?: string };
+        rating?: number;
+        userRatingCount?: number;
+        formattedAddress?: string;
+        priceLevel?: string;
+        websiteUri?: string;
+        nationalPhoneNumber?: string;
+        googleMapsUri?: string;
+        editorialSummary?: { text?: string };
+        dineIn?: boolean;
+        takeout?: boolean;
+        delivery?: boolean;
+        regularOpeningHours?: { openNow?: boolean; weekdayDescriptions?: string[] };
+        photos?: Array<{ name?: string }>;
+        reviews?: Array<{
+          authorAttribution?: { displayName?: string };
+          rating?: number;
+          relativePublishTimeDescription?: string;
+          text?: { text?: string };
+        }>;
+      };
+      const priceMap: Record<string, number> = {
+        PRICE_LEVEL_FREE: 0,
+        PRICE_LEVEL_INEXPENSIVE: 1,
+        PRICE_LEVEL_MODERATE: 2,
+        PRICE_LEVEL_EXPENSIVE: 3,
+        PRICE_LEVEL_VERY_EXPENSIVE: 4,
+      };
+      const payload = JSON.stringify(
+        r?.id
+          ? {
+            configured: true,
+            placeId,
+            name: r.displayName?.text,
+            rating: r.rating,
+            userRatingsTotal: r.userRatingCount,
+            formattedAddress: r.formattedAddress,
+            priceLevel: r.priceLevel ? priceMap[r.priceLevel] : undefined,
+            website: r.websiteUri,
+            phoneNumber: r.nationalPhoneNumber,
+            googleMapsUrl: r.googleMapsUri,
+            editorialSummary: r.editorialSummary?.text,
+            serviceOptions: {
+              dineIn: r.dineIn,
+              takeout: r.takeout,
+              delivery: r.delivery,
+            },
+            openNow: r.regularOpeningHours?.openNow,
+            weekdayText: r.regularOpeningHours?.weekdayDescriptions,
+            photoUrls: (r.photos ?? []).slice(0, 6).map((p) => `/api/places/photo?ref=${encodeURIComponent(p.name ?? '')}&maxwidth=800`),
+            reviews: (r.reviews ?? []).slice(0, 5).map((rev) => ({
+              author: rev.authorAttribution?.displayName || 'Google User',
+              rating: rev.rating,
+              relativeTime: rev.relativePublishTimeDescription,
+              text: rev.text?.text,
+            })),
+          }
+          : { configured: true, placeId: null }
+      );
+
+      if (r?.id) {
+        await env.POLLS.put(cacheKey, payload, { expirationTtl: KV_TTL * 2 });
+      }
+      return new Response(payload, {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': r?.id ? 'public, max-age=1209600' : 'no-store', 'X-Cache': 'MISS' }
+      });
+    }
+
+    // GET /api/places/photo - Cached Google Place Photo proxy
+    if (request.method === 'GET' && pathname === '/api/places/photo') {
+      if (!env.GOOGLE_MAPS_API_KEY) {
+        return new Response('Google Maps API key not configured', { status: 404, headers: corsHeaders });
+      }
+      const ref = url.searchParams.get('ref')?.trim();
+      const maxwidth = url.searchParams.get('maxwidth') || '800';
+      if (!ref) {
+        return new Response('Missing photo ref', { status: 400, headers: corsHeaders });
+      }
+      const photoUrl = ref.startsWith('places/')
+        ? `https://places.googleapis.com/v1/${ref}/media?maxWidthPx=${encodeURIComponent(maxwidth)}&key=${env.GOOGLE_MAPS_API_KEY}`
+        : `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${encodeURIComponent(maxwidth)}&photo_reference=${encodeURIComponent(ref)}&key=${env.GOOGLE_MAPS_API_KEY}`;
+      const res = await fetch(photoUrl);
+      const headers = new Headers(res.headers);
+      headers.set('Cache-Control', 'public, max-age=2592000');
+      headers.set('Access-Control-Allow-Origin', '*');
+      return new Response(res.body, { status: res.status, headers });
     }
 
     // POST /api/polls/:id/vote - Vote on a restaurant
     if (request.method === 'POST' && pathname.startsWith('/api/polls/') && pathname.endsWith('/vote')) {
       const parts = pathname.split('/');
       const id = parts[parts.length - 2];
-      
+
       try {
         const { restaurantId } = await request.json();
         const pollString = await env.POLLS.get(id);
         if (!pollString) return new Response('Poll not found', { status: 404, headers: corsHeaders });
-        
+
         const poll = JSON.parse(pollString);
         poll.votes[restaurantId] = (poll.votes[restaurantId] || 0) + 1;
-        
+
         await env.POLLS.put(id, JSON.stringify(poll), { expirationTtl: KV_TTL });
-        
+
         return new Response(JSON.stringify(poll), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
@@ -87,7 +418,7 @@ export default {
       try {
         const { restaurants, groupSize } = await request.json();
         const id = Math.random().toString(36).substring(2, 8);
-        
+
         const matchData = {
           id,
           createdAt: Date.now(),
@@ -96,9 +427,9 @@ export default {
           votes: {},
           matchedRestaurantId: null
         };
-        
+
         await env.POLLS.put(`match:${id}`, JSON.stringify(matchData), { expirationTtl: KV_TTL });
-        
+
         return new Response(JSON.stringify({ id }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
@@ -111,10 +442,10 @@ export default {
     if (request.method === 'GET' && pathname.startsWith('/api/match/') && !pathname.endsWith('/vote')) {
       const id = pathname.split('/').pop();
       if (!id) return new Response('Not Found', { status: 404, headers: corsHeaders });
-      
+
       const matchString = await env.POLLS.get(`match:${id}`);
       if (!matchString) return new Response('Match room not found', { status: 404, headers: corsHeaders });
-      
+
       return new Response(matchString, {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -124,36 +455,36 @@ export default {
     if (request.method === 'POST' && pathname.startsWith('/api/match/') && pathname.endsWith('/vote')) {
       const parts = pathname.split('/');
       const id = parts[parts.length - 2];
-      
+
       try {
         const { restaurantId, vote, clientId } = await request.json();
         if (!restaurantId || !vote || !clientId) {
           return new Response('Missing fields', { status: 400, headers: corsHeaders });
         }
-        
+
         const matchString = await env.POLLS.get(`match:${id}`);
         if (!matchString) return new Response('Match room not found', { status: 404, headers: corsHeaders });
-        
+
         const room = JSON.parse(matchString);
-        
+
         room.votes[restaurantId] = room.votes[restaurantId] || { yes: [], no: [] };
-        
+
         const oppositeList = vote === 'yes' ? room.votes[restaurantId].no : room.votes[restaurantId].yes;
         const currentList = vote === 'yes' ? room.votes[restaurantId].yes : room.votes[restaurantId].no;
-        
+
         const oppIndex = oppositeList.indexOf(clientId);
         if (oppIndex > -1) oppositeList.splice(oppIndex, 1);
-        
+
         if (!currentList.includes(clientId)) {
           currentList.push(clientId);
         }
-        
+
         if (vote === 'yes' && room.votes[restaurantId].yes.length >= room.groupSize) {
           room.matchedRestaurantId = restaurantId;
         }
-        
+
         await env.POLLS.put(`match:${id}`, JSON.stringify(room), { expirationTtl: KV_TTL });
-        
+
         return new Response(JSON.stringify(room), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
@@ -165,7 +496,7 @@ export default {
     // POST /api/popularity - Record an anonymous restaurant popularity check-in
     if (request.method === 'POST' && pathname === '/api/popularity') {
       try {
-        const body: any = await request.json();
+        const body = (await request.json()) as { restaurantId?: string; lat?: number; lon?: number };
         const { restaurantId, lat, lon } = body;
         if (!restaurantId || lat === undefined || lon === undefined) {
           return new Response('Missing parameters', { status: 400, headers: corsHeaders });
@@ -248,7 +579,7 @@ export default {
     // POST /api/restaurant-details/batch - Batch resolve up to 15 restaurants at once
     if (request.method === 'POST' && pathname === '/api/restaurant-details/batch') {
       try {
-        const body: any = await request.json();
+        const body = (await request.json()) as { restaurants?: unknown };
         const restaurants = Array.isArray(body.restaurants) ? body.restaurants.slice(0, 15) : [];
 
         const results = await Promise.all(
@@ -354,7 +685,7 @@ async function resolveRestaurantDetails(env: Env, input: RestaurantInput) {
 
         // If no og:image, look for hero images or prominent photos
         if (!imageUrl) {
-          const imgMatches = [...html.matchAll(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/gi)];
+          const imgMatches = Array.from(html.matchAll(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/gi));
           for (const m of imgMatches) {
             const src = m[1];
             if (

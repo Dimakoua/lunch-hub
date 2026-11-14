@@ -21,7 +21,20 @@
   <meta name="msapplication-TileImage" content="/icon/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <script>
+    try {
+      var storedTheme = localStorage.getItem('theme');
+      if (storedTheme === 'dark' || storedTheme === 'light') {
+        document.querySelector('meta[name="color-scheme"]').content = storedTheme;
+        if (storedTheme === 'dark') document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  </script>
   <title>Lunch Hub - Find Your Perfect Meal</title>
+  <meta name="description" content="Take the stress out of lunch. Discover nearby eateries with our interactive map, spin wheel, group polls, and curated lunch deals." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://lunch-hub.com/" />
   
   <!-- Fallback OpenGraph / SEO tags for non-prerendered views -->
   <meta property="og:title" content="Lunch Hub - Find Your Perfect Meal" />

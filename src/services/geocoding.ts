@@ -1,5 +1,6 @@
 import { cacheService } from './cache';
 import { CACHE_TTL_LONG } from '../constants';
+import { createMapProvider } from './mapProvider';
 
 interface NominatimResult {
   display_name: string;
@@ -10,11 +11,37 @@ interface NominatimResult {
 }
 
 export const geocodeAddress = async (address: string) => {
-  const cacheKey = cacheService.generateKey('geocode', address);
+  const providerType = createMapProvider().type;
+  const cacheKey = cacheService.generateKey('geocode', providerType, address);
   const cached = cacheService.get<{ lat: number; lon: number; display_name: string }>(cacheKey);
   
   if (cached) {
     return cached;
+  }
+
+  // When Google Maps is active, use ONLY Google Geocoder
+  if (providerType === 'google') {
+    if (typeof google === 'undefined' || !google.maps?.Geocoder) {
+      return null;
+    }
+    try {
+      const geocoder = new google.maps.Geocoder();
+      const { results } = await geocoder.geocode({ address });
+      if (results && results.length > 0) {
+        const loc = results[0].geometry.location;
+        const result = {
+          lat: loc.lat(),
+          lon: loc.lng(),
+          display_name: results[0].formatted_address || address,
+        };
+        cacheService.set(cacheKey, result, CACHE_TTL_LONG);
+        return result;
+      }
+      return null;
+    } catch (error) {
+      console.error('Google geocoding error:', error);
+      return null;
+    }
   }
 
   try {
@@ -41,6 +68,26 @@ export const geocodeAddress = async (address: string) => {
 
 export const searchLocationSuggestions = async (query: string) => {
   if (query.length < 3) return [];
+
+  if (createMapProvider().type === 'google') {
+    if (typeof google === 'undefined' || !google.maps?.Geocoder) {
+      return [];
+    }
+    try {
+      const geocoder = new google.maps.Geocoder();
+      const { results } = await geocoder.geocode({ address: query });
+      return (results || []).slice(0, 5).map((item) => ({
+        display_name: item.formatted_address,
+        lat: item.geometry.location.lat(),
+        lon: item.geometry.location.lng(),
+        type: item.types?.[0] || 'geocode',
+        importance: 1,
+      }));
+    } catch (error) {
+      console.error('Google autocomplete error:', error);
+      return [];
+    }
+  }
   
   try {
     const response = await fetch(
