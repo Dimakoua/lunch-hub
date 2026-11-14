@@ -11,7 +11,7 @@ export const markGoogleQuotaExceeded = (): void => {
 };
 
 export const checkGoogleQuotaStatus = async (): Promise<boolean> => {
-  if (import.meta.env.VITE_MAP_PROVIDER !== 'google') return false;
+  if (import.meta.env.VITE_MAP_PROVIDER === 'leaflet') return false;
   if (googleQuotaExceeded) return true;
   try {
     const res = await fetch('/api/places/status');

@@ -53,7 +53,7 @@ class GoogleMapProvider implements MapProvider {
   readonly displayName = 'Google Maps';
 
   isAvailable(): boolean {
-    return import.meta.env.VITE_MAP_PROVIDER === 'google' && !isGoogleQuotaExceeded();
+    return import.meta.env.VITE_MAP_PROVIDER !== 'leaflet' && !isGoogleQuotaExceeded();
   }
 
   getDirectionsUrl(lat: number, lon: number, label?: string): string {
