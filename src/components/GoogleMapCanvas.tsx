@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker, Pin, useMap } from '@vis.gl/react-google-maps';
 import { X, Star, MapPin, Phone, Globe, Clock, Navigation, Share2, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Restaurant } from '../types/restaurant';
 import { formatDistance } from '../utils/distanceFormatter';
@@ -753,6 +753,7 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
     <div className="relative w-full h-full">
       <APIProvider apiKey={apiKey}>
         <Map
+          mapId={(import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) || 'DEMO_MAP_ID'}
           defaultCenter={{ lat: center[0], lng: center[1] }}
           defaultZoom={zoom}
           gestureHandling="greedy"
@@ -774,7 +775,7 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
           <MapCenterUpdater center={center} />
           <RadiusCircle center={center} radius={radius} />
           <RoutePolyline routeGeometry={routeGeometry} fitTrigger={fitTrigger} />
-          <Marker
+          <AdvancedMarker
             position={{ lat: center[0], lng: center[1] }}
             draggable={true}
             title="Drag to move your pin"
@@ -785,15 +786,24 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
                 onCenterDrag(lat, lng);
               }
             }}
-          />
+          >
+            <Pin background="#EF4444" borderColor="#B91C1C" glyphColor="#FFFFFF" />
+          </AdvancedMarker>
           {(selectedRestaurant && !restaurants.some((r) => r.id === selectedRestaurant.id)
             ? [...restaurants, selectedRestaurant]
             : restaurants
           ).map((restaurant) => {
             const isSelected = selectedRestaurant?.id === restaurant.id;
             const hasDeal = Boolean(restaurant.deal);
+            const size = isSelected ? 20 : hasDeal ? 16 : 12;
+            const bgColor = isSelected
+              ? '#2563EB'
+              : hasDeal
+              ? '#10B981'
+              : '#F97316';
+            const borderColor = hasDeal ? '#FBBF24' : '#FFFFFF';
             return (
-              <Marker
+              <AdvancedMarker
                 key={restaurant.id}
                 position={{ lat: restaurant.lat, lng: restaurant.lon }}
                 title={
@@ -805,23 +815,19 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
                   onRestaurantClick(restaurant);
                   setPanelOpen(true);
                 }}
-                icon={
-                  typeof google !== 'undefined'
-                    ? {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: isSelected ? 10 : hasDeal ? 8 : 6,
-                        fillColor: isSelected
-                          ? '#2563EB'
-                          : hasDeal
-                          ? '#10B981'
-                          : '#F97316',
-                        fillOpacity: 0.95,
-                        strokeColor: hasDeal ? '#FBBF24' : '#FFFFFF',
-                        strokeWeight: hasDeal ? 3 : 2,
-                      }
-                    : undefined
-                }
-              />
+              >
+                <div
+                  style={{
+                    width: size,
+                    height: size,
+                    borderRadius: '9999px',
+                    backgroundColor: bgColor,
+                    border: `${hasDeal ? 3 : 2}px solid ${borderColor}`,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.35)',
+                    cursor: 'pointer',
+                  }}
+                />
+              </AdvancedMarker>
             );
           })}
         </Map>
