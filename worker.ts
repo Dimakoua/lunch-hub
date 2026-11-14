@@ -185,7 +185,8 @@ export default {
     // GET /api/places/status - Check whether Google Places quota is available
     if (request.method === 'GET' && pathname === '/api/places/status') {
       const quotaExceeded = !env.GOOGLE_MAPS_API_KEY || !(await canCallGoogleApi(env.POLLS));
-      return new Response(JSON.stringify({ quotaExceeded }), {
+      const mapsJsKey = env.GOOGLE_MAPS_API_KEY || null;
+      return new Response(JSON.stringify({ quotaExceeded, mapsJsKey }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
       });
     }
