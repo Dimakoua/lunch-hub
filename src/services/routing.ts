@@ -14,33 +14,6 @@ export const fetchRoute = async (
     return cachedData;
   }
 
-  // Try Google DirectionsService when Google Maps is active, fall back to OSM walking route if unavailable/denied
-  if (providerType === 'google' && typeof google !== 'undefined' && google.maps?.DirectionsService) {
-    try {
-      const service = new google.maps.DirectionsService();
-      const response = await service.route({
-        origin: { lat: start[0], lng: start[1] },
-        destination: { lat: end[0], lng: end[1] },
-        travelMode: google.maps.TravelMode.WALKING,
-      });
-
-      const leg = response.routes?.[0]?.legs?.[0];
-      const overviewPath = response.routes?.[0]?.overview_path;
-      if (leg && overviewPath && overviewPath.length > 0) {
-        const geometry: [number, number][] = overviewPath.map((pt) => [pt.lat(), pt.lng()]);
-        const result = {
-          geometry,
-          duration: leg.duration?.value ?? 0,
-          distance: leg.distance?.value ?? 0,
-        };
-        cacheService.set(cacheKey, result, CACHE_TTL_LONG);
-        return result;
-      }
-    } catch (error) {
-      console.warn('Google DirectionsService unavailable, falling back to OSM walking route:', error);
-    }
-  }
-
   try {
     // Using routing.openstreetmap.de which reliably supports the 'foot' (walking) profile
     const response = await fetch(
