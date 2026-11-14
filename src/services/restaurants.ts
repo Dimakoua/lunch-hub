@@ -61,10 +61,18 @@ export const fetchRestaurants = async (
   const providerType = createMapProvider().type;
   const cacheKey = cacheService.generateKey(providerType, lat, lon, radius);
   
+  const filterAndOverlay = (rawRestaurants: Restaurant[]): Restaurant[] => {
+    const withDeals = overlayDeals(rawRestaurants);
+    return withDeals.filter((restaurant) => {
+      const distance = haversineDistance(lat, lon, restaurant.lat, restaurant.lon);
+      return distance <= radius;
+    });
+  };
+
   if (!forceRefresh) {
     const cachedData = cacheService.get<Restaurant[]>(cacheKey);
     if (cachedData) {
-      return cachedData;
+      return filterAndOverlay(cachedData);
     }
   }
 
@@ -73,15 +81,10 @@ export const fetchRestaurants = async (
     try {
       const googlePlaces = await fetchNearbyGooglePlaces(lat, lon, radius);
       if (!isGoogleQuotaExceeded()) {
-        const withDeals = overlayDeals(googlePlaces);
-        const filteredRestaurants = withDeals.filter((restaurant) => {
-          const distance = haversineDistance(lat, lon, restaurant.lat, restaurant.lon);
-          return distance <= radius;
-        });
-        if (filteredRestaurants.length > 0) {
-          cacheService.set(cacheKey, filteredRestaurants, CACHE_TTL_LONG);
+        if (googlePlaces.length > 0) {
+          cacheService.set(cacheKey, googlePlaces, CACHE_TTL_LONG);
         }
-        return filteredRestaurants;
+        return filterAndOverlay(googlePlaces);
       }
     } catch (error) {
       console.error('Error fetching Google Places:', error);
@@ -92,17 +95,20 @@ export const fetchRestaurants = async (
   }
 
   try {
-    // Convert radius from meters to degrees (approximate) for bounding box
-    // This is a rough estimate for the Overpass API query to get a superset of results
-    const radiusDegrees = radius / 111000; 
-    
+    const safeRadius = Math.min(10000, Math.max(200, Math.round(radius)));
+    const safeLat = Number(lat);
+    const safeLon = Number(lon);
+    if (!Number.isFinite(safeLat) || !Number.isFinite(safeLon)) {
+      return [];
+    }
+
     const overpassQuery = `
-      [out:json][timeout:120];
+      [out:json][timeout:15];
       (
-        node["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court)$"]
-          (${lat - radiusDegrees},${lon - radiusDegrees},${lat + radiusDegrees},${lon + radiusDegrees});
+        nwr["amenity"~"^(restaurant|fast_food|cafe|pub|bar|food_court)$"]
+          (around:${safeRadius},${safeLat},${safeLon});
       );
-      out meta 100;
+      out center body 120;
     `;
 
     let response;
@@ -114,6 +120,7 @@ export const fetchRestaurants = async (
           headers: {
             'Content-Type': 'text/plain',
           },
+          signal: AbortSignal.timeout(12000),
         });
         if (response.ok) break;
       } catch {
@@ -149,6 +156,11 @@ export const fetchRestaurants = async (
           osmImage = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=800`;
         }
 
+        const rawWebsite = element.tags.website;
+        const safeWebsite = rawWebsite && (rawWebsite.startsWith('https://') || rawWebsite.startsWith('http://'))
+          ? rawWebsite
+          : undefined;
+
         return {
           id: element.id.toString(),
           name: element.tags.name || 'Unknown',
@@ -157,28 +169,19 @@ export const fetchRestaurants = async (
           cuisine: element.tags.cuisine || element.tags['cuisine:en'],
           address: formatAddress(element.tags),
           phone: element.tags.phone,
-          website: element.tags.website,
+          website: safeWebsite,
           opening_hours: element.tags.opening_hours,
-          amenity: element.tags.amenity,
+          amenity: element.tags.amenity || 'restaurant',
           takeaway: element.tags.takeaway,
           image: osmImage,
         };
       })
       .filter((r): r is Restaurant => r !== null);
 
-    // Overlay curated deals onto restaurants
-    const withDeals = overlayDeals(restaurants);
+    // Cache the raw restaurant list for 5 days so dynamic deal overlays remain fresh
+    cacheService.set(cacheKey, restaurants, CACHE_TTL_LONG);
 
-    // Filter restaurants to be strictly within the circular radius
-    const filteredRestaurants = withDeals.filter(restaurant => {
-      const distance = haversineDistance(lat, lon, restaurant.lat, restaurant.lon);
-      return distance <= radius;
-    });
-
-    // Cache the result for 5 days to keep geo search results available
-    cacheService.set(cacheKey, filteredRestaurants, CACHE_TTL_LONG);
-
-    return filteredRestaurants;
+    return filterAndOverlay(restaurants);
   } catch (error) {
     console.error('Error fetching restaurants from Overpass:', error);
     return [];

@@ -1,4 +1,5 @@
 import { Restaurant } from '../types/restaurant';
+import { getClientId } from './matchmaker';
 
 export interface Poll {
   id: string;
@@ -34,10 +35,11 @@ export const getPoll = async (id: string): Promise<Poll> => {
 };
 
 export const voteOnPoll = async (pollId: string, restaurantId: string): Promise<Poll> => {
+  const clientId = getClientId();
   const response = await fetch(`${API_URL}/api/polls/${pollId}/vote`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ restaurantId }),
+    body: JSON.stringify({ restaurantId, clientId }),
   });
   
   if (!response.ok) throw new Error('Failed to submit vote');

@@ -104,10 +104,6 @@ export async function fetchNearbyGooglePlaces(
   lng: number,
   radius: number
 ): Promise<Array<{ id: string; name: string; lat: number; lon: number; address?: string; cuisine?: string; amenity?: string }>> {
-  const cacheKey = `gplace_nearby:v2:${lat.toFixed(3)}:${lng.toFixed(3)}:${Math.round(radius / 100) * 100}`;
-  const cached = cacheService.get<Array<{ id: string; name: string; lat: number; lon: number; address?: string; cuisine?: string; amenity?: string }>>(cacheKey);
-  if (cached) return cached;
-
   try {
     const res = await fetch(
       `/api/places/nearby?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&radius=${encodeURIComponent(radius)}`
@@ -117,13 +113,9 @@ export async function fetchNearbyGooglePlaces(
     if (data?.quotaExceeded) markGoogleQuotaExceeded();
     if (!data || !Array.isArray(data.places) || data.places.length === 0) return [];
 
-    const filtered = data.places.filter(
+    return data.places.filter(
       (p: { cuisine?: string }) => !p.cuisine || !EXCLUDED_CUISINE_TYPES.has(p.cuisine.toLowerCase())
     );
-    if (filtered.length > 0) {
-      cacheService.set(cacheKey, filtered, CLIENT_CACHE_TTL_MS);
-    }
-    return filtered;
   } catch {
     return [];
   }

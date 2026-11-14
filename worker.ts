@@ -1,7 +1,7 @@
 interface KVNamespace {
   get(key: string): Promise<string | null>;
-  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
-  list(options?: { prefix?: string }): Promise<{ keys: Array<{ name: string }> }>;
+  put(key: string, value: string, options?: { expirationTtl?: number; metadata?: Record<string, unknown> }): Promise<void>;
+  list(options?: { prefix?: string }): Promise<{ keys: Array<{ name: string; metadata?: unknown }> }>;
 }
 
 interface Env {
@@ -9,11 +9,98 @@ interface Env {
   GOOGLE_MAPS_API_KEY?: string;
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://thelunchub.com',
+  'https://www.thelunchub.com',
+  'https://lunchhub.com',
+  'https://www.lunchhub.com',
+  'https://lunchhub.app',
+  'https://www.lunchhub.app',
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'http://localhost:8787',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:8787',
+]);
+
+function getCorsHeaders(request: Request): Record<string, string> {
+  const origin = request.headers.get('Origin');
+  const allowedOrigin = origin && (ALLOWED_ORIGINS.has(origin) || origin.endsWith('.pages.dev') || origin.endsWith('.workers.dev'))
+    ? origin
+    : 'https://thelunchub.com';
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
+  };
+}
+
+function generateSecureId(length = 8): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => chars[b % chars.length]).join('');
+}
+
+function isSafeExternalUrl(rawUrl: string): boolean {
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+    const host = parsed.hostname.toLowerCase();
+    if (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === '0.0.0.0' ||
+      host === '::1' ||
+      host === '[::1]' ||
+      host.endsWith('.local') ||
+      host.endsWith('.internal') ||
+      /^10\./.test(host) ||
+      /^192\.168\./.test(host) ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(host) ||
+      /^169\.254\./.test(host)
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeRestaurantRecord(r: any) {
+  if (!r || typeof r !== 'object') return null;
+  const id = String(r.id ?? '').slice(0, 128);
+  const name = String(r.name ?? '').slice(0, 200);
+  const lat = Number(r.lat);
+  const lon = Number(r.lon);
+  if (!id || !name || !Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  return {
+    id,
+    name,
+    lat,
+    lon,
+    cuisine: r.cuisine ? String(r.cuisine).slice(0, 100) : undefined,
+    address: r.address ? String(r.address).slice(0, 300) : undefined,
+    phone: r.phone ? String(r.phone).slice(0, 50) : undefined,
+    website: r.website && isSafeExternalUrl(String(r.website)) ? String(r.website).slice(0, 500) : undefined,
+    opening_hours: r.opening_hours ? String(r.opening_hours).slice(0, 200) : undefined,
+    amenity: String(r.amenity || 'restaurant').slice(0, 50),
+    takeaway: r.takeaway ? String(r.takeaway).slice(0, 20) : undefined,
+    image: r.image && isSafeExternalUrl(String(r.image)) ? String(r.image).slice(0, 500) : undefined,
+    deal: r.deal && typeof r.deal === 'object' ? {
+      id: String(r.deal.id ?? '').slice(0, 100),
+      name: String(r.deal.name ?? '').slice(0, 200),
+      lat: Number(r.deal.lat) || lat,
+      lng: Number(r.deal.lng) || lon,
+      cuisine: String(r.deal.cuisine ?? '').slice(0, 100),
+      dealTitle: String(r.deal.dealTitle ?? '').slice(0, 200),
+      price: String(r.deal.price ?? '').slice(0, 30),
+      validDays: String(r.deal.validDays ?? '').slice(0, 100),
+    } : undefined,
+  };
+}
 
 const KV_TTL = 604800; // 7 days in seconds
 // Stay strictly within Google Maps Platform's free tier:
@@ -35,6 +122,7 @@ async function recordGoogleApiCall(kv: KVNamespace): Promise<void> {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const corsHeaders = getCorsHeaders(request);
 
     // Normalize pathname: remove trailing slash (except for root '/')
     const pathname = url.pathname.endsWith('/') && url.pathname.length > 1
@@ -49,13 +137,25 @@ export default {
     if (request.method === 'POST' && pathname === '/api/polls') {
       try {
         const body = (await request.json()) as { restaurants?: unknown };
-        const id = Math.random().toString(36).substring(2, 8);
+        if (!Array.isArray(body.restaurants) || body.restaurants.length < 2 || body.restaurants.length > 20) {
+          return new Response('Bad Request: Invalid restaurants list', { status: 400, headers: corsHeaders });
+        }
+        const sanitizedRestaurants = body.restaurants
+          .map(sanitizeRestaurantRecord)
+          .filter((r): r is NonNullable<typeof r> => r !== null);
+        if (sanitizedRestaurants.length < 2) {
+          return new Response('Bad Request: At least 2 valid restaurants required', { status: 400, headers: corsHeaders });
+        }
+
+        const id = generateSecureId(8);
+        const votes: Record<string, number> = Object.create(null);
 
         const pollData = {
           id,
           createdAt: Date.now(),
-          restaurants: body.restaurants,
-          votes: {}
+          restaurants: sanitizedRestaurants,
+          votes,
+          voterIds: [] as string[],
         };
 
         await env.POLLS.put(id, JSON.stringify(pollData), { expirationTtl: KV_TTL });
@@ -349,7 +449,6 @@ export default {
               takeout: r.takeout,
               delivery: r.delivery,
             },
-            openNow: r.regularOpeningHours?.openNow,
             weekdayText: r.regularOpeningHours?.weekdayDescriptions,
             photoUrls: (r.photos ?? []).slice(0, 6).map((p) => `/api/places/photo?ref=${encodeURIComponent(p.name ?? '')}&maxwidth=800`),
             reviews: (r.reviews ?? []).slice(0, 5).map((rev) => ({
@@ -376,17 +475,27 @@ export default {
         return new Response('Google Maps API key not configured', { status: 404, headers: corsHeaders });
       }
       const ref = url.searchParams.get('ref')?.trim();
-      const maxwidth = url.searchParams.get('maxwidth') || '800';
+      const maxwidthNum = Math.min(1600, Math.max(100, Number(url.searchParams.get('maxwidth')) || 800));
       if (!ref) {
         return new Response('Missing photo ref', { status: 400, headers: corsHeaders });
       }
-      const photoUrl = ref.startsWith('places/')
-        ? `https://places.googleapis.com/v1/${ref}/media?maxWidthPx=${encodeURIComponent(maxwidth)}&key=${env.GOOGLE_MAPS_API_KEY}`
-        : `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${encodeURIComponent(maxwidth)}&photo_reference=${encodeURIComponent(ref)}&key=${env.GOOGLE_MAPS_API_KEY}`;
-      const res = await fetch(photoUrl);
+      const isNewPlacesRef = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(ref);
+      const isLegacyRef = /^[A-Za-z0-9_-]{16,512}$/.test(ref);
+      if (!isNewPlacesRef && !isLegacyRef) {
+        return new Response('Invalid photo ref', { status: 400, headers: corsHeaders });
+      }
+      if (!(await canCallGoogleApi(env.POLLS))) {
+        return new Response('Quota exceeded', { status: 429, headers: corsHeaders });
+      }
+      const photoUrl = isNewPlacesRef
+        ? `https://places.googleapis.com/v1/${ref}/media?maxWidthPx=${maxwidthNum}&key=${env.GOOGLE_MAPS_API_KEY}`
+        : `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxwidthNum}&photo_reference=${encodeURIComponent(ref)}&key=${env.GOOGLE_MAPS_API_KEY}`;
+      const res = await fetch(photoUrl, { cf: { cacheEverything: true, cacheTtl: 2592000 } } as RequestInit);
       const headers = new Headers(res.headers);
       headers.set('Cache-Control', 'public, max-age=2592000');
-      headers.set('Access-Control-Allow-Origin', '*');
+      for (const [k, v] of Object.entries(corsHeaders)) {
+        headers.set(k, v);
+      }
       return new Response(res.body, { status: res.status, headers });
     }
 
@@ -396,12 +505,31 @@ export default {
       const id = parts[parts.length - 2];
 
       try {
-        const { restaurantId } = await request.json();
+        const { restaurantId, clientId } = (await request.json()) as { restaurantId?: string; clientId?: string };
+        if (!restaurantId || typeof restaurantId !== 'string') {
+          return new Response('Invalid restaurantId', { status: 400, headers: corsHeaders });
+        }
         const pollString = await env.POLLS.get(id);
         if (!pollString) return new Response('Poll not found', { status: 404, headers: corsHeaders });
 
         const poll = JSON.parse(pollString);
-        poll.votes[restaurantId] = (poll.votes[restaurantId] || 0) + 1;
+        const validRestaurant = Array.isArray(poll.restaurants) && poll.restaurants.some((r: { id?: string }) => r.id === restaurantId);
+        if (!validRestaurant) {
+          return new Response('Invalid restaurant for this poll', { status: 400, headers: corsHeaders });
+        }
+
+        poll.voterIds = Array.isArray(poll.voterIds) ? poll.voterIds : [];
+        if (clientId && typeof clientId === 'string') {
+          if (poll.voterIds.includes(clientId)) {
+            return new Response(JSON.stringify(poll), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+          poll.voterIds.push(clientId.slice(0, 64));
+        }
+
+        const currentVotes = Number(Object.prototype.hasOwnProperty.call(poll.votes, restaurantId) ? poll.votes[restaurantId] : 0) || 0;
+        poll.votes[restaurantId] = currentVotes + 1;
 
         await env.POLLS.put(id, JSON.stringify(poll), { expirationTtl: KV_TTL });
 
@@ -416,15 +544,26 @@ export default {
     // POST /api/match/create - Create a new matchmaker room
     if (request.method === 'POST' && pathname === '/api/match/create') {
       try {
-        const { restaurants, groupSize } = await request.json();
-        const id = Math.random().toString(36).substring(2, 8);
+        const { restaurants, groupSize } = (await request.json()) as { restaurants?: unknown; groupSize?: unknown };
+        if (!Array.isArray(restaurants) || restaurants.length < 2 || restaurants.length > 25) {
+          return new Response('Bad Request: Invalid restaurants list', { status: 400, headers: corsHeaders });
+        }
+        const sanitizedRestaurants = restaurants
+          .map(sanitizeRestaurantRecord)
+          .filter((r): r is NonNullable<typeof r> => r !== null);
+        if (sanitizedRestaurants.length < 2) {
+          return new Response('Bad Request: At least 2 valid restaurants required', { status: 400, headers: corsHeaders });
+        }
+
+        const id = generateSecureId(8);
+        const safeGroupSize = Math.min(20, Math.max(2, Math.floor(Number(groupSize) || 2)));
 
         const matchData = {
           id,
           createdAt: Date.now(),
-          restaurants,
-          groupSize: Number(groupSize) || 2,
-          votes: {},
+          restaurants: sanitizedRestaurants,
+          groupSize: safeGroupSize,
+          votes: Object.create(null),
           matchedRestaurantId: null
         };
 
@@ -457,26 +596,43 @@ export default {
       const id = parts[parts.length - 2];
 
       try {
-        const { restaurantId, vote, clientId } = await request.json();
-        if (!restaurantId || !vote || !clientId) {
-          return new Response('Missing fields', { status: 400, headers: corsHeaders });
+        const { restaurantId, vote, clientId } = (await request.json()) as {
+          restaurantId?: string;
+          vote?: string;
+          clientId?: string;
+        };
+        if (
+          !restaurantId ||
+          typeof restaurantId !== 'string' ||
+          (vote !== 'yes' && vote !== 'no') ||
+          !clientId ||
+          typeof clientId !== 'string'
+        ) {
+          return new Response('Missing or invalid fields', { status: 400, headers: corsHeaders });
         }
+        const safeClientId = clientId.slice(0, 64);
 
         const matchString = await env.POLLS.get(`match:${id}`);
         if (!matchString) return new Response('Match room not found', { status: 404, headers: corsHeaders });
 
         const room = JSON.parse(matchString);
+        const validRestaurant = Array.isArray(room.restaurants) && room.restaurants.some((r: { id?: string }) => r.id === restaurantId);
+        if (!validRestaurant) {
+          return new Response('Invalid restaurant for this room', { status: 400, headers: corsHeaders });
+        }
 
-        room.votes[restaurantId] = room.votes[restaurantId] || { yes: [], no: [] };
+        if (!Object.prototype.hasOwnProperty.call(room.votes, restaurantId)) {
+          room.votes[restaurantId] = { yes: [], no: [] };
+        }
 
         const oppositeList = vote === 'yes' ? room.votes[restaurantId].no : room.votes[restaurantId].yes;
         const currentList = vote === 'yes' ? room.votes[restaurantId].yes : room.votes[restaurantId].no;
 
-        const oppIndex = oppositeList.indexOf(clientId);
+        const oppIndex = oppositeList.indexOf(safeClientId);
         if (oppIndex > -1) oppositeList.splice(oppIndex, 1);
 
-        if (!currentList.includes(clientId)) {
-          currentList.push(clientId);
+        if (!currentList.includes(safeClientId)) {
+          currentList.push(safeClientId);
         }
 
         if (vote === 'yes' && room.votes[restaurantId].yes.length >= room.groupSize) {
@@ -498,23 +654,30 @@ export default {
       try {
         const body = (await request.json()) as { restaurantId?: string; lat?: number; lon?: number };
         const { restaurantId, lat, lon } = body;
-        if (!restaurantId || lat === undefined || lon === undefined) {
+        const numLat = Number(lat);
+        const numLon = Number(lon);
+        if (!restaurantId || typeof restaurantId !== 'string' || !Number.isFinite(numLat) || !Number.isFinite(numLon)) {
           return new Response('Missing parameters', { status: 400, headers: corsHeaders });
         }
 
-        const key = `pop:${restaurantId}`;
+        const safeId = restaurantId.slice(0, 128);
+        const key = `pop:${safeId}`;
         const existingStr = await env.POLLS.get(key);
         let count = 1;
         if (existingStr) {
           try {
             const parsed = JSON.parse(existingStr);
-            count = (parsed.count || 0) + 1;
+            count = (Number(parsed.count) || 0) + 1;
           } catch {
             // ignore
           }
         }
 
-        await env.POLLS.put(key, JSON.stringify({ restaurantId, lat, lon, count }), { expirationTtl: 14400 }); // 4 hours TTL
+        const record = { restaurantId: safeId, lat: numLat, lon: numLon, count };
+        await env.POLLS.put(key, JSON.stringify(record), {
+          expirationTtl: 14400, // 4 hours TTL
+          metadata: record,
+        });
 
         return new Response(JSON.stringify({ success: true, count }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -529,18 +692,24 @@ export default {
       try {
         const list = await env.POLLS.list({ prefix: 'pop:' });
         const results = [];
+        let fallbackGets = 0;
         for (const key of list.keys) {
-          const val = await env.POLLS.get(key.name);
-          if (val) {
-            try {
-              results.push(JSON.parse(val));
-            } catch {
-              // ignore
+          if (key.metadata && typeof key.metadata === 'object') {
+            results.push(key.metadata);
+          } else if (fallbackGets < 10) {
+            fallbackGets++;
+            const val = await env.POLLS.get(key.name);
+            if (val) {
+              try {
+                results.push(JSON.parse(val));
+              } catch {
+                // ignore
+              }
             }
           }
         }
         return new Response(JSON.stringify(results), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' }
         });
       } catch (err) {
         return new Response('Server Error', { status: 500, headers: corsHeaders });
@@ -635,7 +804,17 @@ interface RestaurantInput {
 const DETAILS_KV_TTL = 2592000; // 30 days in seconds
 
 async function resolveRestaurantDetails(env: Env, input: RestaurantInput) {
-  const kvKey = `details:v2:${input.id}`;
+  const safeId = String(input.id).slice(0, 128);
+  const safeWebsite = input.website && isSafeExternalUrl(input.website) ? input.website : '';
+  let websiteHost = '';
+  if (safeWebsite) {
+    try {
+      websiteHost = new URL(safeWebsite).hostname.toLowerCase();
+    } catch {
+      websiteHost = '';
+    }
+  }
+  const kvKey = `details:v2:${safeId}:${websiteHost}`;
 
   // 1. Check Cloudflare KV cache
   try {
@@ -659,18 +838,20 @@ async function resolveRestaurantDetails(env: Env, input: RestaurantInput) {
   let source = 'fallback';
 
   // 2. Try scraping official website if available
-  if (input.website && (input.website.startsWith('http://') || input.website.startsWith('https://'))) {
+  if (safeWebsite) {
     try {
-      const res = await fetch(input.website, {
+      const res = await fetch(safeWebsite, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         },
+        redirect: 'follow',
         signal: AbortSignal.timeout(3000),
       });
 
-      if (res.ok) {
-        const html = await res.text();
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && isSafeExternalUrl(res.url || safeWebsite) && contentType.includes('html')) {
+        const html = (await res.text()).slice(0, 250000);
 
         // Extract og:image
         const ogMatch =
@@ -679,8 +860,11 @@ async function resolveRestaurantDetails(env: Env, input: RestaurantInput) {
           html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i);
 
         if (ogMatch && ogMatch[1]) {
-          imageUrl = makeAbsoluteUrl(ogMatch[1], input.website);
-          source = 'website_og';
+          const candidate = makeAbsoluteUrl(ogMatch[1], safeWebsite);
+          if (isSafeExternalUrl(candidate)) {
+            imageUrl = candidate;
+            source = 'website_og';
+          }
         }
 
         // If no og:image, look for hero images or prominent photos
@@ -695,9 +879,12 @@ async function resolveRestaurantDetails(env: Env, input: RestaurantInput) {
               !src.includes('badge') &&
               (src.includes('hero') || src.includes('food') || src.includes('banner') || src.includes('upload') || src.includes('dish') || src.includes('media'))
             ) {
-              imageUrl = makeAbsoluteUrl(src, input.website);
-              source = 'website_img';
-              break;
+              const candidate = makeAbsoluteUrl(src, safeWebsite);
+              if (isSafeExternalUrl(candidate)) {
+                imageUrl = candidate;
+                source = 'website_img';
+                break;
+              }
             }
           }
         }
@@ -705,7 +892,10 @@ async function resolveRestaurantDetails(env: Env, input: RestaurantInput) {
         // Extract menu URL
         const menuMatch = html.match(/<a[^>]+href=["']([^"']*menu[^"']*)["']/i);
         if (menuMatch && menuMatch[1] && !menuMatch[1].endsWith('.css') && !menuMatch[1].endsWith('.js')) {
-          menuUrl = makeAbsoluteUrl(menuMatch[1], input.website);
+          const candidate = makeAbsoluteUrl(menuMatch[1], safeWebsite);
+          if (isSafeExternalUrl(candidate)) {
+            menuUrl = candidate;
+          }
         }
 
         // Extract Schema.org JSON-LD ratings if present
@@ -745,7 +935,7 @@ async function resolveRestaurantDetails(env: Env, input: RestaurantInput) {
       const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(cleanName)}&prop=pageimages&format=json&pithumbsize=800&redirects=1`;
       const wikiRes = await fetch(wikiUrl, {
         headers: {
-          'User-Agent': 'LunchHubBot/1.0 (https://lunchhub.app; contact@lunchhub.app)',
+          'User-Agent': 'LunchHubBot/1.0 (https://thelunchub.com; contact@thelunchub.com)',
         },
         signal: AbortSignal.timeout(2500),
       });
@@ -798,13 +988,14 @@ async function resolveRestaurantDetails(env: Env, input: RestaurantInput) {
 }
 
 function makeAbsoluteUrl(relativeUrl: string, baseUrl: string): string {
-  if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
-    return relativeUrl;
-  }
   try {
-    return new URL(relativeUrl, baseUrl).href;
+    const resolved = new URL(relativeUrl, baseUrl);
+    if (resolved.protocol !== 'http:' && resolved.protocol !== 'https:') {
+      return '';
+    }
+    return resolved.href;
   } catch {
-    return relativeUrl;
+    return '';
   }
 }
 

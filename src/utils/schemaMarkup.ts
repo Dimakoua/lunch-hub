@@ -72,7 +72,7 @@ export function generateLocalBusinessSchema(baseUrl: string): LocalBusinessSchem
     description:
       'Lunch Hub is a restaurant discovery web app with map search, random picker, and spin wheel tools for finding places to eat.',
     url: baseUrl,
-    logo: `${baseUrl}/icon/manifest-icon-512.png`,
+    logo: `${baseUrl}/icon/android-icon-192x192.png`,
     sameAs: [baseUrl],
     applicationCategory: 'FoodService',
     operatingSystem: 'Web',
@@ -105,7 +105,7 @@ export function generateArticleSchema(
       name: 'Lunch Hub',
       logo: {
         '@type': 'ImageObject',
-        url: `${url.split('/').slice(0, 3).join('/')}/icon/manifest-icon-512.png`,
+        url: `${url.split('/').slice(0, 3).join('/')}/icon/android-icon-192x192.png`,
       },
     },
     mainEntityOfPage: {

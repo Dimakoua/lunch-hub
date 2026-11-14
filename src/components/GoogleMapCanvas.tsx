@@ -653,7 +653,7 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
                 </div>
               )}
 
-              {details?.website && (
+              {details?.website && (details.website.startsWith('https://') || details.website.startsWith('http://')) && (
                 <div className="flex items-center gap-2.5">
                   <Globe className="w-4 h-4 text-blue-600 shrink-0" />
                   <a

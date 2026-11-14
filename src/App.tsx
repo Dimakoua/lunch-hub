@@ -1,7 +1,6 @@
 import { useState, useEffect, lazy, Suspense, useMemo, useCallback, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CookieConsent } from './components/CookieConsent';
-import { BottomNav } from './components/BottomNav';
 import { Footer } from './components/Footer';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -37,6 +36,12 @@ function App() {
   const skipNextAutoSearchRef = useRef(false);
   const ONBOARDING_STORAGE_KEY = 'lunch-hub-tour-seen';
   const LOCATION_STORAGE_KEY = 'lunch-hub-last-location';
+  const [locationReady, setLocationReady] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return Boolean(localStorage.getItem('lunch-hub-last-location'));
+    }
+    return false;
+  });
   const DEFAULT_FALLBACK_LOCATION: Location = {
     lat: 43.6487,
     lon: -79.3803,
@@ -383,23 +388,28 @@ function App() {
 
     const stored = localStorage.getItem(LOCATION_STORAGE_KEY);
     if (!stored) {
-      getFastFallbackLocation().then((fastLoc) => {
-        setLocationLabel(fastLoc.label);
-        setLocation({ lat: fastLoc.lat, lon: fastLoc.lon });
-      });
+      getFastFallbackLocation()
+        .then((fastLoc) => {
+          setLocationLabel(fastLoc.label);
+          setLocation({ lat: fastLoc.lat, lon: fastLoc.lon });
+        })
+        .finally(() => {
+          setLocationReady(true);
+        });
+    } else {
+      setLocationReady(true);
     }
 
     getCurrentLocation()
       .then((pos) => {
         setIsExactLocation(true);
+        setLocationReady(true);
         setLocation((prevLocation) => {
           const latDiff = Math.abs(pos.lat - prevLocation.lat);
           const lonDiff = Math.abs(pos.lon - prevLocation.lon);
           const isSameLocation = latDiff < 0.0015 && lonDiff < 0.0015;
 
           if (!isSameLocation) {
-            skipNextAutoSearchRef.current = true;
-            searchRestaurantsRef.current(pos.lat, pos.lon);
             window.dispatchEvent(new CustomEvent('lunchhub:recenter'));
             return { lat: pos.lat, lon: pos.lon };
           }
@@ -469,6 +479,20 @@ function App() {
     })();
   }, [pageLocation.pathname, pageLocation.search, searchRestaurants]);
 
+  useEffect(() => {
+    const placeParam = new URLSearchParams(pageLocation.search).get('place')?.trim();
+    if (!placeParam || restaurants.length === 0) {
+      return;
+    }
+    const normalized = placeParam.toLowerCase();
+    const match =
+      restaurants.find((r) => r.name.toLowerCase() === normalized) ||
+      restaurants.find((r) => r.name.toLowerCase().includes(normalized));
+    if (match) {
+      setSelectedRestaurant(match);
+    }
+  }, [pageLocation.search, restaurants]);
+
   const handleSearch = async (query: string, searchRadius?: number, openNow?: boolean) => {
     setLoading(true);
     setError(null);
@@ -509,7 +533,6 @@ function App() {
     try {
       const position = await getCurrentLocation();
       const newLocation = { lat: position.lat, lon: position.lon };
-      setSelectedRestaurant(null);
       skipNextAutoSearchRef.current = true;
       setLocation(newLocation);
       setIsExactLocation(true);
@@ -583,9 +606,9 @@ function App() {
     }
   }, [pageLocation.search]);
 
-  // Auto-search when radius changes
+  // Auto-search when radius or location changes
   useEffect(() => {
-    if (!location) {
+    if (!location || !locationReady) {
       return;
     }
     if (skipNextAutoSearchRef.current) {
@@ -609,7 +632,7 @@ function App() {
     return () => {
       isCancelled = true;
     };
-  }, [radius, location, searchRestaurants]);
+  }, [radius, location, locationReady, searchRestaurants]);
 
   const availableRestaurants = useMemo(
     () => applyAvailabilityFilters(restaurants),
@@ -656,7 +679,7 @@ function App() {
   const markRestaurantVisited = (restaurant: Restaurant) => {
     setVisitedRestaurants((prev) => {
       if (prev.some((item) => item.id === restaurant.id)) return prev;
-      return [...prev, restaurant];
+      return [...prev, { ...restaurant, visitedAt: Date.now() }];
     });
   };
 
@@ -805,7 +828,6 @@ function App() {
       </Suspense>
       {/* Hide footer when map view is active to keep map full screen */}
       {viewMode !== 'map' && <Footer />}
-      <BottomNav />
     </div>
   );
 }

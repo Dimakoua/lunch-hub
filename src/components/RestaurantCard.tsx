@@ -125,7 +125,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
             </div>
           )}
           
-          {restaurant.website && (
+          {restaurant.website && (restaurant.website.startsWith('https://') || restaurant.website.startsWith('http://')) && (
             <div className="flex items-center gap-2">
               <Globe className="w-4 h-4 flex-shrink-0" />
               <a 

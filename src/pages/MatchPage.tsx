@@ -29,19 +29,28 @@ export const MatchPage: React.FC = () => {
   const clientId = getClientId();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const confettiFiredRef = useRef(false);
 
   // Poll room updates every 3 seconds
   useEffect(() => {
     if (!id) return;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
 
     const fetchRoom = async () => {
       try {
         const data = await getMatchRoom(id);
         setRoom(data);
         
-        // If a match is found, trigger confetti
+        // If a match is found, trigger confetti once and stop polling
         if (data.matchedRestaurantId) {
-          triggerConfetti();
+          if (!confettiFiredRef.current) {
+            confettiFiredRef.current = true;
+            triggerConfetti();
+          }
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
         }
       } catch {
         setError('Match room not found.');
@@ -51,9 +60,9 @@ export const MatchPage: React.FC = () => {
     };
 
     fetchRoom();
-    const interval = setInterval(fetchRoom, 3000);
+    intervalId = setInterval(fetchRoom, 3000);
     return () => {
-      clearInterval(interval);
+      if (intervalId) clearInterval(intervalId);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
   }, [id]);
@@ -126,6 +135,10 @@ export const MatchPage: React.FC = () => {
   // Simple, elegant custom canvas confetti engine
   const triggerConfetti = () => {
     if (!canvasRef.current) return;
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -239,7 +252,10 @@ export const MatchPage: React.FC = () => {
                   const isTop = idx === 0;
                   const details = restaurantDetails.get(restaurant.id);
                   const imageUrl = details?.imageUrl || getFallbackRestaurantImage(restaurant.name, restaurant.cuisine, restaurant.amenity);
-                  const menuUrl = details?.menuUrl || (restaurant.website || `https://www.google.com/search?q=${encodeURIComponent(restaurant.name + ' ' + (restaurant.address || '') + ' menu')}`);
+                  const rawMenuUrl = details?.menuUrl || restaurant.website || '';
+                  const menuUrl = (rawMenuUrl.startsWith('https://') || rawMenuUrl.startsWith('http://'))
+                    ? rawMenuUrl
+                    : `https://www.google.com/search?q=${encodeURIComponent(restaurant.name + ' ' + (restaurant.address || '') + ' menu')}`;
                   
                   // Animation translation class
                   let transformClass = "scale-[0.98] translate-y-3 z-0 opacity-70";

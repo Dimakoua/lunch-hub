@@ -19,11 +19,8 @@ export const geocodeAddress = async (address: string) => {
     return cached;
   }
 
-  // When Google Maps is active, use ONLY Google Geocoder
-  if (providerType === 'google') {
-    if (typeof google === 'undefined' || !google.maps?.Geocoder) {
-      return null;
-    }
+  // Try Google Geocoder when Google Maps is active, fall back to Nominatim if unavailable/denied
+  if (providerType === 'google' && typeof google !== 'undefined' && google.maps?.Geocoder) {
     try {
       const geocoder = new google.maps.Geocoder();
       const { results } = await geocoder.geocode({ address });
@@ -37,10 +34,8 @@ export const geocodeAddress = async (address: string) => {
         cacheService.set(cacheKey, result, CACHE_TTL_LONG);
         return result;
       }
-      return null;
     } catch (error) {
-      console.error('Google geocoding error:', error);
-      return null;
+      console.warn('Google Geocoder unavailable, falling back to Nominatim:', error);
     }
   }
 

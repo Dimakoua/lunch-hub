@@ -11,19 +11,19 @@ When downtown Toronto lunch prices regularly push past \$20, a great sandwich sh
 
 Here are the best bánh mì and sandwich spots in downtown Toronto.
 
-## 1. Banh Mi Nguyen Huong (322 Spadina Ave.) — The Chinatown Legend
+## 1. [Banh Mi Nguyen Huong](/restaurants?location=322+Spadina+Ave+Toronto&place=Banh+Mi+Nguyen+Huong&view=map) (322 Spadina Ave.) — The Chinatown Legend
 You cannot talk about cheap eats in Toronto without mentioning **Banh Mi Nguyen Huong**. This cash-only Chinatown staple has been serving freshly baked, crusty baguettes stuffed with cold cuts, pâté, pickled daikon and carrots, cilantro, and chili peppers for decades.
 - **What to order:** Classic Assorted Cold Cut Bánh Mì or Grilled Pork.
 - **Price range:** Under \$8
 - **Pro tip:** Bring cash, and expect a fast-moving line around noon.
 
-## 2. Banh Mi Boys (392 Queen St. W) — Modern Fusion Favourite
+## 2. [Banh Mi Boys](/restaurants?location=392+Queen+St+W+Toronto&place=Banh+Mi+Boys&view=map) (392 Queen St. W) — Modern Fusion Favourite
 If you want a modern, chef-driven take on the Vietnamese sub, **Banh Mi Boys** on Queen West (just west of Spadina) is a must-visit. Their bread is light and crispy, and their menu pairs traditional pickles with bold, savoury fillings.
 - **What to order:** Five Spice Pork Belly Bánh Mì, Braised Beef Cheek, or the Kimchi Fries on the side.
 - **Price range:** \$9–\$14
 - **Pro tip:** Great for takeout—grab your sub and eat in nearby Grange Park.
 
-## 3. Lambo's Deli (176 Bellwoods Ave.) — Best Italian Deli Subs
+## 3. [Lambo's Deli](/restaurants?location=176+Bellwoods+Ave+Toronto&place=Lambo%27s+Deli&view=map) (176 Bellwoods Ave.) — Best Italian Deli Subs
 Located right across from Trinity Bellwoods Park, **Lambo's Deli** has become a Toronto sensation for its towering, East Coast-style Italian deli sandwiches. Everything is sliced fresh and dressed with their signature zesty vinaigrette.
 - **What to order:** The Italian Trio (mortadella, capicola, salami, provolone) or the Turkey Club.
 - **Price range:** \$14–\$18

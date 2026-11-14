@@ -28,7 +28,23 @@ class CacheService {
       data,
       timestamp: Date.now() + ttl,
     };
-    localStorage.setItem(this.STORAGE_PREFIX + key, JSON.stringify(entry));
+    const serialized = JSON.stringify(entry);
+    try {
+      localStorage.setItem(this.STORAGE_PREFIX + key, serialized);
+    } catch {
+      // Evict expired or oldest cache entries on QuotaExceededError and retry
+      this.cleanup();
+      try {
+        localStorage.setItem(this.STORAGE_PREFIX + key, serialized);
+      } catch {
+        this.clear();
+        try {
+          localStorage.setItem(this.STORAGE_PREFIX + key, serialized);
+        } catch {
+          // Ignore if storage is completely unavailable or payload exceeds total quota
+        }
+      }
+    }
   }
 
   get<T>(key: string): T | null {
@@ -63,8 +79,11 @@ class CacheService {
   generateKey(...args: unknown[]): string {
     return args.map(arg => {
       if (typeof arg === 'number') {
-        // Round coordinates to ~11m precision to improve cache hit rate
-        return arg.toFixed(4);
+        // Round coordinates (< 200) to 3 decimal places (~111m) to align with backend & improve hit rate
+        if (Math.abs(arg) <= 180) {
+          return arg.toFixed(3);
+        }
+        return String(Math.round(arg / 100) * 100);
       }
       return JSON.stringify(arg);
     }).join('|');

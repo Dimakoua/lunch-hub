@@ -6,10 +6,10 @@
       "has": [
         {
           "type": "host",
-          "value": "www.lunchhub.com"
+          "value": "www.thelunchub.com"
         }
       ],
-      "destination": "https://lunchhub.com/:path*",
+      "destination": "https://thelunchub.com/:path*",
       "permanent": true
     }
   ]

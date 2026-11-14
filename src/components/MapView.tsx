@@ -126,37 +126,51 @@ export const MapView: React.FC<MapViewProps> = ({
     return () => window.removeEventListener('lunchhub:quota-exceeded', onQuotaExceeded);
   }, []);
 
-  const userIcon = L.divIcon({
-    html: `<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#2563EB"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
-    className: 'tour-user-pin',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
-  });
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
-  const restaurantIcon = L.divIcon({
-    html: `<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#10B981"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
-    className: '',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
-  });
+const USER_PIN_ICON = L.divIcon({
+  html: `<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#2563EB"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
+  className: 'tour-user-pin',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
-  const selectedIcon = L.divIcon({
-    html: `<svg viewBox="0 0 24 24" width="40" height="40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#F59E0B"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
-    className: '',
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -40],
-  });
+const RESTAURANT_PIN_ICON = L.divIcon({
+  html: `<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#10B981"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
+  className: '',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
-  const getDealIcon = (price: string) => L.divIcon({
+const SELECTED_PIN_ICON = L.divIcon({
+  html: `<svg viewBox="0 0 24 24" width="40" height="40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#F59E0B"/><circle cx="12" cy="9.5" r="2.5" fill="white"/></svg>`,
+  className: '',
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40],
+});
+
+const dealIconCache = new Map<string, L.DivIcon>();
+function getDealIcon(price: string): L.DivIcon {
+  const safePrice = escapeHtml(price.slice(0, 20));
+  const cached = dealIconCache.get(safePrice);
+  if (cached) return cached;
+  const icon = L.divIcon({
     html: `
       <div class="relative flex items-center justify-center">
         <span class="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 animate-ping"></span>
         <div class="relative bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-[11px] px-2 py-1 rounded-full shadow-lg border-2 border-white flex items-center gap-0.5 whitespace-nowrap">
           <span>🔥</span>
-          <span>${price}</span>
+          <span>${safePrice}</span>
         </div>
       </div>
     `,
@@ -165,6 +179,9 @@ export const MapView: React.FC<MapViewProps> = ({
     iconAnchor: [35, 15],
     popupAnchor: [0, -15],
   });
+  dealIconCache.set(safePrice, icon);
+  return icon;
+}
 
   const formatDuration = (seconds: number | null | undefined) => {
     if (seconds === null || seconds === undefined) return 'N/A';
@@ -240,7 +257,7 @@ export const MapView: React.FC<MapViewProps> = ({
       {/* User location marker */}
       <Marker
         position={center}
-        icon={userIcon}
+        icon={USER_PIN_ICON}
         draggable={true}
         zIndexOffset={1000}
         eventHandlers={{
@@ -282,10 +299,10 @@ export const MapView: React.FC<MapViewProps> = ({
           position={[restaurant.lat, restaurant.lon]}
           icon={
             selectedRestaurant?.id === restaurant.id
-              ? selectedIcon
+              ? SELECTED_PIN_ICON
               : restaurant.deal
               ? getDealIcon(restaurant.deal.price)
-              : restaurantIcon
+              : RESTAURANT_PIN_ICON
           }
           eventHandlers={{
             click: () => {

@@ -14,11 +14,8 @@ export const fetchRoute = async (
     return cachedData;
   }
 
-  // When Google Maps is active, use ONLY Google DirectionsService
-  if (providerType === 'google') {
-    if (typeof google === 'undefined' || !google.maps?.DirectionsService) {
-      return null;
-    }
+  // Try Google DirectionsService when Google Maps is active, fall back to OSM walking route if unavailable/denied
+  if (providerType === 'google' && typeof google !== 'undefined' && google.maps?.DirectionsService) {
     try {
       const service = new google.maps.DirectionsService();
       const response = await service.route({
@@ -39,10 +36,8 @@ export const fetchRoute = async (
         cacheService.set(cacheKey, result, CACHE_TTL_LONG);
         return result;
       }
-      return null;
     } catch (error) {
-      console.error('Error fetching Google walking route:', error);
-      return null;
+      console.warn('Google DirectionsService unavailable, falling back to OSM walking route:', error);
     }
   }
 

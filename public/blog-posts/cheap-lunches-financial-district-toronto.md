@@ -13,7 +13,7 @@ Don’t fall into the trap of spending too much for lunch, if the "what should w
 
 These seven great places should definitely be included in the Lunch Hub lunch roulette. Here’s the list of seven quick lunches in the Financial District for less than $15.
 
-### 1. Harvest Green (PATH - Metro Centre)
+### 1. [Harvest Green](/restaurants?location=Metro+Centre+Toronto&place=Harvest+Green&view=map) (PATH - Metro Centre)
 **The Vibe:** Nutritious and packed full of protein, the Mediterranean way!
 
 **The Go-To Order:** Try the Honey Bowl or the Harvest Plate.
@@ -22,7 +22,7 @@ These seven great places should definitely be included in the Lunch Hub lunch ro
 
 Why is it that there's a never-ending line at this place by 11:45 am? Well, for starters, the speed of the line here is incredible, but what truly sets this place apart is its huge portions. You could get up to 70-80 grams of protein with their double-chicken portions on the Harvest Plate, offering an exceptional cost-to-macros ratio in the core.
 
-### 2. Ho Ga (PATH - 121 King St. W)
+### 2. [Ho Ga](/restaurants?location=121+King+St+W+Toronto&place=Ho+Ga&view=map) (PATH - 121 King St. W)
 **The Vibe:** Speedy Korean fast food.
 
 **Order:** Bibimbap or the Spicy Pork box.
@@ -31,7 +31,7 @@ Why is it that there's a never-ending line at this place by 11:45 am? Well, for 
 
 If you work in downtown Toronto, then Ho Ga is a place where you must eat at least once in your life. Fast-paced and always busy, this little-known gem serves up boxes of hearty Korean cuisine, including delicious teriyaki, katsu, and spicy pork. As a bonus, they also give you some free miso soup. However, remember to head there early if you can!
 
-### 3. Mean Bao (First Canadian Place)
+### 3. [Mean Bao](/restaurants?location=First+Canadian+Place+Toronto&place=Mean+Bao&view=map) (First Canadian Place)
 **The Atmosphere:** Contemporary, quick-serve dim sum and steamed buns.
 
 **The Order:** Pork Belly Bao and cold noodle side, or go for an entire Rice Bowl.
@@ -40,7 +40,7 @@ If you work in downtown Toronto, then Ho Ga is a place where you must eat at lea
 
 If you're looking for something that will be tasty without weighing you down and making you nod off at work by 2:00 PM, then Mean Bao is a great choice. With their deliciously fluffy and tasty steamed buns, getting a couple of baos and a little side is simple to do while still under the $15 mark.
 
-### 4. Patties Express (Several PATH stations)
+### 4. [Patties Express](/restaurants?location=Financial+District+Toronto&place=Patties+Express&view=map) (Several PATH stations)
 **The Vibe:** The quintessential takeaway Caribbean cuisine.
 
 **The Order:** Two beef or chicken patties from Jamaica, accompanied by a soft drink.
@@ -49,7 +49,7 @@ If you're looking for something that will be tasty without weighing you down and
 
 In situations where you need to grab something to eat within 15 minutes and have just $10 available, Patties Express emerges as the undeniable king of downtown New York City. Not only will you find the perfect pastry texture here, but the filling will be well-seasoned as well. What’s more, you will have enough money left to treat yourself to a coffee in the afternoon.
 
-### 5. Soup Nutsy (Richmond-Adelaide Centre & Other Locations)
+### 5. [Soup Nutsy](/restaurants?location=Richmond+Adelaide+Centre+Toronto&place=Soup+Nutsy&view=map) (Richmond-Adelaide Centre & Other Locations)
 **The Atmosphere:** Seinfeld-like soup paradise, serving various daily soups.
 
 **Order:** Order medium soup (recommend the Butter Chicken and Jamaican Crab Bisque). Comes with fresh bread, fruits, and a vegetable spear.
@@ -58,7 +58,7 @@ In situations where you need to grab something to eat within 15 minutes and have
 
 Soup Nutsy comes in handy especially in the harsh winter weather in Toronto but remains great throughout the year. What may appear expensive considering you are paying “only for soup” becomes more reasonable when you consider the sheer density of the portion. You receive a big slice of freshly baked bread with your soup along with a fruit slice.
 
-### 6. Lite Bite (145 Wellington St. W)
+### 6. [Lite Bite](/restaurants?location=145+Wellington+St+W+Toronto&place=Lite+Bite&view=map) (145 Wellington St. W)
 **Atmosphere:** Indie and friendly neighborhood deli.
 
 **Food:** Try the chicken or tuna salad wrap.
@@ -67,7 +67,7 @@ Soup Nutsy comes in handy especially in the harsh winter weather in Toronto but 
 
 Just east of Simcoe, there’s this cute indie place where an incredibly sweet couple serves fresh sandwiches and wraps. They also offer hot dishes that taste like they’ve been cooked at home, without having to pay the usual corporate food court tax.
 
-### 7. Olly Fresco's (Royal Bank Plaza & Waterpark Place)
+### 7. [Olly Fresco's](/restaurants?location=Royal+Bank+Plaza+Toronto&place=Olly+Fresco&view=map) (Royal Bank Plaza & Waterpark Place)
 **Ambiance:** The "choose-your-own-adventure" hot table.
 
 **Order this:** The pay-by-weight buffet.

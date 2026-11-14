@@ -27,6 +27,7 @@ export interface Restaurant {
   rating?: number;
   reviewsCount?: number;
   menuUrl?: string;
+  visitedAt?: number;
 }
 
 export interface Review {

@@ -29,7 +29,7 @@ import {
   renderSchema,
 } from '../utils/schemaMarkup';
 
-type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history';
+type ViewMode = 'map' | 'list' | 'wheel' | 'random' | 'history' | 'poll';
 type Theme = 'light' | 'dark';
 
 interface RestaurantsPageProps {
@@ -237,6 +237,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
       price: dealForm.price,
       validDays: dealForm.validDays,
     });
+    onRetry();
     setDealSubmittedMsg(true);
     setTimeout(() => {
       setDealSubmittedMsg(false);
@@ -279,12 +280,14 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 
     if (quickExcludeRecent) {
       const fiveDaysAgo = Date.now() - 5 * 24 * 60 * 60 * 1000;
-      list = list.filter((r) => {
-        const visited = visitedRestaurants.find((v) => v.id === r.id);
-        if (!visited) return true;
-        const visitedTime = (visited as Restaurant & { visitedAt?: number }).visitedAt || 0;
-        return visitedTime < fiveDaysAgo;
+      const olderVisited = visitedRestaurants.filter((v) => {
+        const visitedTime = v.visitedAt || 0;
+        const dist = calcDist(location.lat, location.lon, v.lat, v.lon);
+        return visitedTime > 0 && visitedTime < fiveDaysAgo && dist <= radius && !list.some((r) => r.id === v.id);
       });
+      if (olderVisited.length > 0) {
+        list = [...list, ...olderVisited];
+      }
     }
 
     return list;
@@ -557,135 +560,6 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               ></div>
             </div>
           </label>
-        </div>
-      </div>
-
-      <div className="p-3 bg-gray-50 dark:bg-dark-background rounded-xl border border-gray-200 dark:border-dark-border">
-        <div className="flex flex-col gap-2.5">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-dark-text flex items-center gap-1.5">
-                <span>🚫 Hide / Exclude Places</span>
-              </h3>
-              <p className="text-[11px] text-gray-500 dark:text-dark-text-secondary mt-0.5">
-                Add rules to automatically hide unwanted spots from your map & lists.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-1.5 items-stretch relative">
-              <select
-                value={newFilterField}
-                onChange={(event) => setNewFilterField(event.target.value as FilterField)}
-                className="w-24 px-2 py-1.5 border border-gray-300 dark:border-dark-border rounded-lg text-[11px] font-bold bg-white dark:bg-gray-800 dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-red-400 transition-colors cursor-pointer"
-                title="Select attribute to match for hiding"
-              >
-                <option value="name">Name</option>
-                <option value="cuisine">Cuisine</option>
-                <option value="amenity">Amenity</option>
-                <option value="keyword">Keyword</option>
-              </select>
-
-              <div className="flex-1 min-w-0 relative group">
-                <input
-                  value={newFilterValue}
-                  onChange={(event) => {
-                    setNewFilterValue(event.target.value);
-                    setShowFilterSuggestions(true);
-                  }}
-                  onFocus={() => setShowFilterSuggestions(true)}
-                  onBlur={() => {
-                    setTimeout(() => setShowFilterSuggestions(false), 200);
-                  }}
-                  placeholder={`Hide by ${newFilterField}...`}
-                  className="w-full px-2.5 py-1.5 border border-gray-300 dark:border-dark-border rounded-lg text-xs bg-white dark:bg-dark-card dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-red-500 transition-shadow"
-                  autoComplete="off"
-                  name={`filter-value-${newFilterField}`}
-                  id={`filter-value-${newFilterField}`}
-                />
-
-                {showFilterSuggestions && filterSuggestions.length > 0 && (
-                  <div className="fixed bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg shadow-xl z-50 max-h-40 overflow-y-auto ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-100" style={{
-                    width: `${document.getElementById(`filter-value-${newFilterField}`)?.getBoundingClientRect().width ?? 0}px`,
-                  }}>
-                    {filterSuggestions.map((suggestion) => (
-                      <button
-                        key={suggestion}
-                        onClick={() => {
-                          onAddFilterRule(newFilterField, suggestion);
-                          setNewFilterValue('');
-                          setShowFilterSuggestions(false);
-                        }}
-                        className="w-full text-left px-3 py-2 text-[11px] hover:bg-red-50 dark:hover:bg-red-950/30 text-gray-700 dark:text-dark-text transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0 flex items-center justify-between"
-                      >
-                        <span>{suggestion}</span>
-                        <span className="text-[10px] text-red-500 font-semibold">Hide</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={() => {
-                  if (!canAddFilter) return;
-                  onAddFilterRule(newFilterField, newFilterValue);
-                  setNewFilterValue('');
-                  setShowFilterSuggestions(false);
-                }}
-                disabled={!canAddFilter}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase transition-all ${
-                  canAddFilter
-                    ? 'bg-red-600 dark:bg-red-700 text-white shadow-sm hover:bg-red-700 active:scale-95'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
-                }`}
-                title="Add rule to exclude matching restaurants"
-              >
-                Hide
-              </button>
-            </div>
-          </div>
-
-          {filterRules.length > 0 ? (
-            <div className="flex flex-col gap-1.5 mt-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
-                Active exclusion rules ({hiddenByFiltersCount} hidden):
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {filterRules.map((rule) => (
-                  <span
-                    key={rule.id}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-[11px] rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-200 shadow-sm"
-                  >
-                    <span className="font-semibold text-red-600 dark:text-red-400 text-[10px] uppercase">Hide {rule.field}:</span>
-                    <span className="font-bold truncate max-w-[90px]">{rule.value}</span>
-                    <button
-                      onClick={() => onRemoveFilterRule(rule.id)}
-                      className="text-red-400 hover:text-red-700 transition-colors ml-0.5 p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/60 font-bold"
-                      aria-label={`Remove filter ${rule.value}`}
-                      title="Remove exclusion rule"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <p className="text-[11px] text-gray-400 dark:text-dark-text-secondary italic">
-              No exclusion rules active. All matching places within radius are shown.
-            </p>
-          )}
-
-          {filterRules.length > 0 && (
-            <button
-              onClick={onClearFilterRules}
-              className="text-[11px] font-bold text-red-600 dark:text-red-400 hover:underline text-left mt-0.5"
-            >
-              Clear all exclusions (unhide {hiddenByFiltersCount} places)
-            </button>
-          )}
         </div>
       </div>
 
@@ -1117,15 +991,15 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 <>
               {viewMode === 'list' && (
                 <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-text">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <h2 className="hidden sm:block text-lg font-semibold text-gray-800 dark:text-dark-text">
                       Nearby restaurants
                       <span className="ml-2 text-sm font-normal text-gray-400 dark:text-dark-text-secondary">
                         {displayRestaurants.length} visible
                         {hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount > 0 && ` (${hiddenByHistoryCount + hiddenByFiltersCount + hiddenByUserCount} hidden)`}
                       </span>
                     </h2>
-                    <div className="flex items-center gap-1.5 overflow-x-auto text-xs pb-1">
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
                       <button
                         onClick={() => setQuickUnder7Min(!quickUnder7Min)}
                         className={`px-3 py-1 rounded-full font-bold transition-all border whitespace-nowrap ${

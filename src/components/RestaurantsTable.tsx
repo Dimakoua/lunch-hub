@@ -106,11 +106,85 @@ export const RestaurantsTable: React.FC<RestaurantsTableProps> = ({
         {statusMessage}
       </div>
 
+      {/* Mobile compact card list */}
+      <div className="md:hidden divide-y divide-gray-100 dark:divide-dark-border">
+        {sortedRows.map(({ restaurant, distance }) => {
+          const typeLabel = (restaurant.cuisine || restaurant.amenity || 'Restaurant')
+            .split(';')[0]
+            .replace(/_/g, ' ');
+          return (
+            <div
+              key={restaurant.id}
+              className="p-3.5 flex flex-col gap-2 hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-colors"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-semibold text-sm text-gray-900 dark:text-dark-text truncate">
+                      {restaurant.name}
+                    </h3>
+                    {restaurant.deal && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                        🔥 {restaurant.deal.price}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-dark-text-secondary truncate mt-0.5 capitalize">
+                    {typeLabel}
+                    {restaurant.address ? ` · ${restaurant.address}` : ''}
+                  </p>
+                </div>
+                <div className="text-right flex-shrink-0 tabular-nums">
+                  <div className="text-xs font-semibold text-gray-800 dark:text-dark-text">
+                    {formatDistance(distance)}
+                  </div>
+                  <div className="text-[11px] text-gray-400">
+                    {formatWalkingTime(distance)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-1.5 pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => onViewOnMap(restaurant)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/60 dark:text-blue-300"
+                >
+                  <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>Map</span>
+                </button>
+                {onMarkVisited && (
+                  <button
+                    type="button"
+                    onClick={() => onMarkVisited(restaurant)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-emerald-100 hover:text-emerald-800 dark:bg-gray-800 dark:text-gray-200"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+                    <span>Visited</span>
+                  </button>
+                )}
+                {onHide && (
+                  <button
+                    type="button"
+                    onClick={() => onHide(restaurant)}
+                    aria-label={`Hide ${restaurant.name}`}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
+                  >
+                    <EyeOff className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop table */}
       <div
         tabIndex={0}
         role="region"
         aria-labelledby={captionId}
-        className="restaurants-table-wrapper focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="hidden md:block restaurants-table-wrapper focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       >
         <table className="restaurants-table text-sm text-left">
           <caption id={captionId} className="sr-only">

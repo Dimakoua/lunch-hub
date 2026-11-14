@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Compass, CameraOff, Smartphone, ChevronLeft, MapPin, Route, Navigation } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Compass, CameraOff, Smartphone, ChevronLeft, MapPin, Navigation } from 'lucide-react';
 import { Restaurant, Location } from '../types/restaurant';
 import { getBearing, getDistance, getRelativeAngle } from '../utils/arMath';
 import { formatDistance, formatWalkingTime } from '../utils/distanceFormatter';
@@ -24,14 +24,12 @@ export const ARFoodFinder: React.FC<ARFoodFinderProps> = ({
   restaurants,
   onClose,
   onSelectRestaurant,
-  useImperial,
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [heading, setHeading] = useState<number>(0);
   const [cameraError, setCameraError] = useState(false);
-  const [sensorError, setSensorError] = useState(false);
+  const [, setSensorError] = useState(false);
   const [iosPromptRequired, setIosPromptRequired] = useState(false);
-  const [activeTags, setActiveTags] = useState<ARTag[]>([]);
 
   // Start Rear Camera Stream
   const startCamera = async () => {
@@ -103,27 +101,24 @@ export const ARFoodFinder: React.FC<ARFoodFinderProps> = ({
     };
   }, []);
 
-  // Compute AR tag overlays periodically
-  useEffect(() => {
-    if (restaurants.length === 0) return;
+  // Precompute static distance and bearing only when restaurants or userLocation change
+  const baseTags = useMemo(() => {
+    const computed = restaurants.map((r) => ({
+      restaurant: r,
+      distance: getDistance(userLocation.lat, userLocation.lon, r.lat, r.lon),
+      bearing: getBearing(userLocation.lat, userLocation.lon, r.lat, r.lon),
+    }));
+    computed.sort((a, b) => b.distance - a.distance);
+    return computed;
+  }, [restaurants, userLocation.lat, userLocation.lon]);
 
-    const tags: ARTag[] = restaurants.map((r) => {
-      const distance = getDistance(userLocation.lat, userLocation.lon, r.lat, r.lon);
-      const bearing = getBearing(userLocation.lat, userLocation.lon, r.lat, r.lon);
-      const relativeAngle = getRelativeAngle(heading, bearing);
-
-      return {
-        restaurant: r,
-        distance,
-        bearing,
-        relativeAngle,
-      };
-    });
-
-    // Sort by distance (so closer cards render on top of farther ones)
-    tags.sort((a, b) => b.distance - a.distance);
-    setActiveTags(tags);
-  }, [restaurants, userLocation, heading]);
+  // Compute relative angles cheaply on heading updates
+  const activeTags: ARTag[] = useMemo(() => {
+    return baseTags.map((t) => ({
+      ...t,
+      relativeAngle: getRelativeAngle(heading, t.bearing),
+    }));
+  }, [baseTags, heading]);
 
   const getCompassDirection = (deg: number): string => {
     const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];

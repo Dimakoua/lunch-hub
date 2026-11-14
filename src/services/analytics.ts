@@ -19,7 +19,6 @@ export const grantConsent = () => {
     'ad_storage': 'granted',
     'analytics_storage': 'granted'
   });
-  console.log('Google Analytics consent granted');
 };
 
 export const revokeConsent = () => {
@@ -32,7 +31,6 @@ export const revokeConsent = () => {
     'ad_storage': 'denied',
     'analytics_storage': 'denied'
   });
-  console.log('Google Analytics consent revoked');
 };
 
 // Track page views (only if consent given)
@@ -49,7 +47,9 @@ export const trackPageView = (path: string, title?: string) => {
 
 // Track custom events (only if consent given)
 export function trackEvent(action: string, categoryOrMetadata?: string | Record<string, any>, label?: string, value?: number) {
-  console.log(`[Event Logged] ${action}:`, categoryOrMetadata);
+  if (import.meta.env.DEV) {
+    console.debug(`[Event Logged] ${action}:`, categoryOrMetadata);
+  }
   if (!window.gtag) {
     return;
   }

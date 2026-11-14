@@ -4,8 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { Helmet } from 'react-helmet-async';
 import remarkGfm from 'remark-gfm';
 import { Calendar, Clock, User, Share2, ArrowLeft, ArrowRight, MessageSquare } from 'lucide-react';
-import { parseBlogPost, BlogPost } from '../services/blog';
-import { LoadingSpinner } from '../components/LoadingSpinner';
+import { loadAllBlogPosts, BlogPost } from '../services/blog';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { generateArticleSchema, renderSchema } from '../utils/schemaMarkup';
 
@@ -33,7 +32,8 @@ const LinkRenderer: React.FC<LinkRendererProps> = ({ href, children }) => {
   const isInternal = href && !href.startsWith('http') && !href.startsWith('https') && !href.startsWith('//');
   
   if (isInternal) {
-    return <Link to={`/blog/${href}`} className="text-blue-600 dark:text-dark-primary font-bold hover:underline decoration-2 underline-offset-4">{children}</Link>;
+    const target = href.startsWith('/') ? href : `/blog/${href}`;
+    return <Link to={target} className="text-blue-600 dark:text-dark-primary font-bold hover:underline decoration-2 underline-offset-4">{children}</Link>;
   }
   
   return (
@@ -51,45 +51,28 @@ const BlogPostPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPost = async () => {
-      if (!slug) return;
+    if (!slug) return;
+    setLoading(true);
+    setError(null);
 
-      try {
-        const response = await fetch(`/blog-posts/${slug}.md`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+    loadAllBlogPosts()
+      .then((allPosts) => {
+        setPosts(allPosts);
+        const found = allPosts.find((p) => p.slug === slug);
+        if (found) {
+          setPost(found);
+        } else {
+          setError('Failed to load blog post.');
         }
-        const markdownContent = await response.text();
-        const parsedPost = parseBlogPost(slug, markdownContent);
-        setPost(parsedPost);
-      } catch (err) {
+      })
+      .catch((err) => {
         setError('Failed to load blog post.');
         console.error(err);
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-
-    fetchPost();
-  }, [slug]);
-
-  useEffect(() => {
-    const loadPosts = async () => {
-      const files = import.meta.glob('/public/blog-posts/*.md', { query: '?raw', import: 'default' });
-
-      const postPromises = Object.entries(files).map(async ([path, loader]) => {
-        const slug = path.split('/').pop()?.replace('.md', '') || '';
-        const content = await (loader as () => Promise<string>)();
-        return parseBlogPost(slug, content);
       });
-
-      const allPosts = await Promise.all(postPromises);
-      allPosts.sort((a, b) => new Date(b.attributes.date).getTime() - new Date(a.attributes.date).getTime());
-      setPosts(allPosts);
-    };
-
-    loadPosts();
-  }, []);
+  }, [slug]);
 
   const relatedPosts = useMemo(() => {
     if (!post || posts.length === 0) {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
-import { parseBlogPost, BlogPost } from '../services/blog';
+import { loadAllBlogPosts, BlogPost } from '../services/blog';
 import { Breadcrumb } from '../components/Breadcrumb';
 
 const BlogPage: React.FC = () => {
@@ -12,22 +12,7 @@ const BlogPage: React.FC = () => {
   const postsPerPage = 9;
 
   useEffect(() => {
-    const loadPosts = async () => {
-      const files = import.meta.glob('/public/blog-posts/*.md', { query: '?raw', import: 'default' });
-
-      const postPromises = Object.entries(files).map(async ([path, loader]) => {
-        const slug = path.split('/').pop()?.replace('.md', '') || '';
-        const content = await (loader as () => Promise<string>)();
-        return parseBlogPost(slug, content);
-      });
-
-      const postsData = await Promise.all(postPromises);
-      postsData.sort((a, b) => new Date(b.attributes.date).getTime() - new Date(a.attributes.date).getTime());
-
-      setPosts(postsData);
-    };
-
-    loadPosts();
+    loadAllBlogPosts().then(setPosts).catch((err) => console.error('Failed to load blog posts:', err));
   }, []);
 
   const indexOfLastPost = currentPage * postsPerPage;
