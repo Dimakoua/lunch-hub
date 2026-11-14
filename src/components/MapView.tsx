@@ -204,7 +204,26 @@ function getDealIcon(price: string): L.DivIcon {
   // Note: formatDistance is imported from distanceFormatter utility
   // which provides locale-aware distance formatting (km/m or miles/feet)
 
-  const googleJsKey = import.meta.env.VITE_GOOGLE_MAPS_JS_KEY as string | undefined;
+  const envGoogleJsKey = import.meta.env.VITE_GOOGLE_MAPS_JS_KEY as string | undefined;
+  const [runtimeGoogleKey, setRuntimeGoogleKey] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (envGoogleJsKey) return;
+    let cancelled = false;
+    fetch('/api/places/status')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { mapsJsKey?: string | null } | null) => {
+        if (!cancelled && data?.mapsJsKey) {
+          setRuntimeGoogleKey(data.mapsJsKey);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [envGoogleJsKey]);
+
+  const googleJsKey = envGoogleJsKey || runtimeGoogleKey;
   const provider = createMapProvider();
 
   if (provider.type === 'google' && googleJsKey) {
