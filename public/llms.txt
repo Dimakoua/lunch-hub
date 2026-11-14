@@ -1,0 +1,21 @@
+# Lunch Hub
+
+> Lunch Hub (https://thelunchub.com) is an interactive lunch discovery web app that helps individuals and teams decide where to eat using a live restaurant map, spin wheel, group polls, Tinder-style swipe matching, and curated Toronto food guides.
+
+## Core Features
+
+- [Interactive Restaurant Map](https://thelunchub.com/restaurants): Filter nearby eateries by cuisine, distance, price, dietary needs, and open-now status.
+- [Group Lunch Polls & Match](https://thelunchub.com/match): Vote with coworkers or friends to pick a lunch spot fast.
+- [City & Cuisine Guides](https://thelunchub.com/guide): Curated local dining guides by city and cuisine, including [Toronto](https://thelunchub.com/guide/toronto).
+
+## Toronto Food & Lunch Guides (Blog)
+
+- [Best Quick Lunches in the Financial District for Under $15 in Toronto](https://thelunchub.com/blog/cheap-lunches-financial-district-toronto): PATH and downtown core budget lunch spots.
+- [Best Lunch Spots on King West Toronto](https://thelunchub.com/blog/best-lunch-spots-king-west-toronto): Fast-casual tacos, client-lunch Italian, and Thai favourites.
+- [Best Bánh Mì & Cheap Sandwiches in Downtown Toronto](https://thelunchub.com/blog/best-banh-mi-sandwiches-toronto): Spadina, Queen West, and Trinity Bellwoods sandwich shops.
+- [The Best Jerk Chicken in Toronto: The Real Jerk & Other Local Legends](https://thelunchub.com/blog/the-real-jerk-toronto): Top Caribbean & jerk chicken spots across Toronto.
+- [Toronto Midtown Dining: Hidden Gems and Local Favorites](https://thelunchub.com/blog/toronto-midtown-dining): Yonge & Eglinton, Davisville, and Mount Pleasant restaurants.
+
+## Sitemap
+
+- [XML Sitemap](https://thelunchub.com/sitemap.xml)
