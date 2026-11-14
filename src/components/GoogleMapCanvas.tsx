@@ -143,6 +143,15 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
   const placeDetails = selectedRestaurant ? (detailsCache[selectedRestaurant.id] ?? null) : null;
   const [visitedFeedback, setVisitedFeedback] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
+  const heroSliderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setHeroPhotoIndex(0);
+    if (heroSliderRef.current) {
+      heroSliderRef.current.scrollLeft = 0;
+    }
+  }, [selectedRestaurant?.id]);
   const lightboxDialogRef = useRef<HTMLDialogElement>(null);
   const sheetRef = useRef<HTMLElement>(null);
   const dragStartYRef = useRef<number | null>(null);
@@ -322,19 +331,104 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
     return (
       <>
         <div className="relative shrink-0">
-          {details?.photoUrls?.[0] ? (
-            <button
-              type="button"
-              onClick={isCurrent ? () => setLightboxIndex(0) : undefined}
-              tabIndex={isCurrent ? undefined : -1}
-              className="block w-full text-left cursor-zoom-in"
+          {details?.photoUrls?.length ? (
+            <div
+              className="relative group"
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
             >
-              <img
-                src={details.photoUrls[0]}
-                alt={restaurant.name}
-                className="w-full h-44 object-cover"
-              />
-            </button>
+              <div
+                ref={isCurrent ? heroSliderRef : undefined}
+                onScroll={
+                  isCurrent
+                    ? (e) => {
+                        const el = e.currentTarget;
+                        if (el.clientWidth > 0) {
+                          const idx = Math.round(el.scrollLeft / el.clientWidth);
+                          if (idx !== heroPhotoIndex) setHeroPhotoIndex(idx);
+                        }
+                      }
+                    : undefined
+                }
+                className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {details.photoUrls.map((url, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={isCurrent ? () => setLightboxIndex(idx) : undefined}
+                    tabIndex={isCurrent ? undefined : -1}
+                    className="w-full shrink-0 snap-center block text-left cursor-zoom-in"
+                  >
+                    <img
+                      src={url}
+                      alt={`${restaurant.name} photo ${idx + 1}`}
+                      loading={idx === 0 ? 'eager' : 'lazy'}
+                      className="w-full h-44 object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+              {isCurrent && details.photoUrls.length > 1 && (
+                <>
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 rounded-full bg-black/45 px-2 py-1 backdrop-blur-sm">
+                    {details.photoUrls.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        aria-label={`View photo ${idx + 1}`}
+                        onClick={() => {
+                          setHeroPhotoIndex(idx);
+                          heroSliderRef.current?.scrollTo({
+                            left: idx * (heroSliderRef.current?.clientWidth || 0),
+                            behavior: 'smooth',
+                          });
+                        }}
+                        className={`h-1.5 rounded-full transition-all ${
+                          idx === heroPhotoIndex
+                            ? 'w-4 bg-white'
+                            : 'w-1.5 bg-white/55 hover:bg-white/80'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div className="absolute bottom-2 right-2 flex items-center gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      aria-label="Previous photo"
+                      onClick={() => {
+                        const prev = (heroPhotoIndex - 1 + details.photoUrls!.length) % details.photoUrls!.length;
+                        setHeroPhotoIndex(prev);
+                        heroSliderRef.current?.scrollTo({
+                          left: prev * (heroSliderRef.current?.clientWidth || 0),
+                          behavior: 'smooth',
+                        });
+                      }}
+                      className="p-1 rounded-full bg-black/55 text-white hover:bg-black/75 backdrop-blur-sm"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Next photo"
+                      onClick={() => {
+                        const next = (heroPhotoIndex + 1) % details.photoUrls!.length;
+                        setHeroPhotoIndex(next);
+                        heroSliderRef.current?.scrollTo({
+                          left: next * (heroSliderRef.current?.clientWidth || 0),
+                          behavior: 'smooth',
+                        });
+                      }}
+                      className="p-1 rounded-full bg-black/55 text-white hover:bg-black/75 backdrop-blur-sm"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           ) : (
             <div className="w-full h-24 bg-gradient-to-r from-blue-600 to-indigo-600" />
           )}
