@@ -185,7 +185,7 @@ export default {
     // GET /api/places/status - Check whether Google Places quota is available
     if (request.method === 'GET' && pathname === '/api/places/status') {
       const quotaExceeded = !env.GOOGLE_MAPS_API_KEY || !(await canCallGoogleApi(env.POLLS));
-      return new Response(JSON.stringify({ quotaExceeded, mapsJsKey: env.GOOGLE_MAPS_API_KEY || null }), {
+      return new Response(JSON.stringify({ quotaExceeded }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
       });
     }
@@ -252,6 +252,7 @@ export default {
         }),
       });
       const data = (await res.json()) as {
+        error?: unknown;
         places?: Array<{
           id?: string;
           displayName?: { text?: string };
@@ -260,6 +261,9 @@ export default {
           primaryType?: string;
         }>;
       };
+      if (!res.ok) {
+        console.error('Google Places searchNearby error:', res.status, JSON.stringify(data));
+      }
       const places = (data?.places ?? [])
         .filter(
           (p) =>
