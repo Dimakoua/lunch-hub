@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
 import { X, Star, MapPin, Phone, Globe, Clock, Navigation, Share2, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Restaurant } from '../types/restaurant';
@@ -140,6 +141,10 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
   const [visitedFeedback, setVisitedFeedback] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const lightboxDialogRef = useRef<HTMLDialogElement>(null);
+  const sheetRef = useRef<HTMLElement>(null);
+  const dragStartYRef = useRef<number | null>(null);
+  const [dragOffsetY, setDragOffsetY] = useState(0);
+  const [isDraggingSheet, setIsDraggingSheet] = useState(false);
   const photoUrls = useMemo(() => placeDetails?.photoUrls ?? [], [placeDetails]);
 
   useEffect(() => {
@@ -192,6 +197,8 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
     setPanelOpen(true);
     setActiveTab('overview');
     setVisitedFeedback(false);
+    setDragOffsetY(0);
+    setIsDraggingSheet(false);
     let cancelled = false;
     setLoadingDetails(true);
     setPlaceDetails(null);
@@ -231,6 +238,8 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
     setPanelOpen(true);
     setActiveTab('overview');
     setVisitedFeedback(false);
+    setDragOffsetY(0);
+    setIsDraggingSheet(false);
     setLoadingDetails(true);
     setPlaceDetails(null);
 
@@ -332,16 +341,81 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
         </Map>
       </APIProvider>
 
-      {panelOpen && selectedRestaurant && (
+      {panelOpen && selectedRestaurant && typeof document !== 'undefined' && createPortal(
         <aside
+          ref={sheetRef}
           aria-label="Restaurant details"
-          className="absolute top-3 right-3 bottom-20 sm:bottom-3 w-80 max-w-[calc(100%-1.5rem)] z-[1000] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-y-auto flex flex-col"
+          onTouchStart={(e) => {
+            if (window.innerWidth >= 640) return;
+            if (sheetRef.current && sheetRef.current.scrollTop <= 0) {
+              dragStartYRef.current = e.touches[0].clientY;
+              setIsDraggingSheet(true);
+            }
+          }}
+          onTouchMove={(e) => {
+            if (dragStartYRef.current === null) return;
+            const deltaY = e.touches[0].clientY - dragStartYRef.current;
+            if (deltaY > 0) {
+              setDragOffsetY(deltaY);
+            } else {
+              dragStartYRef.current = null;
+              setDragOffsetY(0);
+              setIsDraggingSheet(false);
+            }
+          }}
+          onTouchEnd={() => {
+            if (dragStartYRef.current === null) return;
+            const shouldClose = dragOffsetY > 90;
+            dragStartYRef.current = null;
+            setIsDraggingSheet(false);
+            setDragOffsetY(0);
+            if (shouldClose) setPanelOpen(false);
+          }}
+          style={
+            dragOffsetY > 0
+              ? {
+                  transform: `translateY(${dragOffsetY}px)`,
+                  transition: isDraggingSheet ? 'none' : 'transform 200ms ease-out',
+                }
+              : { transition: 'transform 200ms ease-out' }
+          }
+          className="fixed inset-x-0 bottom-0 max-h-[72dvh] pb-[env(safe-area-inset-bottom)] rounded-t-3xl z-[10000] sm:inset-x-auto sm:top-3 sm:right-3 sm:bottom-3 sm:w-80 sm:max-h-none sm:pb-0 sm:rounded-2xl bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-800 overflow-y-auto flex flex-col"
         >
+          {/* Mobile drag handle */}
+          <div
+            onPointerDown={(e) => {
+              if (window.innerWidth >= 640) return;
+              e.currentTarget.setPointerCapture(e.pointerId);
+              dragStartYRef.current = e.clientY;
+              setIsDraggingSheet(true);
+            }}
+            onPointerMove={(e) => {
+              if (dragStartYRef.current === null) return;
+              const deltaY = e.clientY - dragStartYRef.current;
+              setDragOffsetY(Math.max(0, deltaY));
+            }}
+            onPointerUp={() => {
+              if (dragStartYRef.current === null) return;
+              const shouldClose = dragOffsetY > 90;
+              dragStartYRef.current = null;
+              setIsDraggingSheet(false);
+              setDragOffsetY(0);
+              if (shouldClose) setPanelOpen(false);
+            }}
+            onPointerCancel={() => {
+              dragStartYRef.current = null;
+              setIsDraggingSheet(false);
+              setDragOffsetY(0);
+            }}
+            className="sm:hidden sticky top-0 z-20 flex justify-center py-2.5 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm touch-none cursor-grab active:cursor-grabbing shrink-0"
+          >
+            <div className="w-10 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
+          </div>
           <div className="relative shrink-0">
             {placeDetails?.photoUrls?.[0] ? (
               <button
                 type="button"
-                onClick={() => setLightboxUrl(placeDetails.photoUrls![0])}
+                onClick={() => setLightboxIndex(0)}
                 className="block w-full text-left cursor-zoom-in"
               >
                 <img
@@ -629,7 +703,8 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
               </div>
             )}
           </div>
-        </aside>
+        </aside>,
+        document.body
       )}
 
       <dialog

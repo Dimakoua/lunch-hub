@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MapPin, List, Shuffle, RotateCcw, Settings, Sun, Moon, History, Trash2, Share2, Loader2, Navigation, Route } from 'lucide-react';
 import { RestaurantsTable } from '../components/RestaurantsTable';
+import { BottomSheet, useIsMobile } from '../components/BottomSheet';
 import { MapView } from '../components/MapView';
 import { SearchBar } from '../components/SearchBar';
 import { ARFoodFinder } from '../components/ARFoodFinder';
@@ -182,6 +183,7 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
 }) => {
   const pageLocation = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const cuisineQuery = new URLSearchParams(pageLocation.search).get('cuisine')?.trim() ?? '';
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://thelunchub.com';
@@ -868,13 +870,13 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
             </div>
           </div>
         )}
-        {viewMode !== 'map' && showSettings && (
+        {!isMobile && viewMode !== 'map' && showSettings && (
           <div className="mb-6 max-w-xl mx-auto bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-3xl shadow-xl p-4">
             {settingsPanel}
           </div>
         )}
-        {/* Map view renders unconditionally so it stays visible during radius/unit reloads */}
-        {viewMode === 'map' && (
+        {/* Map view renders unconditionally on mobile so secondary views open as bottom sheets */}
+        {(viewMode === 'map' || isMobile) && (
           <div
             data-tour-target="map-container"
             className="fixed inset-0 z-40"
@@ -1081,26 +1083,38 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
               </div>
             )}
 
-            {viewMode !== 'map' && (loading ? (
-              <LoadingSpinner message="Finding restaurants..." />
-            ) : error ? (
-              <div className="bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 rounded-xl p-8 text-center flex flex-col items-center gap-4">
-                <p className="text-red-700 dark:text-red-200 text-lg font-medium">{error}</p>
-                <button
-                  onClick={onRetry}
-                  disabled={loading}
-                  className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-bold shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:scale-100 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <RotateCcw className="w-5 h-5" />
-                  )}
-                  {loading ? 'Retrying...' : 'Retry Search'}
-                </button>
-              </div>
-            ) : (
-              <>
+            {(() => {
+              if (viewMode === 'map') return null;
+              const sheetTitle =
+                viewMode === 'list'
+                  ? 'Nearby Restaurants'
+                  : viewMode === 'random'
+                  ? 'Random Pick'
+                  : viewMode === 'wheel'
+                  ? 'Spin the Wheel'
+                  : viewMode === 'history'
+                  ? 'Visited History'
+                  : 'Team Poll';
+              const inner = loading ? (
+                <LoadingSpinner message="Finding restaurants..." />
+              ) : error ? (
+                <div className="bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 rounded-xl p-8 text-center flex flex-col items-center gap-4">
+                  <p className="text-red-700 dark:text-red-200 text-lg font-medium">{error}</p>
+                  <button
+                    onClick={onRetry}
+                    disabled={loading}
+                    className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-bold shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:scale-100 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-5 h-5" />
+                    )}
+                    {loading ? 'Retrying...' : 'Retry Search'}
+                  </button>
+                </div>
+              ) : (
+                <>
               {viewMode === 'list' && (
                 <div className="space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1366,8 +1380,31 @@ const RestaurantsPage: React.FC<RestaurantsPageProps> = ({
                 )}
               </>
             )}
-          </> ))}
+          </>
+              );
+              return isMobile ? (
+                <BottomSheet
+                  open={true}
+                  onClose={() => setViewMode('map')}
+                  title={sheetTitle}
+                >
+                  {inner}
+                </BottomSheet>
+              ) : (
+                inner
+              );
+            })()}
       </main>
+
+      {isMobile && (
+        <BottomSheet
+          open={showSettings}
+          onClose={() => setShowSettings(false)}
+          title="Settings"
+        >
+          {settingsPanel}
+        </BottomSheet>
+      )}
 
       {viewModeTabs}
 

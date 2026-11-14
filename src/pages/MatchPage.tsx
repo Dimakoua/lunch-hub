@@ -22,6 +22,9 @@ export const MatchPage: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [animating, setAnimating] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isDraggingCard, setIsDraggingCard] = useState(false);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const clientId = getClientId();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -40,7 +43,7 @@ export const MatchPage: React.FC = () => {
         if (data.matchedRestaurantId) {
           triggerConfetti();
         }
-      } catch (err) {
+      } catch {
         setError('Match room not found.');
       } finally {
         setLoading(false);
@@ -111,7 +114,7 @@ export const MatchPage: React.FC = () => {
         const updatedRoom = await submitSwipeVote(id, currentRestaurant.id, vote);
         setRoom(updatedRoom);
         setCurrentIndex(prev => prev + 1);
-      } catch (err) {
+      } catch {
         alert('Failed to submit vote. Please try again.');
       } finally {
         setSwipeDirection(null);
@@ -187,7 +190,6 @@ export const MatchPage: React.FC = () => {
 
   const isMatched = room.matchedRestaurantId !== null;
   const matchedRestaurant = room.restaurants.find(r => r.id === room.matchedRestaurantId);
-  const currentRestaurant = room.restaurants[currentIndex];
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-dark-background pb-20 pt-6 px-4 sm:px-6 relative overflow-hidden">
@@ -253,7 +255,48 @@ export const MatchPage: React.FC = () => {
                   return (
                     <div
                       key={restaurant.id}
-                      className={`absolute inset-0 bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-dark-border flex flex-col justify-between transition-transform duration-300 ${transformClass}`}
+                      onPointerDown={(e) => {
+                        if (!isTop || animating) return;
+                        if ((e.target as HTMLElement).closest('a, button')) return;
+                        e.currentTarget.setPointerCapture(e.pointerId);
+                        dragStartRef.current = { x: e.clientX, y: e.clientY };
+                        setIsDraggingCard(true);
+                      }}
+                      onPointerMove={(e) => {
+                        if (!isTop || !dragStartRef.current) return;
+                        setDragOffset({
+                          x: e.clientX - dragStartRef.current.x,
+                          y: (e.clientY - dragStartRef.current.y) * 0.25,
+                        });
+                      }}
+                      onPointerUp={() => {
+                        if (!isTop || !dragStartRef.current) return;
+                        const dx = dragOffset.x;
+                        dragStartRef.current = null;
+                        setIsDraggingCard(false);
+                        setDragOffset({ x: 0, y: 0 });
+                        if (dx > 90) {
+                          handleSwipe('right');
+                        } else if (dx < -90) {
+                          handleSwipe('left');
+                        }
+                      }}
+                      onPointerCancel={() => {
+                        dragStartRef.current = null;
+                        setIsDraggingCard(false);
+                        setDragOffset({ x: 0, y: 0 });
+                      }}
+                      style={
+                        isTop && isDraggingCard && !swipeDirection
+                          ? {
+                              transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(${dragOffset.x * 0.05}deg)`,
+                              transition: 'none',
+                            }
+                          : undefined
+                      }
+                      className={`absolute inset-0 bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-dark-border flex flex-col justify-between transition-transform duration-300 ${
+                        isTop ? 'touch-pan-y cursor-grab active:cursor-grabbing select-none' : ''
+                      } ${transformClass}`}
                     >
                       {/* Full-bleed Photo Background */}
                       <img
@@ -266,13 +309,27 @@ export const MatchPage: React.FC = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/25 pointer-events-none" />
 
                       {/* Swipe Stamps (LIKE / NOPE) */}
-                      {isTop && swipeDirection === 'right' && (
-                        <div className="absolute top-8 right-6 z-30 border-4 border-emerald-400 text-emerald-400 font-black text-2xl px-4 py-1.5 rounded-2xl rotate-12 bg-emerald-950/60 backdrop-blur-sm animate-pulse">
+                      {isTop && (swipeDirection === 'right' || dragOffset.x > 35) && (
+                        <div
+                          style={
+                            !swipeDirection
+                              ? { opacity: Math.min(1, dragOffset.x / 100) }
+                              : undefined
+                          }
+                          className="absolute top-8 right-6 z-30 border-4 border-emerald-400 text-emerald-400 font-black text-2xl px-4 py-1.5 rounded-2xl rotate-12 bg-emerald-950/60 backdrop-blur-sm"
+                        >
                           LIKE ❤️
                         </div>
                       )}
-                      {isTop && swipeDirection === 'left' && (
-                        <div className="absolute top-8 left-6 z-30 border-4 border-red-500 text-red-500 font-black text-2xl px-4 py-1.5 rounded-2xl -rotate-12 bg-red-950/60 backdrop-blur-sm animate-pulse">
+                      {isTop && (swipeDirection === 'left' || dragOffset.x < -35) && (
+                        <div
+                          style={
+                            !swipeDirection
+                              ? { opacity: Math.min(1, Math.abs(dragOffset.x) / 100) }
+                              : undefined
+                          }
+                          className="absolute top-8 left-6 z-30 border-4 border-red-500 text-red-500 font-black text-2xl px-4 py-1.5 rounded-2xl -rotate-12 bg-red-950/60 backdrop-blur-sm"
+                        >
                           NOPE ❌
                         </div>
                       )}
