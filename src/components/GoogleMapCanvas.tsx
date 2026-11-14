@@ -265,7 +265,7 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
     }
   };
 
-  // Load Google Places details for selected place and prefetch adjacent places for instant swipe
+  // Open and reset sheet only when selectedRestaurant changes
   useEffect(() => {
     if (!selectedRestaurant) {
       setPanelOpen(false);
@@ -278,11 +278,16 @@ export const GoogleMapCanvas: React.FC<GoogleMapCanvasProps> = ({
     setDragOffsetX(0);
     setDragOffsetY(0);
     setIsDraggingSheet(false);
+  }, [selectedRestaurant]);
+
+  // Load Google Places details for selected place and prefetch adjacent places while open
+  useEffect(() => {
+    if (!panelOpen || !selectedRestaurant) return;
 
     void fetchAndCacheDetails(selectedRestaurant);
     if (prevRestaurant) void fetchAndCacheDetails(prevRestaurant);
     if (nextRestaurant) void fetchAndCacheDetails(nextRestaurant);
-  }, [selectedRestaurant, prevRestaurant, nextRestaurant]);
+  }, [panelOpen, selectedRestaurant, prevRestaurant, nextRestaurant]);
 
   // Handle clicking a native Google Maps POI icon (no duplicate pins needed)
   const handleGooglePoiClick = async (placeId: string, lat: number, lng: number) => {
