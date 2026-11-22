@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense, useMemo, useCallback, useRef } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { CookieConsent } from './components/CookieConsent';
 import { Footer } from './components/Footer';
 
@@ -824,6 +825,22 @@ function App() {
           <Route path="/guide/:city/:cuisine" element={<CityGuidePage />} />
           <Route path="/poll/:id" element={<PollPage />} />
           <Route path="/match/:id" element={<MatchPage />} />
+          <Route
+            path="*"
+            element={
+              <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-dark-background p-4 text-center">
+                <Helmet>
+                  <title>Page Not Found - Lunch Hub</title>
+                  <meta name="robots" content="noindex, nofollow" />
+                </Helmet>
+                <h1 className="text-3xl font-black text-slate-900 dark:text-dark-text mb-2">Page not found</h1>
+                <p className="text-slate-500 dark:text-dark-text-secondary mb-8">The page you are looking for does not exist or has been moved.</p>
+                <Link to="/" className="bg-slate-900 dark:bg-dark-primary text-white dark:text-black px-8 py-3 rounded-2xl font-black transition-all hover:scale-105">
+                  Back to Lunch Hub
+                </Link>
+              </div>
+            }
+          />
         </Routes>
       </Suspense>
       {/* Hide footer when map view is active to keep map full screen */}

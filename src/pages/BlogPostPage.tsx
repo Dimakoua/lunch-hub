@@ -129,6 +129,10 @@ const BlogPostPage: React.FC = () => {
   if (error || !post) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-dark-background p-4">
+        <Helmet>
+          <title>Post Not Found - Lunch Hub Blog</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-6">
           <MessageSquare className="w-10 h-10 text-red-500" />
         </div>
